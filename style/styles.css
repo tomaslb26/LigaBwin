@@ -1,0 +1,90 @@
+:root {
+  --background-gradient: linear-gradient(30deg, rgb(202, 58, 58) 30%, rgb(202, 58, 58));
+  --gray: #98b9db;
+  --darkgray: #2a2e30;
+}
+
+body::after {
+  content: "";
+  background: url(../data/estadio_Benfica.jpg);
+  opacity: 0.05;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;   
+}
+
+#passingNetwork{
+  margin-top: 3.5%;
+  font-weight: bold;
+  text-align: left;
+  font-size: 170%;
+  padding-left: 1%;
+}
+
+#plotActions{
+  margin-top: 3.5%;
+  font-weight: bold;
+  text-align: left;
+  font-size: 170%;
+  padding-left: 1%;
+}
+
+
+.navbar-brand{
+  padding-left: 1em;
+}
+
+.navbar .navbar-collapse {
+  text-align: left;
+  padding-left: 1em;
+}
+
+select {
+  /* Reset Select */
+  border:2px solid rgb(202, 58, 58);
+  /* Personalize */
+  flex: 1;
+  padding: 0 1em;
+  color: white;
+  background-color: rgba(255,255,255,0);
+  background-image: none;
+  cursor: pointer;
+  border-radius: .25em;
+  overflow: hidden;
+  font-weight: bold;
+  
+}
+
+select option{
+  background: #2a2e30;
+}
+
+.XAxis line{
+  stroke: white;
+}
+
+.XAxis path{
+  stroke: white;
+}
+
+.XAxis text{
+  stroke: none;
+  color: white;
+}
+
+.YAxis line{
+  stroke: white;
+  stroke-width: 0%;
+}
+
+.YAxis path{
+  stroke: white;
+  stroke-width: 0%;
+}
+
+.YAxis text{
+  color: white;
+}
