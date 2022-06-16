@@ -73,6 +73,7 @@ select option{
 .XAxis text{
   stroke: none;
   color: white;
+  font-size: 90%;
 }
 
 .YAxis line{

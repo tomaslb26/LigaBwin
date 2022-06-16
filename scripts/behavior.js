@@ -156,8 +156,8 @@ function movingAverage(){
       return a.round - b.round
     });
     //--------------------------------------------------------------------------------------/
-
-    width = 480
+    console.log(window.innerWidth)
+    width = window.innerWidth/3 - 80;
     height = 200
     margin = {'top': 40, 'right':380, 'bottom':40, 'left':20}
 
@@ -1256,13 +1256,13 @@ function table_bar(option){
 
     d3.select("div#table").select("svg").remove();
 
-    var margin = {top: 0, right: 100, bottom: 100, left: 112},
-    width = 470,
+    var margin = {top: 0, right: 0, bottom: 0, left: 0},
+    width = window.innerWidth/3 - 40,
     height = 370;
   
     y = d3.scaleBand()
     .domain(data_selected.map(d => d.team.replaceAll('-',' ')))
-    .rangeRound([margin.top, width - margin.bottom])
+    .rangeRound([margin.top, height - margin.bottom])
   
     x = d3.scaleLinear()
     .domain([0, d3.max(data_selected, (d) => Number(d[selectedStat]))])
@@ -1292,10 +1292,11 @@ function table_bar(option){
 
     d3.selectAll(".YAxisBar .tick text")
     .attr("id","label_bar") // selects the text within all groups of ticks
-        .attr("x", "20")
+        .attr("x", "75")
         .style("filter", "url(#glow)")
         .style("font-size",   function(d){
           if(d == currentTeam) return "20px"
+          else return "8px"
         }) 
 
 
@@ -1306,15 +1307,15 @@ function table_bar(option){
       svg
       .append("text")
       .attr("id","display_over")
-      .attr("x", 0 + 440)
-      .attr("y",  y(d.team.replaceAll('-',' ')) + 15.5)
+      .attr("x", 0 + 410)
+      .attr("y",  y(d.team.replaceAll('-',' ')) + 13.5)
       .attr("text-anchor", "middle")  
-      .style("font-size", "20px") 
+      .style("font-size", "15px") 
       .style("filter", "url(#glow)")
       .style("fill","white")
       .text(Number(d[selectedStat]));  
 
-      svg.selectAll(".YAxisBar .tick text").style("opacity",e => {if(e != d.team) return 0.1})
+      svg.selectAll(".YAxisBar .tick text").style("opacity",e => {if(e != d.team.replaceAll("-"," ")) return 0.1})
     }
 
     function handleMouseLeave(event,d){
@@ -1330,7 +1331,7 @@ function table_bar(option){
     .selectAll("rect")
     .data(data_selected)
     .join("rect")
-    .attr("x", 0 + 150)
+    .attr("x", 80)
     .attr("y", d => y(d.team.replaceAll('-',' ')) + 1.5)
     .on("mouseover",handleMouseOver)
     .on("mouseleave",handleMouseLeave)
