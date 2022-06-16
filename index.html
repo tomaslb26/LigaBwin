@@ -44,20 +44,20 @@
 	<main>
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-sm-4 justify-content-start">
+				<div class="col-sm-12 col-lg-6 col-xl-4 justify-content-start">
 					<div style = "padding-top: 5%; padding-left: 0%; padding-bottom: 5%;" id = "movingAverage"></div>
 					<span id="Rank" style="color: white; font-size: 120%; font-weight: bold; vertical-align: middle;" >Rank By Stat:</span>
 					<select  style = "vertical-align: middle" id="selectStat"></select>
 					<div style = "padding-top: 2%; padding-left: 0%;" id = "table"></div>
 				</div>
-				<div class="col-sm-4 justify-content-end">
-					<p id="PassingNetwork" style="color: white; font-size: 150%; font-weight: bold; vertical-align: middle; padding-top: 3%; padding-left: 5%" >Passing Network:</span>
+				<div class="col-sm-12 col-lg-3 col-xl-4 justify-content-end">
+					<p id="PassingNetwork" style="color: white; font-size: 150%; font-weight: bold; vertical-align: middle; padding-top: 3%; padding-left: 0%" >Passing Network:</span>
 					<div style = "padding-left: 5%" id = "chart"></div>
-					<span id="Game" style="color: white; font-size: 120%; font-weight: bold; vertical-align: middle; padding-left: 5%" >Game:</span>
-					<select  style = "vertical-align: middle; padding-left: 5%" id="selectButton"></select>
-					<select  style = "vertical-align: middle; padding-left: 5%" id="selectHome"></select>
+					<span id="Game" style="color: white; font-size: 120%; font-weight: bold; vertical-align: middle; padding-left: 0%" >Game:</span>
+					<select  style = "vertical-align: middle; padding-left: 0%" id="selectButton"></select>
+					<select  style = "vertical-align: middle; padding-left: 0%" id="selectHome"></select>
 				</div>
-				<div class="col-sm-4 justify-content-end" id = "lastrow">
+				<div class="col-sm-12 col-lg-3 col-xl-4 justify-content-end" id = "lastrow">
 					<p id="Plot" style="color: white; font-size: 150%; font-weight: bold; vertical-align: middle; padding-top: 3%;" >Plot:</span>
 					<button type="button" onclick = "actions('actions')" style="background-color: rgba(255, 255, 255, 0); color: white;" class="btn">Actions</button>
 					<button type="button" onclick = "actions('shots')" style="background-color: rgba(255, 255, 255, 0); color: white;" class="btn">Shots</button>
