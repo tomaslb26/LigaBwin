@@ -3,28 +3,118 @@ var currentTeam = "Benfica"
 var currentSelectedTeam = "Braga"
 var currentPassNetworkState = "Home"
 var allPasses = false
+var currentOption = ""
 var allCarries = false
-var ProgressivePasses = true
+var ProgressivePasses = false
 var ProgressiveCarries = false
 var UnsuccessfulPasses = false
+var defensiveActions = false
 var currentTeamId = 299;
+var selectedStat = "OppHalfDefActions"
 var teams = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
 'Arouca', 'Belenenses SAD', 'Boavista', 'Braga',
 'Maritimo', 'Pacos de Ferreira', 'Vitoria de Guimaraes', 'Gil Vicente',
 'Porto', 'Portimonense', 'Santa Clara', 'Tondela',
 'Estoril', 'Sporting']
 
+var teams_colors = [{"team": "Benfica", "color":"#cf261f"},{"team": "Famalicao", "color":"#163b66"},{"team":"Moreirense","color":"#145f25"},{"team":"Vizela","color":"#014694"},
+                    {"team":"Arouca","color":"#fff400"},{"team":"Belenenses SAD","color":"#02578d"},{"team":"Boavista","color":"black"},{"team":"Braga","color":"#dc0b15"},
+                    {"team":"Maritimo","color":"#073219"},{"team":"Pacos de Ferreira","color":"#f5eb00"},{"team":"Vitoria de Guimaraes","color":"white"},
+                    {"team":"Gil Vicente","color":"#ee2623"},{"team":"Porto","color":"#040c55"},{"team":"Portimonense","color":"black"},{"team":"Santa Clara","color":"#b5252e"},
+                    {"team":"Tondela","color":"#06653d"},{"team":"Estoril","color":"#ffed00"},{"team":"Sporting","color":"#008057"}]
 
 function init(){
-
   selectTeam();
   PassNetwork();
   movingAverage()
-  actions()
+  actions("actions")
+  table_bar()
+  fill_glow()
+}
+
+function fill_glow(){
+  d3.select("p#Plot").style("filter", "url(#glow)")
+  d3.select("p#PassingNetwork").style("filter", "url(#glow)")
+  d3.select("span#Game").style("filter", "url(#glow)")
+  d3.select("span#Rank").style("filter", "url(#glow)")
+  d3.select("select#selectButton").style("filter", "url(#glow)")
+  d3.select("select#selectHome").style("filter", "url(#glow)")
+  d3.select("select#selectStat").style("filter", "url(#glow)")
+}
+
+function createTriangle(svg,id,opacity){
+  svg.append("svg:defs").append("svg:marker")
+  .attr("id", id)
+  .attr("refX", 11)
+  .attr("refY", 6)
+  .attr("markerWidth", 10)
+  .attr("markerHeight", 10)
+  .attr("markerUnits","userSpaceOnUse")
+  .attr("orient", "auto")
+  .append("svg:path")
+  .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
+  .style("fill", "white")
+  .style("fill-opacity",opacity);
+}
+
+function create_glow(svg){
+  var defs = svg.append("defs");
+
+  var filter = defs.append("filter")
+        .attr("id", "glow")
+        .attr("height", "150%")
+        .attr("width", "200%");
+
+  filter.append("feGaussianBlur")
+      .attr("in", "SourceAlpha")
+      .attr("stdDeviation", 2.5)
+      .attr("result", "blur");
+
+  filter.append("feOffset")
+      .attr("in", "blur")
+      .attr("dx", 2)
+      .attr("dy", 2)
+      .attr("result", "offsetBlur");
+
+  var feMerge = filter.append("feMerge");
+
+  feMerge.append("feMergeNode")
+      .attr("in", "offsetBlur");
+  feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
+
+}
+
+function mouseaux(svg,div,d,option,option_2){
+    if(option == "over") ret_value = 0.1
+    else ret_value = 1
+    svg.selectAll(div)
+    .style("fill-opacity",function(e){
+      if(option_2 != null){
+        if(e[option_2] != d[option_2]) return ret_value
+      }
+      else{
+        if(e != d) return ret_value
+      }
+    })
+    .attr("stroke-opacity",function(e){
+      if(option_2 != null){
+        if(e[option_2] != d[option_2]) return ret_value
+      }
+      else{
+        if(e != d) return ret_value
+      }
+    })
 
 }
 
 function movingAverage(){
+  d3.select("body").selectAll("div#tooltip_actions").remove()
+
+  let tooltip = d3.select("body").append("div").attr("id","tooltip_moving_average")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
   d3.csv("data/allShotsLigaBwin2122.csv")
   .then((data) => {
 
@@ -95,39 +185,8 @@ function movingAverage(){
       .append("g")
       .attr("transform",
             "translate(" + (margin.left+20) + "," + margin.top + ")");
-
-    svg.append("svg:defs").append("svg:marker")
-    .attr("id", "triangle")
-    .attr("refX", 11)
-    .attr("refY", 6)
-    .attr("markerWidth", 10)
-    .attr("markerHeight", 10)
-    .attr("markerUnits","userSpaceOnUse")
-    .attr("orient", "auto")
-    .append("path")
-    .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
-    .style("fill", "white");
-
-    var defs = svg.append("defs");
-
-    //Filter for the outside glow
-    var filter = defs.append("filter")
-        .attr("id","glow");
-    filter.append("feGaussianBlur")
-        .attr("stdDeviation","2.2")
-        .attr("result","coloredBlur");
-    var feMerge = filter.append("feMerge");
-    feMerge.append("feMergeNode")
-        .attr("in","coloredBlur");
-    feMerge.append("feMergeNode")
-        .attr("in","SourceGraphic");
-
-    var feMerge = filter.append("feMerge");
-
-    feMerge.append("feMergeNode")
-        .attr("in", "offsetBlur");
-    feMerge.append("feMergeNode")
-        .attr("in", "SourceGraphic");
+    
+    create_glow(svg)
 
     svg.append("path")
         .attr('class','line')
@@ -146,13 +205,63 @@ function movingAverage(){
     .style("filter", "url(#glow)")
 
 
+    function handleMouseClick(event,d){
+      var homeTeam = ""
+      var awayTeam = ""
+      var benficaxg
+      var oppxg
+      data.filter(function(e){
+        if(e.round == d.round){
+          homeTeam = e.homeTeam
+          awayTeam = e.awayTeam
+        }
+      })
+      final_team_data.filter(function(e){
+        if(e.round == d.round){
+          benficaxg = e.value
+        }
+      })
+      final_opp_data.filter(function(e){
+        if(e.round == d.round){
+          oppxg = e.value
+        }
+      })
+
+      var matrix = this.getScreenCTM()
+      .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
+
+      var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + homeTeam + " - " + awayTeam + "<br\>"
+       + "Benfica xG: " + String(benficaxg).substring(0,5) + "<br\>"
+       + "Benfica xGA: " + String(oppxg).substring(0,5) + "<p/>";
+
+      tooltip.transition()		
+      .duration(200)		
+      .style("opacity", 1).style("visibility", "visible");		
+      tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
+      .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+
+    }
+
+    function handleMouseOver(event,d){
+      d3.select(this).style("cursor", "pointer")
+      mouseaux(svg,"circle#node",d,"over","round")
+    }
+    
+    function handleMouseLeave(event,d){
+      mouseaux(svg,"circle#node",d,"leave","round")
+    }
+
     svg.selectAll('.lineCircles')
     .data(final_team_data)
     .enter().append('circle')
+    .attr("id","node")
     .attr('cx', d => xScale(d.round))
     .attr('cy', d => yScale(d.value))
     .attr('r', 4)
     .style('stroke-width', 0.5)
+    .on("mouseover",handleMouseOver)
+    .on("mouseleave",handleMouseLeave)
+    .on("click",handleMouseClick)
     .style('stroke', "black")
     .style('fill', "#e83030")
     .style("filter", "url(#glow)")
@@ -161,9 +270,13 @@ function movingAverage(){
     svg.selectAll('.lineCircles')
     .data(final_opp_data)
     .enter().append('circle')
+    .attr("id","node")
     .attr('cx', d => xScale(d.round))
     .attr('cy', d => yScale(d.value))
     .attr('r', 4)
+    .on("mouseover",handleMouseOver)
+    .on("mouseleave",handleMouseLeave)
+    .on("click",handleMouseClick)
     .style('stroke-width', 0.5)
     .style('stroke', "black")
     .style('fill', "#48EDDB")
@@ -247,34 +360,10 @@ function movingAverage(){
 
 function selectTeam(){
 
-  d3.select("#inlineCheckbox1").on("change", function(d) {
+  d3.select("#selectStat").on("change", function(d) {
     // recover the option that has been chosen
-    allPasses = !allPasses;
-    actions()
-  })
-
-  d3.select("#inlineCheckbox2").on("change", function(d) {
-    // recover the option that has been chosen
-    ProgressivePasses = !ProgressivePasses;
-    actions()
-  })
-
-  d3.select("#inlineCheckbox3").on("change", function(d) {
-    // recover the option that has been chosen
-    UnsuccessfulPasses = !UnsuccessfulPasses;
-    actions()
-  })
-
-  d3.select("#inlineCheckbox4").on("change", function(d) {
-    // recover the option that has been chosen
-    allCarries = !allCarries;
-    actions()
-  })
-
-  d3.select("#inlineCheckbox5").on("change", function(d) {
-    // recover the option that has been chosen
-    ProgressiveCarries = !ProgressiveCarries;
-    actions()
+    selectedStat = d3.select(this).property("value");
+    table_bar();
   })
 
   teams = teams.filter(item => item !== currentTeam)
@@ -287,11 +376,30 @@ function selectTeam(){
   .text(function (d) { return d; }) // text showed in the menu
   .attr("value", function (d) { return d; })
 
+  var data_calc;
+  d3.csv("data/calculations.csv").then((data) => {
+    data_calc = data;
+
+    array = Object.keys(data_calc[0])
+    array.splice(0,2)
+
+    d3.select("#selectStat")
+    .selectAll('myOptions')
+    .data(array)
+    .enter()
+    .append('option')
+    .text(function (d) { 
+                  if(d == "OppHalfDefActions") return "Defensive Actions in the opponent's half"
+                  else if(d == "OwnHalfDefActions") return "Defensive Actions in own half"
+                  else return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+  })
+
   d3.select("#selectButton").on("change", function(d) {
   // recover the option that has been chosen
     currentSelectedTeam= d3.select(this).property("value")
     PassNetwork()
-    actions()
+    actions(currentOption)
   })
 
   d3.select("#selectButton").property("value",currentSelectedTeam)
@@ -308,14 +416,58 @@ function selectTeam(){
   // recover the option that has been chosen
     currentPassNetworkState= d3.select(this).property("value")
     PassNetwork()
-    actions()
+    actions(currentOption)
   })
 
   d3.select("#selectHome").property("value",currentPassNetworkState)
 }
 
+function newSelects(){
+  d3.select("#a0").on("change", function(d) {
+    // recover the option that has been chosen
+    allPasses = !allPasses;
+    actions()
+  })
+
+  d3.select("#a1").on("change", function(d) {
+    // recover the option that has been chosen
+    ProgressivePasses = !ProgressivePasses;
+    actions()
+  })
+
+  d3.select("#a2").on("change", function(d) {
+    // recover the option that has been chosen
+    UnsuccessfulPasses = !UnsuccessfulPasses;
+    actions()
+  })
+
+  d3.select("#a3").on("change", function(d) {
+    // recover the option that has been chosen
+    allCarries = !allCarries;
+    actions()
+  })
+
+  d3.select("#a4").on("change", function(d) {
+    // recover the option that has been chosen
+    ProgressiveCarries = !ProgressiveCarries;
+    actions()
+  })
+
+  d3.select("#a5").on("change", function(d) {
+    // recover the option that has been chosen
+    defensiveActions = !defensiveActions;
+    actions()
+  })
+}
+
 
 function PassNetwork(){
+
+  d3.select("body").selectAll("div#tooltip_pass").remove()
+
+  let tooltip = d3.select("body").append("div").attr("id","tooltip_pass")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
 
   if(currentPassNetworkState == "Home") var string = "data/PassNetworks/Benfica/PassNetwork" + currentTeam.replace(/\s+/g, '-') + currentSelectedTeam.replace(/\s+/g, '-') + ".csv"
   else var string = "data/PassNetworks/Benfica/PassNetwork" + currentSelectedTeam.replace(/\s+/g, '-') + currentTeam.replace(/\s+/g, '-') + ".csv"
@@ -332,14 +484,14 @@ function PassNetwork(){
     pitchHeight = 68
     margin = {
     top: 10,
-    right: 0,
+    right: 9,
     bottom: 0,
     left: 5
     }
     width = 590
     height = 374
 
-    getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
+    getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":0,"x2":-1.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
     getPitchCircles = [{"cy":52.5,"cx":34,"r":9.15,"color":"none"},{"cy":11,"cx":34,"r":0.3,"color":"#000"},{"cy":94,"cx":34,"r":0.3,"color":"#000"},{"cy":52.5,"cx":34,"r":0.3,"color":"#000"}]
     getArcs = [{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":1.5707963267948966,"endAngle":3.141592653589793},"x":0,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":4.7124,"endAngle":3.1416},"x":0,"y":68},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":0,"endAngle":1.5708},"x":105,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":6.283185307179586,"endAngle":4.71238898038469},"x":105,"y":68},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229,"endAngle":4.0603},"x":9,"y":34},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229+Math.PI,"endAngle":4.0603+Math.PI},"x":96,"y":34}]
 
@@ -396,7 +548,7 @@ function PassNetwork(){
 
     var positions = []; 
     dataset.filter(function(d){
-      if(d.average_location == "True") positions.push({'name':d.name,'no':Number(d.shirtNo),'x':Number(d.x),'y':Number(d.y)})
+      if(d.average_location == "True") positions.push({'name':d.name,'shirtNo':Number(d.shirtNo),'x':Number(d.x),'y':Number(d.y)})
     })
     
     lines = dataset.filter(function(d){
@@ -416,43 +568,15 @@ function PassNetwork(){
     t1 = (avgPasses+max)/2
     t2 = (avgPasses+min)/2
 
+    create_glow(pitch)
+    createTriangle(pitch,"triangle",1)
+    createTriangle(pitch,"triangle2",0.1)
 
-    svg.append("svg:defs").append("svg:marker")
-    .attr("id", "triangle")
-    .attr("refX", 11)
-    .attr("refY", 6)
-    .attr("markerWidth", 10)
-    .attr("markerHeight", 10)
-    .attr("markerUnits","userSpaceOnUse")
-    .attr("orient", "auto")
-    .append("path")
-    .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
-    .style("fill", "white");
-
-    var defs = svg.append("defs");
-
-    //Filter for the outside glow
-    var filter = defs.append("filter")
-        .attr("id","glow");
-    filter.append("feGaussianBlur")
-        .attr("stdDeviation","0.5")
-        .attr("result","coloredBlur");
-    var feMerge = filter.append("feMerge");
-    feMerge.append("feMergeNode")
-        .attr("in","coloredBlur");
-    feMerge.append("feMergeNode")
-        .attr("in","SourceGraphic");
-
-    var feMerge = filter.append("feMerge");
-
-    feMerge.append("feMergeNode")
-        .attr("in", "offsetBlur");
-    feMerge.append("feMergeNode")
-        .attr("in", "SourceGraphic");
 
     pitch.selectAll('.pitchLines')
     .data(lines)
     .enter().append("line")
+    .attr("id","passing")
     .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
     .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
     .attr("x2",d => (68-Number(d.mid_y)) * pitchMultiplier)  
@@ -465,6 +589,7 @@ function PassNetwork(){
     pitch.selectAll('.pitchLines')
     .data(lines)
     .enter().append("line")
+    .attr("id","passing")
     .attr("x1",d => (68 - Number(d.mid_y)) * pitchMultiplier)  
     .attr("y1",d => (105-Number(d.mid_x)) * pitchMultiplier)  
     .attr("x2",d => (68-Number(d.y_end)) * pitchMultiplier)  
@@ -473,9 +598,52 @@ function PassNetwork(){
     .attr("stroke","white") 
     .attr("stroke-width",d => (Number(d.pass_count)*2.5)/max)   
 
+    function handleMouseClick(event,d){
+      var matrix = this.getScreenCTM()
+      .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
+
+      var string = "<img src=" + "'data/" + currentTeam + "/Photos/" + String(d.name) + ".png' style='width:80px; height: 80px; padding-left:0%; display: inline-block;'/>";
+      if(d.name.includes(" ")) var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.name.split(" ")[0] + "<br>" +
+        d.name.split(" ")[1] + "<p/>";
+      else var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>\n" + d.name + "<pre/>";
+
+      tooltip.transition()		
+      .duration(200)		
+      .style("opacity", 1).style("visibility","visible");		
+      tooltip.html(string + string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
+      .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+    }
+
+    function handleMouseOver(event,d){
+      d3.select(this).style("cursor", "pointer")
+      mouseaux(pitch,"circle#nodes",d,"over")
+      mouseaux(pitch,"text#numbers",d,"over","shirtNo")
+      mouseaux(d3.select("div#actions"),"circle#progressive",d,"over","name")
+      mouseaux(d3.select("div#actions"),"line#progressive",d,"over","name")
+      mouseaux(d3.select("div#actions"),"circle#def",d,"over","name")
+      mouseaux(d3.select("div#actions"),"circle#shots",d,"over","name")
+
+      pitch.selectAll("line#passing")
+      .attr("stroke-opacity",0.1).attr("marker-end", "url(#triangle2)");  
+    }
+
+
+    function handleMouseLeave(event,d){
+      mouseaux(pitch,"circle#nodes",d,"leave")
+      mouseaux(pitch,"text#numbers",d,"over","leave")
+      mouseaux(d3.select("div#actions"),"circle#progressive",d,"leave","name")
+      mouseaux(d3.select("div#actions"),"line#progressive",d,"leave","name")
+      mouseaux(d3.select("div#actions"),"circle#def",d,"leave","name")
+      mouseaux(d3.select("div#actions"),"circle#shots",d,"leave","name")
+      pitch.selectAll("line#passing")
+      .attr("stroke-opacity",1).attr("marker-end", "url(#triangle)");  
+    }
+
+
     pitch.selectAll('.pitchCircles')
     .data(positions)
     .enter().append('circle')
+    .attr("id","nodes")
     .attr('cy', d => (105 -d.x) * pitchMultiplier)
     .attr('cx', d => (68-d.y) * pitchMultiplier)
     .attr('r', 15)
@@ -484,18 +652,25 @@ function PassNetwork(){
     .style('fill', "#e83030")
     .style("filter", "url(#glow)")
     .style("fill-opacity",0.8)
+    .on("mouseover",handleMouseOver)
+    .on("click",handleMouseClick)
+    .on("mouseleave",handleMouseLeave)
     .style("stroke-dasharray", ("6,2"));
   
     pitch.selectAll('.pitchCircles')
     .data(positions).enter()
     .append("text")
+          .attr("id","numbers")
           .attr("x", d => (68-d.y) * pitchMultiplier)             
           .attr("y", d => (105-d.x) * pitchMultiplier + 5)
           .attr("text-anchor", "middle")  
           .style("font-size", "16px") 
           .style("filter", "url(#glow)")
           .style("fill","white")
-          .text(d => d.no);  
+          .on("mouseover",handleMouseOver)
+          .on("click",handleMouseClick)
+          .on("mouseleave",handleMouseLeave)
+          .text(d => d.shirtNo);  
 
       dataset.filter(function(d){
         game_time = d.game_minutes
@@ -519,7 +694,21 @@ function PassNetwork(){
 
 }
 
-function actions(){
+function actions(option){
+
+  d3.select("body").selectAll("div#tooltip_actions").remove()
+
+  let tooltip = d3.select("body").append("div").attr("id","tooltip_actions")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
+  d3.select("body").on("click",function(){
+    d3.select("div#tooltip_actions").style("opacity",0).style("visibility", "hidden");
+    d3.select("div#tooltip_pass").style("opacity",0).style("visibility", "hidden");
+    d3.select("div#tooltip_moving_average").style("opacity",0).style("visibility", "hidden");
+  });
+
+  currentOption = option
 
   if(currentPassNetworkState == "Home") var string = "data/Benfica/" + currentTeam + " - " + currentSelectedTeam + ".csv"
   else var string = "data/Benfica/" + currentSelectedTeam + " - " + currentTeam + ".csv"
@@ -536,7 +725,7 @@ function actions(){
     pitchHeight = 68
     margin = {
     top: 10,
-    right: 0,
+    right: 9,
     bottom: 0,
     left: 5
     }
@@ -598,52 +787,317 @@ function actions(){
         .style('stroke', lineColor)
         .style("stroke-dasharray", ("10,3"));
 
-    pitch.append("svg:defs").append("svg:marker")
-    .attr("id", "triangle2")
-    .attr("refX", 11)
-    .attr("refY", 6)
-    .attr("markerWidth", 10)
-    .attr("markerHeight", 10)
-    .attr("markerUnits","userSpaceOnUse")
-    .attr("orient", "auto")
-    .append("svg:path")
-    .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
-    .style("fill", "white")
-    .style("fill-opacity",0.1);
+    create_glow(pitch)
+    createTriangle(pitch,"triangle2",0.1)
+    createTriangle(pitch,"triangle3",0.8)
 
-    pitch.append("svg:defs").append("svg:marker")
-    .attr("id", "triangle3")
-    .attr("refX", 11)
-    .attr("refY", 6)
-    .attr("markerWidth", 10)
-    .attr("markerHeight", 10)
-    .attr("markerUnits","userSpaceOnUse")
-    .attr("orient", "auto")
-    .append("svg:path")
-    .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
-    .style("fill", "white")
-    .style("fill-opacity",0.8);
+    function setAllFalse(){
+      ProgressiveCarries = false
+      ProgressivePasses = false
+      allCarries = false
+      allPasses = false
+      UnsuccessfulPasses = false
+      d3.select("div#lastrow").selectAll("input").remove()
+      d3.select("div#lastrow").selectAll("label").remove( )
+    }
 
-    var defs = svg.append("defs");
+    if(option == "actions"){
+      setAllFalse()
+      d3.select("div#lastrow").selectAll("input")
+      .data(["All Passes", "Progressive Passes", "Unsuccessful Passes", "All Carries", "Progressive Carries"])
+      .enter()
+      .append('label')
+          .attr('for',function(d,i){ return 'a'+i; })
+          .text(function(d) { return d; })
+          .style("filter", "url(#glow)")
+          .style("color","white")
+          .style("padding-right","2%")
+      .append("input")
+          .attr("type", "checkbox")
+          .attr("id", function(d,i) { return 'a'+i; })
+          .style("filter", "url(#glow)")
+          .style("color","white")
+          .style("margin-left","10px")
 
-    //Filter for the outside glow
-    var filter = defs.append("filter")
-        .attr("id","glow");
-    filter.append("feGaussianBlur")
-        .attr("stdDeviation","0.5")
-        .attr("result","coloredBlur");
-    var feMerge = filter.append("feMerge");
-    feMerge.append("feMergeNode")
-        .attr("in","coloredBlur");
-    feMerge.append("feMergeNode")
-        .attr("in","SourceGraphic");
+      newSelects()
 
-    var feMerge = filter.append("feMerge");
+    }
+    else if(option=="shots"){
+      setAllFalse()
 
-    feMerge.append("feMergeNode")
-        .attr("in", "offsetBlur");
-    feMerge.append("feMergeNode")
-        .attr("in", "SourceGraphic");
+      d3.csv("data/allShotsLigaBwin2122.csv").then((data) => {
+        data = data.filter(function(d){
+          if((currentPassNetworkState == "Home" && d.homeTeam == currentTeam && d.awayTeam == currentSelectedTeam && d.name == currentTeam) ||
+          (currentPassNetworkState == "Away" && d.awayTeam == currentTeam && d.homeTeam == currentSelectedTeam && d.name == currentTeam)) return d
+        })
+
+        function handleMouseOver(event,d){
+          d3.select(this).style("cursor", "pointer")
+          pitch.selectAll('line#remove')
+          .remove()
+
+          pitch.selectAll('.progressiveLines')
+          .data([d])
+          .enter().append("line")
+          .attr("id","remove")
+          .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
+          .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
+          .attr("x2",d => (68-Number(d.goalCrossedY)) * pitchMultiplier)  
+          .attr("y2",d => (105-105) * pitchMultiplier)  
+          //.style("filter", "url(#glow)")
+          .attr("stroke","white") 
+          .style("stroke-width",2)
+          .style("stroke-opacity",1)
+          .attr("stroke-width",lineWidth)   
+          .attr("marker-end", "url(#triangle3)");
+        }
+
+        function handleMouseLeave(event,d){
+          pitch.selectAll('line#remove')
+          .remove()
+        }
+
+        function handleClick(event,d){
+          var matrix = this.getScreenCTM()
+          .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
+
+    
+          var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.playerName + "<br>" + "Minute: "
+            + String(Number(d.min)) + "<br>" + d.homeTeam + " - " + d.awayTeam + "<br>" + d.eventType + " " + String(d.expectedGoals).substring(0,4) + " xG" + "<p/>";
+    
+          tooltip.transition()		
+          .duration(200)		
+          .style("opacity", 1).style("visibility", "visible");		
+          tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
+          .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+        }
+
+        _data = []
+        _data.push({'x':36,'y':38,'expectedGoals':0.5,'eventType':"Post"})
+        _data.push({'x':36,'y':43,'expectedGoals':0.25})
+        _data.push({'x':36,'y':46.5,'expectedGoals':0.1})
+        _data.push({'x':36,'y':32,'expectedGoals':0.75})
+        _data.push({'x':36,'y':24,'expectedGoals':1,'eventType':"Goal"})
+
+        circles = pitch.selectAll('.progressiveCircles')
+        .data(data)
+        .enter().append('circle')
+        .attr("id","shots")
+        .attr('cy', d => (105 - d.x) * pitchMultiplier)
+        .attr('cx', d => (68- d.y) * pitchMultiplier)
+        .attr('r', d => 20*d.expectedGoals)
+        .style('stroke-width', 0.5)
+        .style('stroke', "white")
+        .style("filter", "url(#glow)")
+        .style('fill', function(d){
+          if(d.eventType == "Goal") return "#42DC60"
+          else if(d.eventType == "AttemptSaved") return "red"
+          else if(d.eventType == "Post") return "#42DCD5"
+          else return "red"
+        })
+        .on("click",handleClick)
+        .on("mouseover",handleMouseOver)
+        .on("mouseleave",handleMouseLeave)
+        .style("fill-opacity",1)
+
+        circles = pitch.selectAll('.progressiveCircles')
+        .data(_data)
+        .enter().append('circle')
+        .attr('cy', d => (105 - d.x) * pitchMultiplier)
+        .attr('cx', d => (68- d.y) * pitchMultiplier)
+        .attr('r', d => 20*d.expectedGoals)
+        .style('stroke-width', 0.5)
+        .style('stroke', "white")
+        .style("filter", "url(#glow)")
+        .style('fill', function(d){
+          if(d.eventType == "Goal") return "#42DC60"
+          else if(d.eventType == "AttemptSaved") return "red"
+          else if(d.eventType == "Post") return "#42DCD5"
+          else return "red"
+        })
+        .style("fill-opacity",1)
+
+        function appendText(x,y,text){
+          pitch.append("text")
+          .attr("y",d => (((105 - x) * pitchMultiplier) - 20))             
+          .attr("x", d=> ((68- y) * pitchMultiplier) - 15)
+          .attr("dy","-.55em") 
+          .style("font-size", 12) 
+          .style("filter", "url(#glow)")
+          .style("fill","white")
+          .style("font-weight","bold")
+          .text(text); 
+        }
+
+        pitch.selectAll('text').data(_data).enter().append("text")
+        .attr("y",d => (((105 - d.x) * pitchMultiplier) + 40))             
+        .attr("x", d=> ((68- d.y) * pitchMultiplier) - 5)
+        .attr("dy","-.55em") 
+        .style("font-size", 12) 
+        .style("filter", "url(#glow)")
+        .style("fill","white")
+        .style("font-weight","bold")
+        .text(d => String(d.expectedGoals)); 
+
+        appendText(36,24,"Goal")
+        appendText(36,32,"Miss")
+        appendText(36,38,"Post")
+        appendText(21,35,"xG Sizes")
+      })
+    }
+    else if(option=="def.actions"){
+
+      function handleMouseClick(event,d){
+        var matrix = this.getScreenCTM()
+        .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
+  
+        var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.name + " (" + Number(d.shirtNo) + ")" + "<br>" + "Minute: "
+          + String(Number(d.minute)) + "<br>" + d.homeTeam + " - " + d.awayTeam + "<br>" + d.type + " "+  d.outcomeType + "<p/>";
+  
+        tooltip.transition()		
+        .duration(200)		
+        .style("opacity", 1).style("visibility", "visible");		
+        tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
+        .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+      }
+  
+      function handleMouseOver(event,d){
+        d3.select(this).style("cursor", "pointer")
+        mouseaux(pitch,"circle#def",d,"over")
+        mouseaux(d3.select("div#chart"),"circle#nodes",d,"over","name")
+      }
+  
+      function handleMouseLeave(event,d){
+        d3.select(this).style("cursor", "pointer")
+        mouseaux(pitch,"circle#def",d,"leave")
+        mouseaux(d3.select("div#chart"),"circle#nodes",d,"leave","name")
+
+      }
+
+      setAllFalse()
+
+      def_actions_list = ["Interception","BlockedPass","BallRecovery","Clearance","Tackle"]
+      def_actions = dataset.filter(function(d){
+        if(def_actions_list.includes(d.type,0) && d.teamId == currentTeamId){
+          return d;
+        }
+      });
+      
+      circles = pitch.selectAll('.progressiveCircles')
+      .data(def_actions)
+      .enter().append('circle')
+      .attr("id","def")
+      .attr('cy', d => (105 - d.x) * pitchMultiplier)
+      .attr('cx', d => (68- d.y) * pitchMultiplier)
+      .attr('r', d => 7)
+      .style('stroke-width', 0)
+      .style('stroke', "white")
+      .style("filter", "url(#glow)")
+      .style('fill', function(d){
+        if(d.type == "BallRecovery") return "#42DC60"
+        else if(d.type == "Interception") return "red"
+        else if(d.type == "BlockedPass") return "#42DCD5"
+        else if(d.type == "Clearance") return "#D047D6"
+        else if(d.type == "Tackle") return "#E38A18"
+        else return "red"
+      })
+      .on("mouseover",handleMouseOver)
+      .on("click",handleMouseClick)
+      .on("mouseleave",handleMouseLeave)
+      //.style("filter", "url(#glow)")
+      .style("fill-opacity",function(d){
+        if(d.outcomeType == "Successful") return 1
+        else return 0.1
+      })
+
+
+      d3.select("div#lastrow").selectAll("input")
+      .data(["Ball Recovery", "Interception", "BlockedPass", "Clearance", "Tackle"])
+      .enter()
+      .append('label')
+          .attr('for',function(d,i){ return 'b'+i; })
+          .text(function(d) { return d; })
+          .style("filter", "url(#glow)")
+          .style("color","white")
+          .style("padding-right","5%")
+      .append('div')
+        .attr('id','circle')
+        .style('background', function(d){
+          if(d == "Ball Recovery") return "#42DC60"
+          else if(d == "Interception") return "red"
+          else if(d == "BlockedPass") return "#42DCD5"
+          else if(d == "Clearance") return "#D047D6"
+          else if(d == "Tackle") return "#E38A18"
+          else return "red"
+        })
+        .style("height","12px")
+        .style("width","12px")
+        .style("margin-left","10px")
+        .style("filter", "url(#glow)")
+        .style("display","inline-block")
+        .style("border-radius","50%")
+      
+    }
+
+    function handleMouseClick(event,d){
+      var matrix = this.getScreenCTM()
+      .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
+
+      var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.name + " (" + Number(d.shirtNo) + ")" + "<br>" + "Minute: "
+        + String(Number(d.minute)) + "<br>" + d.homeTeam + " - " + d.awayTeam + "<br>" + "Progressive " + d.type + "<p/>";
+
+      tooltip.transition()		
+      .duration(200)		
+      .style("opacity", 1).style("visibility","visible");		
+      tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
+      .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+    }
+
+    function handleMouseOver(event,d){
+      d3.select(this).style("cursor", "pointer")
+      mouseaux(pitch,"circle#progressive",d,"over")
+      mouseaux(pitch,"line#progressive",d,"over")
+      mouseaux(d3.select("div#chart"),"circle#nodes",d,"over","name")
+    }
+
+    function handleMouseLeave(event,d){
+      d3.select(this).style("cursor", "pointer")
+      mouseaux(pitch,"circle#progressive",d,"leave")
+      mouseaux(pitch,"line#progressive",d,"leave")
+      mouseaux(d3.select("div#chart"),"circle#nodes",d,"leave","name")
+    }
+
+    function plotLines(svg,data){
+      svg.selectAll('.progressiveLines')
+      .data(data)
+      .enter().append("line")
+      .attr("id","progressive")
+      .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
+      .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
+      .attr("x2",d => (68-Number(d.endY)) * pitchMultiplier)  
+      .attr("y2",d => (105-Number(d.endX)) * pitchMultiplier)  
+      .style("filter", "url(#glow)")
+      .attr("stroke","white") 
+      .attr("stroke-width",lineWidth)  
+    }
+
+    function plotCircles(svg,data,color){
+      svg.selectAll('.progressiveCircles')
+      .data(data)
+      .enter().append('circle')
+      .attr("id","progressive")
+      .attr('cy', d => (105 -d.endX) * pitchMultiplier)
+      .attr('cx', d => (68-d.endY) * pitchMultiplier)
+      .attr('r', 7)
+      .style('stroke-width', lineWidth)
+      .style("filter", "url(#glow)")
+      .on("mouseover",handleMouseOver)
+      .on("click",handleMouseClick)
+      .on("mouseleave",handleMouseLeave)
+      .style('stroke', color)
+      .style('fill', "#2a2e30")
+      .style("fill-opacity",1) 
+    }
 
     if(UnsuccessfulPasses){
       unsuccesful = dataset.filter(function(d){
@@ -652,11 +1106,10 @@ function actions(){
         }
       });
 
-      console.log(unsuccesful)
-
       pitch.selectAll('.progressiveLines')
       .data(unsuccesful)
       .enter().append("line")
+      .attr("id","progressive")
       .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
       .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
       .attr("x2",d => (68-Number(d.endY)) * pitchMultiplier)  
@@ -677,6 +1130,7 @@ function actions(){
       pitch.selectAll('.progressiveLines')
       .data(passes)
       .enter().append("line")
+      .attr("id","progressive")
       .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
       .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
       .attr("x2",d => (68-Number(d.endY)) * pitchMultiplier)  
@@ -697,6 +1151,7 @@ function actions(){
       pitch.selectAll('.progressiveLines')
       .data(passes)
       .enter().append("line")
+      .attr("id","progressive")
       .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
       .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
       .attr("x2",d => (68-Number(d.endY)) * pitchMultiplier)  
@@ -714,31 +1169,9 @@ function actions(){
         }
       });
 
-      console.log(progressive);
+      plotLines(pitch,progressive)
 
-
-      pitch.selectAll('.progressiveLines')
-      .data(progressive)
-      .enter().append("line")
-      .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
-      .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
-      .attr("x2",d => (68-Number(d.endY)) * pitchMultiplier)  
-      .attr("y2",d => (105-Number(d.endX)) * pitchMultiplier)  
-      //.style("filter", "url(#glow)")
-      .attr("stroke","white") 
-      .attr("stroke-width",lineWidth)   
-
-      pitch.selectAll('.progressiveCircles')
-      .data(progressive)
-      .enter().append('circle')
-      .attr('cy', d => (105 -d.endX) * pitchMultiplier)
-      .attr('cx', d => (68-d.endY) * pitchMultiplier)
-      .attr('r', 7)
-      .style('stroke-width', lineWidth)
-      .style("filter", "url(#glow)")
-      .style('stroke', "#e83030")
-      .style('fill', "#2a2e30")
-      .style("fill-opacity",1)
+      plotCircles(pitch,progressive,"#e83030")
 
     }
 
@@ -752,6 +1185,7 @@ function actions(){
       pitch.selectAll('.progressiveLines')
       .data(carries)
       .enter().append("line")
+      .attr("id","progressive")
       .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
       .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
       .attr("x2",d => (68-Number(d.endY)) * pitchMultiplier)  
@@ -772,6 +1206,7 @@ function actions(){
       pitch.selectAll('.progressiveLines')
       .data(carries)
       .enter().append("line")
+      .attr("id","progressive")
       .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
       .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
       .attr("x2",d => (68-Number(d.endY)) * pitchMultiplier)  
@@ -789,33 +1224,8 @@ function actions(){
           return d;
         }
       });
-
-      console.log(progressiveC);
-
-
-      pitch.selectAll('.progressiveLines')
-      .data(progressiveC)
-      .enter().append("line")
-      .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
-      .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
-      .attr("x2",d => (68-Number(d.endY)) * pitchMultiplier)  
-      .attr("y2",d => (105-Number(d.endX)) * pitchMultiplier)  
-      //.style("filter", "url(#glow)")
-      .attr("stroke","white") 
-      .attr("stroke-width",lineWidth)   
-
-      pitch.selectAll('.progressiveCircles')
-      .data(progressiveC)
-      .enter().append('circle')
-      .attr('cy', d => (105 -d.endX) * pitchMultiplier)
-      .attr('cx', d => (68-d.endY) * pitchMultiplier)
-      .attr('r', 7)
-      .style('stroke-width', lineWidth)
-      .style("filter", "url(#glow)")
-      .style('stroke', "#48EDDB")
-      .style('fill', "#2a2e30")
-      .style("fill-opacity",1)
-
+      plotLines(pitch,progressiveC)
+      plotCircles(pitch,progressiveC,"#48EDDB")
     }
   })
   .catch((error) => {
@@ -823,75 +1233,121 @@ function actions(){
   });
 }
 
-function actions2(){
-  lineColor = "#757272"
-  lineWidth = 1.8
-  pitchColor = "#eee"
-  pitchMultiplier = 5.5
-  pitchWidth = 105
-  pitchHeight = 68
-  margin = {
-  top: 10,
-  right: 0,
-  bottom: 0,
-  left: 5
+
+function getColor(item){
+  for(i=0;i < teams_colors.length;i++){
+    if(teams_colors[i]["team"] == item.team.replaceAll("-"," ")) return teams_colors[i]["color"]
   }
-  width = 590
-  height = 374
+  return "red"
+}
 
-  getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":0,"x2":52.5,"y1":0,"y2":0},{"x1":0,"x2":52.5,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34}]
-  getPitchCircles = [{"cy":11,"cx":34,"r":0.3,"color":"#000"},{"cy":52.5,"cx":34,"r":0.3,"color":"#000"}]
-  getArcs = [{"arc":{"innerRadius":63.2,"outerRadius":64.2,"startAngle":-Math.PI/2,"endAngle":Math.PI/2},"x":52.5,"y":34},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":1.5707963267948966,"endAngle":3.141592653589793},"x":0,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":4.7124,"endAngle":3.1416},"x":0,"y":68},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229,"endAngle":4.0603},"x":9,"y":34}]
+function table_bar(option){
 
-  d3.select("div#actions").select("svg").remove();
-  const svg = d3.select("div#actions").append("svg")
-  .attr("height", width + margin.left + margin.right)
-  .attr("width", height + margin.top + margin.bottom);
+  d3.csv("data/calculations.csv").then((data) => {
+    var data_selected = data;
 
-  const pitch = svg.append('g')
-    .attr('transform', `translate(${margin.left},${margin.right})`)
-  
-  pitch.append('rect')
-      .attr('y', -margin.left)
-      .attr('x', -margin.top)
-      .attr('height', width + margin.left + margin.right)
-      .attr('width', height + margin.top + margin.bottom)
-      .style('fill', pitchColor)
-      .style("opacity","0")
-  
-  const pitchLineData = getPitchLines;
-  pitch.selectAll('.pitchLines')
-      .data(pitchLineData)
-    .enter().append('line')
-      .attr('y1', d => d['x1'] * pitchMultiplier)
-      .attr('y2', d => d['x2'] * pitchMultiplier)
-      .attr('x1', d => d['y1'] * pitchMultiplier)
-      .attr('x2', d => d['y2'] * pitchMultiplier)
-      .style('stroke-width', lineWidth)
-      .style('stroke', lineColor)
-      .style("stroke-dasharray", ("10,3"));
-  
-  const pitchCircleData = getPitchCircles;
-  pitch.selectAll('.pitchCircles')
-      .data(pitchCircleData)
-    .enter().append('circle')
-      .attr('cy', d => d['cy'] * pitchMultiplier)
-      .attr('cx', d => d['cx'] * pitchMultiplier)
-      .attr('r', d => d['r'] * pitchMultiplier)
-      .style('stroke-width', lineWidth)
-      .style('stroke', lineColor)
-      .style('fill', d => d['color'])
-      .style("stroke-dasharray", ("10,3"));
-  
-  const pitchArcData = getArcs;
-  const arc = d3.arc();
-  pitch.selectAll('.pitchCorners')
-      .data(pitchArcData)
-    .enter().append('path')
-      .attr('d', d => arc(d['arc']))
-      .attr('transform', d => `translate(${pitchMultiplier * d.y},${pitchMultiplier * d.x})`)
-      .style('fill', "none")
-      .style('stroke', lineColor)
-      .style("stroke-dasharray", ("10,3"));
+    data_selected.sort(function(a, b){
+      var keyA = a[selectedStat],
+          keyB = b[selectedStat];
+      if(keyA < keyB) return 1;
+      if(keyA > keyB) return -1;
+      return 0;
+    })
 
+    d3.select("div#table").select("svg").remove();
+
+    var margin = {top: 0, right: 100, bottom: 100, left: 112},
+    width = 470,
+    height = 370;
+  
+    y = d3.scaleBand()
+    .domain(data_selected.map(d => d.team.replaceAll('-',' ')))
+    .rangeRound([margin.top, width - margin.bottom])
+  
+    x = d3.scaleLinear()
+    .domain([0, d3.max(data_selected, (d) => Number(d[selectedStat]))])
+    .rangeRound([margin.left,width - margin.right])
+  
+    xAxis = (g) => g
+    .attr("transform", `translate(0,${width - margin.right})`)
+    .call(d3
+        .axisBottom(x)
+        .tickSizeOuter(0))
+        
+  
+    yAxis = (g) => g
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y))
+  
+    const svg = d3
+    .select("div#table")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+    create_glow(svg)
+
+    //svg.append("g").attr("class","XAxisBar").call(xAxis);
+    svg.append("g").attr("class","YAxisBar").call(yAxis);
+
+    d3.selectAll(".YAxisBar .tick text")
+    .attr("id","label_bar") // selects the text within all groups of ticks
+        .attr("x", "20")
+        .style("filter", "url(#glow)")
+        .style("font-size",   function(d){
+          if(d == currentTeam) return "20px"
+        }) 
+
+
+    function handleMouseOver(event,d){
+      d3.select(this).style("cursor", "pointer")
+      mouseaux(svg,"rect",d,"over")
+      
+      svg
+      .append("text")
+      .attr("id","display_over")
+      .attr("x", 0 + 440)
+      .attr("y",  y(d.team.replaceAll('-',' ')) + 15.5)
+      .attr("text-anchor", "middle")  
+      .style("font-size", "20px") 
+      .style("filter", "url(#glow)")
+      .style("fill","white")
+      .text(Number(d[selectedStat]));  
+
+      svg.selectAll(".YAxisBar .tick text").style("opacity",e => {if(e != d.team) return 0.1})
+    }
+
+    function handleMouseLeave(event,d){
+      mouseaux(svg,"rect",d,"leave")
+
+      svg.select("text#display_over").remove()
+      svg.selectAll(".YAxisBar .tick text").style("opacity",e => {if(e != d.team) return 1})
+    }
+
+    svg.append("g")
+    .attr("fill", "#E03E33")
+    .attr("fill-opacity", 0.8)
+    .selectAll("rect")
+    .data(data_selected)
+    .join("rect")
+    .attr("x", 0 + 150)
+    .attr("y", d => y(d.team.replaceAll('-',' ')) + 1.5)
+    .on("mouseover",handleMouseOver)
+    .on("mouseleave",handleMouseLeave)
+    .attr("height", 15)
+    .style("stroke-width", function(d){
+      if(d.team == currentTeam) return 3
+      else return 0.2
+    })
+    .style("filter", "url(#glow)")
+    .style("stroke-dasharray",  function(d){
+      if(d.team != currentTeam) return ("10,3")
+    })
+    .style("stroke",function(d){
+      return "white"
+    }) 
+    .style("fill",d => getColor(d))
+    .attr("width", d => x(Number(d[selectedStat]))*0.7)
+
+  })
 }

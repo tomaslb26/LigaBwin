@@ -88,3 +88,60 @@ select option{
 .YAxis text{
   color: white;
 }
+
+td, th {
+  padding: 1px 4px;
+  color: white;
+}
+
+.XAxisBar line{
+  stroke: white;
+}
+
+.XAxisBar path{
+  stroke: white;
+}
+
+.XAxisBar text{
+  stroke: none;
+  color: white;
+}
+
+.YAxisBar line{
+  stroke: white;
+  stroke-width: 0%;
+}
+
+.YAxisBar path{
+  stroke: white;
+  stroke-width: 0%;
+}
+
+.YAxisBar text{
+  color: white;
+  font-size: 140%;
+}
+
+.btn{
+  border:2px solid rgb(202, 58, 58);
+  height: 100%;
+  cursor: pointer;
+  border-radius: .25em;
+  overflow: hidden;
+  font-weight: bold;
+}
+
+div.tooltip {	
+  position: absolute;
+  top: 405px;
+  left: 360px;
+  width: 180px;					
+  height: 85px;
+  font-weight: bold;							
+  font-size: 130%;	
+  background: #2a2e3094;	
+  color: white;
+  right: 10px;
+  border: 2px solid rgb(202, 58, 58);
+  border-radius: 10px;
+}
