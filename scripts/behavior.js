@@ -215,6 +215,19 @@ function movingAverage(){
     .style("fill","none")
     .style("filter", "url(#glow)")
 
+    function getAwayTeamName(d){
+      var ret_value = ""
+      data.filter(function(e){
+        if(e.round == d.round){
+          if(e.homeTeam == currentTeam){
+            ret_value = e.awayTeam
+          }
+          else ret_value = e.homeTeam
+        }
+      })
+      return ret_value
+    }
+
 
     function handleMouseClick(event,d){
       var homeTeam = ""
@@ -255,11 +268,13 @@ function movingAverage(){
 
     function handleMouseOver(event,d){
       d3.select(this).style("cursor", "pointer")
-      mouseaux(svg,"circle#node",d,"over","round")
+      //mouseaux(svg,"image#logos",d,"over","round")
+
+      svg.selectAll("image#logos").style("opacity",e => {if(e.round != d.round) return 0.2})
     }
     
     function handleMouseLeave(event,d){
-      mouseaux(svg,"circle#node",d,"leave","round")
+      svg.selectAll("image#logos").style("opacity",e => {if(e.round != d.round) return 1})
     }
 
     /*svg.selectAll('.lineCircles')
@@ -283,6 +298,7 @@ function movingAverage(){
     .data(final_team_data)
     .enter()
     .append("image")
+    .attr("id","logos")
     .attr('x', d => xScale(d.round) - 7)
     .attr('y', d => yScale(d.value)-7)
     .attr('width', 12)
@@ -292,7 +308,7 @@ function movingAverage(){
     .attr('height', 16)
     .attr("xlink:href", "data/" + currentTeam.replaceAll(" ","-") + ".png")
 
-    svg.selectAll('.lineCircles')
+    /*svg.selectAll('.lineCircles')
     .data(final_opp_data)
     .enter().append('circle')
     .attr("id","node")
@@ -306,7 +322,23 @@ function movingAverage(){
     .style('stroke', "black")
     .style('fill', "#48EDDB")
     .style("filter", "url(#glow)")
-    .style("fill-opacity",0.8)
+    .style("fill-opacity",0.8)*/
+
+    svg.selectAll('image_2')
+    .data(final_opp_data)
+    .enter()
+    .append("image")
+    .attr("id","logos")
+    .attr('x', d => xScale(d.round) - 7)
+    .attr('y', d => yScale(d.value)-7)
+    .attr('width', 12)
+    .on("mouseover",handleMouseOver)
+    .on("mouseleave",handleMouseLeave)
+    .on("click",handleMouseClick)
+    .attr('height', 16)
+    .attr("xlink:href", d =>{
+      console.log(getAwayTeamName(d))
+      return "data/" + getAwayTeamName(d).replaceAll(" ","-") + ".png"})
 
     xAxis = (g) =>
     g.attr("transform", `translate(0,${height - margin.bottom+40})`)
@@ -448,7 +480,6 @@ function selectTeam(){
     init()
   })
 
-  console.log(teams)
   new_teams = teams.filter(item => item !== currentTeam)
 
   if (currentSelectedTeam == currentTeam) currentSelectedTeam = new_teams[6]
@@ -1402,7 +1433,6 @@ function table_bar(option){
     .append("text")
     .attr("id","display_over")
     .attr("x", d => {
-      console.log(d)
       return x(Number(d[selectedStat]))*0.7 - 20
     })
     .attr("y",  d => y(d.team.replaceAll('-',' ')) + 13.5)
