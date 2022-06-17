@@ -202,7 +202,7 @@ function movingAverage(){
     svg.append("path")
         .attr('class','line')
         .attr("d", function(d){ return line(final_team_data) })
-        .style("stroke","#e83030")
+        .style("stroke",getColor(currentTeam))
         .style("stroke-width", 3)
         .style("fill","none")
         .style("filter", "url(#glow)")
@@ -262,7 +262,7 @@ function movingAverage(){
       mouseaux(svg,"circle#node",d,"leave","round")
     }
 
-    svg.selectAll('.lineCircles')
+    /*svg.selectAll('.lineCircles')
     .data(final_team_data)
     .enter().append('circle')
     .attr("id","node")
@@ -276,7 +276,21 @@ function movingAverage(){
     .style('stroke', "black")
     .style('fill', "#e83030")
     .style("filter", "url(#glow)")
-    .style("fill-opacity",0.8)
+    .style("fill-opacity",0.8)*/
+
+    
+    svg.selectAll('image')
+    .data(final_team_data)
+    .enter()
+    .append("image")
+    .attr('x', d => xScale(d.round) - 7)
+    .attr('y', d => yScale(d.value)-7)
+    .attr('width', 12)
+    .on("mouseover",handleMouseOver)
+    .on("mouseleave",handleMouseLeave)
+    .on("click",handleMouseClick)
+    .attr('height', 16)
+    .attr("xlink:href", "data/" + currentTeam.replaceAll(" ","-") + ".png")
 
     svg.selectAll('.lineCircles')
     .data(final_opp_data)
@@ -317,7 +331,7 @@ function movingAverage(){
         .append("text")
         .attr("class", "y label")
         .attr("text-anchor", "end")
-        .attr("x", -105)
+        .attr("x", -95)
         .attr("y", -40)
         .attr("dy", ".75em")
         .attr("transform", "rotate(-90)")
@@ -1336,31 +1350,19 @@ function table_bar(option){
       console.log(event.path[0].getAttribute("width"))
       d3.select(this).style("cursor", "pointer")
       mouseaux(svg,"rect",d,"over")
-      
-      svg
-      .append("text")
-      .attr("id","display_over")
-      .attr("x", 0 + event.path[0].getAttribute("width") - 20)
-      .attr("y",  y(d.team.replaceAll('-',' ')) + 13.5)
-      .attr("text-anchor", "middle")  
-      .style("font-size", "12px") 
-      .style("filter", "url(#glow)")
-      .style("fill","white")
-      .text(Number(d[selectedStat]));  
 
+      svg.selectAll("text#display_over").style("opacity",e => {if(e.team != d.team.replaceAll("-"," ")) return 0.1})
+       
       svg.selectAll(".YAxisBar .tick text").style("opacity",e => {if(e != d.team.replaceAll("-"," ")) return 0.1})
     }
 
     function handleMouseLeave(event,d){
       mouseaux(svg,"rect",d,"leave")
-
-      svg.select("text#display_over").remove()
+      svg.selectAll("text#display_over").style("opacity",e => {if(e.team != d.team.replaceAll("-"," ")) return 1})
       svg.selectAll(".YAxisBar .tick text").style("opacity",e => {if(e != d.team) return 1})
     }
 
     svg.append("g")
-    .attr("fill", "#E03E33")
-    .attr("fill-opacity", 0.8)
     .selectAll("rect")
     .data(data_selected)
     .join("rect")
@@ -1382,7 +1384,6 @@ function table_bar(option){
     }) 
     .style("fill",d => getColor(d.team))
     .attr("width", d => x(Number(d[selectedStat]))*0.7)
-
     
     d3.selectAll(".YAxisBar .tick text")
     .attr("id","label_bar") // selects the text within all groups of ticks
@@ -1392,6 +1393,24 @@ function table_bar(option){
           if(d == currentTeam) return "15px"
           else return "8px"
         })
+
+    console.log(data_selected)
+
+
+     svg.selectAll("YAxisBar .tick")
+    .data(data_selected).enter()
+    .append("text")
+    .attr("id","display_over")
+    .attr("x", d => {
+      console.log(d)
+      return x(Number(d[selectedStat]))*0.7 - 20
+    })
+    .attr("y",  d => y(d.team.replaceAll('-',' ')) + 13.5)
+    .attr("text-anchor", "middle")  
+    .style("font-size", "12px") 
+    .style("filter", "url(#glow)")
+    .style("fill","white")
+    .text(d => Number(d[selectedStat]));
 
   })
 }
