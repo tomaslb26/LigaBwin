@@ -4,7 +4,7 @@
   --darkgray: #2a2e30;
 }
 
-body::after {
+#background_div{
   content: "";
   background: url(../data/estadio_Benfica.jpg);
   opacity: 0.05;
@@ -44,7 +44,7 @@ body::after {
 
 select {
   /* Reset Select */
-  border:2px solid rgb(202, 58, 58);
+  border:2px solid #cf261f;
   /* Personalize */
   flex: 1;
   padding: 0 1em;
@@ -128,10 +128,10 @@ td, th {
 }
 
 .btn{
-  border:2px solid rgb(202, 58, 58);
+  border:2px solid #cf261f;
   height: 100%;
   cursor: pointer;
-  border-radius: .25em;
+  border-radius: .45em;
   overflow: hidden;
   font-weight: bold;
 }
@@ -147,6 +147,6 @@ div.tooltip {
   background: #2a2e3094;	
   color: white;
   right: 10px;
-  border: 2px solid rgb(202, 58, 58);
+  border: 2px solid #cf261f;
   border-radius: 10px;
 }

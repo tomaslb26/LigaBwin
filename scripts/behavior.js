@@ -43,7 +43,7 @@ function init(){
 function fill_glow(){
   d3.select("p#Plot").style("filter", "url(#glow)")
   d3.select("p#PassingNetwork").style("filter", "url(#glow)")
-  d3.select("span#Game").style("filter", "url(#glow)")
+  d3.select("p#Game").style("filter", "url(#glow)")
   d3.select("span#Rank").style("filter", "url(#glow)")
   d3.select("select#selectButton").style("filter", "url(#glow)")
   d3.select("select#selectHome").style("filter", "url(#glow)")
@@ -123,6 +123,7 @@ function movingAverage(){
 
   let tooltip = d3.select("body").append("div").attr("id","tooltip_moving_average")
   .attr("class", "tooltip")
+  .style("border","2px solid " + getColor(currentTeam))
   .style("opacity", 0);
 
   d3.csv("data/allShotsLigaBwin2122.csv")
@@ -166,8 +167,8 @@ function movingAverage(){
       return a.round - b.round
     });
     //--------------------------------------------------------------------------------------/
-    console.log(window.innerWidth)
-    if(window.innerWidth > 600) width = window.innerWidth/3 - 50
+    if(window.innerWidth > 1400) width = window.innerWidth/3 - 50
+    else if(window.innerWidth > 600) width = window.innerWidth/3 - 150
     else width = 270
     height = window.innerHeight/4
     margin = {'top': 40, 'right':380, 'bottom':40, 'left':20}
@@ -337,7 +338,6 @@ function movingAverage(){
     .on("click",handleMouseClick)
     .attr('height', 16)
     .attr("xlink:href", d =>{
-      console.log(getAwayTeamName(d))
       return "data/" + getAwayTeamName(d).replaceAll(" ","-") + ".png"})
 
     xAxis = (g) =>
@@ -397,7 +397,7 @@ function movingAverage(){
     .attr("text-anchor", "middle")  
     .style("font-size", "20px") 
     .style("filter", "url(#glow)")
-    .style("fill","#e83030")
+    .style("fill",getColor(currentTeam))
     .style("font-weight","bold")
     .text("For");  
 
@@ -446,7 +446,9 @@ function selectTeam(){
       data_calc = data;
   
       array = Object.keys(data_calc[0])
-      array.splice(0,2)
+      var array = array.filter(function(value, index, arr){ 
+        if(value != "team" && value != "teamId") return value;
+      });
   
       d3.select("#selectStat")
       .selectAll('myOptions')
@@ -454,8 +456,8 @@ function selectTeam(){
       .enter()
       .append('option')
       .text(function (d) { 
-                    if(d == "OppHalfDefActions") return "Defensive Actions in the opponent's half"
-                    else if(d == "OwnHalfDefActions") return "Defensive Actions in own half"
+                    if(d == "OppHalfDefActions") return "Def. Actions in the Opp. Half"
+                    else if(d == "OwnHalfDefActions") return "Def. Actions in Own half"
                     else return d; }) // text showed in the menu
       .attr("value", function (d) { return d; })
     })
@@ -473,10 +475,17 @@ function selectTeam(){
   d3.select("#selectTeam").on("change", function(d) {
     // recover the option that has been chosen
     currentTeam= d3.select(this).property("value")
-    console.log(getColor(currentTeam))
     d3.select("#selectTeam").style("color",getColor(currentTeam))
     currentTeamId = teamDict[currentTeam.replaceAll(" ","-")]
     document.getElementById("image_logo").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
+    d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam + ".jpg)").style("opacity", 0.05)
+    d3.select("div#rectangle").style("border","2px solid " + getColor(currentTeam))
+    d3.select("div#rectangle_1").style("border","2px solid " + getColor(currentTeam))
+    d3.select("div#rectangle_2").style("border","2px solid " + getColor(currentTeam))
+    d3.select("#selectButton").style("border","2px solid " + getColor(currentTeam))
+    d3.select("#selectStat").style("border","2px solid " + getColor(currentTeam))
+    d3.select("#selectHome").style("border","2px solid " + getColor(currentTeam))
+    d3.selectAll(".btn").style("border","2px solid " + getColor(currentTeam))
     init()
   })
 
@@ -553,6 +562,7 @@ function PassNetwork(){
 
   let tooltip = d3.select("body").append("div").attr("id","tooltip_pass")
   .attr("class", "tooltip")
+  .style("border","2px solid " + getColor(currentTeam))
   .style("opacity", 0);
 
   if(currentPassNetworkState == "Home") var string = "data/PassNetworks/" + currentTeam.replace(/\s+/g, '-') + "/PassNetwork" + currentTeam.replace(/\s+/g, '-') + currentSelectedTeam.replace(/\s+/g, '-') + ".csv"
@@ -575,7 +585,7 @@ function PassNetwork(){
     left: 5
     }
     width = 590
-    height = 374
+    height = window.innerWidth/3
 
     getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":0,"x2":-1.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
     getPitchCircles = [{"cy":52.5,"cx":34,"r":9.15,"color":"none"},{"cy":11,"cx":34,"r":0.3,"color":"#000"},{"cy":94,"cx":34,"r":0.3,"color":"#000"},{"cy":52.5,"cx":34,"r":0.3,"color":"#000"}]
@@ -786,6 +796,7 @@ function actions(option){
 
   let tooltip = d3.select("body").append("div").attr("id","tooltip_actions")
   .attr("class", "tooltip")
+  .style("border","2px solid " + getColor(currentTeam))
   .style("opacity", 0);
 
   d3.select("body").on("click",function(){
@@ -810,13 +821,14 @@ function actions(option){
     pitchWidth = 105
     pitchHeight = 68
     margin = {
-    top: 10,
+    top: 20,
     right: 9,
-    bottom: 0,
+    bottom: 20,
     left: 5
     }
     width = 590
-    height = 374
+    if(window.innerWidth > 600) height = window.innerWidth/3
+    else height = 350
 
     getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
     getPitchCircles = [{"cy":52.5,"cx":34,"r":9.15,"color":"none"},{"cy":11,"cx":34,"r":0.3,"color":"#000"},{"cy":94,"cx":34,"r":0.3,"color":"#000"},{"cy":52.5,"cx":34,"r":0.3,"color":"#000"}]
@@ -883,13 +895,13 @@ function actions(option){
       allCarries = false
       allPasses = false
       UnsuccessfulPasses = false
-      d3.select("div#lastrow").selectAll("input").remove()
-      d3.select("div#lastrow").selectAll("label").remove( )
+      d3.select("div#rectangle_2").selectAll("input").remove()
+      d3.select("div#rectangle_2").selectAll("label").remove( )
     }
 
     if(option == "actions"){
       setAllFalse()
-      d3.select("div#lastrow").selectAll("input")
+      d3.select("div#rectangle_2").selectAll("input")
       .data(["All Passes", "Progressive Passes", "Unsuccessful Passes", "All Carries", "Progressive Carries"])
       .enter()
       .append('label')
@@ -897,13 +909,14 @@ function actions(option){
           .text(function(d) { return d; })
           .style("filter", "url(#glow)")
           .style("color","white")
-          .style("padding-right","2%")
+          .style("padding-left","5%")
       .append("input")
           .attr("type", "checkbox")
           .attr("id", function(d,i) { return 'a'+i; })
           .style("filter", "url(#glow)")
           .style("color","white")
           .style("margin-left","10px")
+          .style("padding-left","5%")
 
       newSelects()
 
@@ -1097,7 +1110,7 @@ function actions(option){
       })
 
 
-      d3.select("div#lastrow").selectAll("input")
+      d3.select("div#rectangle_2").selectAll("input")
       .data(["Ball Recovery", "Interception", "BlockedPass", "Clearance", "Tackle"])
       .enter()
       .append('label')
@@ -1105,7 +1118,7 @@ function actions(option){
           .text(function(d) { return d; })
           .style("filter", "url(#glow)")
           .style("color","white")
-          .style("padding-right","5%")
+          .style("padding-left","5%")
       .append('div')
         .attr('id','circle')
         .style('background', function(d){
@@ -1345,11 +1358,11 @@ function table_bar(option){
     var margin = {top: 0, right: 0, bottom: 0, left: 0}
     if(window.innerWidth > 600) width = window.innerWidth/3 - 40
     else width = 270
-    height = 370;
+    height = 470;
   
     y = d3.scaleBand()
     .domain(data_selected.map(d => d.team.replaceAll('-',' ')))
-    .rangeRound([margin.top, height - margin.bottom])
+    .rangeRound([margin.top, height - margin.bottom]).padding(2)
   
     x = d3.scaleLinear()
     .domain([0, 40 + d3.max(data_selected, (d) => Number(d[selectedStat]))])
@@ -1378,30 +1391,37 @@ function table_bar(option){
     svg.append("g").attr("class","YAxisBar").call(yAxis);
 
     function handleMouseOver(event,d){
-      console.log(event.path[0].getAttribute("width"))
       d3.select(this).style("cursor", "pointer")
       mouseaux(svg,"rect",d,"over")
 
-      svg.selectAll("text#display_over").style("opacity",e => {if(e.team != d.team.replaceAll("-"," ")) return 0.1})
-       
-      svg.selectAll(".YAxisBar .tick text").style("opacity",e => {if(e != d.team.replaceAll("-"," ")) return 0.1})
+      svg.selectAll("text#display_over").style("opacity",e => {if(e.team != d.team) return 0.1})
+
+      svg.selectAll("image#logos_1").style("opacity",e => {if(e.team != d.team) return 0.2})
+
+      svg.selectAll("rect").style("height",function(e){
+        if(e.team == d.team) return 15
+      })
     }
 
     function handleMouseLeave(event,d){
       mouseaux(svg,"rect",d,"leave")
       svg.selectAll("text#display_over").style("opacity",e => {if(e.team != d.team.replaceAll("-"," ")) return 1})
-      svg.selectAll(".YAxisBar .tick text").style("opacity",e => {if(e != d.team) return 1})
+      svg.selectAll("image#logos_1").style("opacity",e => {if(e.team != d.team) return 1})
+      svg.selectAll("rect").style("height",function(e){
+        if(e.team == d.team) return 10
+      })
     }
 
     svg.append("g")
     .selectAll("rect")
     .data(data_selected)
     .join("rect")
-    .attr("x", 0)
-    .attr("y", d => y(d.team.replaceAll('-',' ')) + 1.5)
+    .attr("x", 50)
+    .attr("y", d => y(d.team.replaceAll('-',' ')) -40)
+    .attr("rx", 5)
     .on("mouseover",handleMouseOver)
     .on("mouseleave",handleMouseLeave)
-    .attr("height", 15)
+    .attr("height", 10)
     .style("stroke-width", function(d){
       if(d.team == currentTeam) return 3
       else return 0.2
@@ -1416,7 +1436,7 @@ function table_bar(option){
     .style("fill",d => getColor(d.team))
     .attr("width", d => x(Number(d[selectedStat]))*0.7)
     
-    d3.selectAll(".YAxisBar .tick text")
+    /*d3.selectAll(".YAxisBar .tick text")
     .attr("id","label_bar") // selects the text within all groups of ticks
     .attr("x",width)
         .style("filter", "url(#glow)")
@@ -1424,8 +1444,17 @@ function table_bar(option){
           if(d == currentTeam) return "15px"
           else return "8px"
         })
-
-    console.log(data_selected)
+        */
+    svg.selectAll('image')
+    .data(data_selected)
+    .enter()
+    .append("image")
+    .attr("id","logos_1")
+    .attr("x", 20)
+    .attr("y", d => y(d.team.replaceAll('-',' ')) - 46)
+    .attr('width', 18)
+    .attr('height', 22)
+    .attr("xlink:href",d => "data/" + d.team.replaceAll(" ","-") + ".png")
 
 
      svg.selectAll("YAxisBar .tick")
@@ -1433,11 +1462,12 @@ function table_bar(option){
     .append("text")
     .attr("id","display_over")
     .attr("x", d => {
-      return x(Number(d[selectedStat]))*0.7 - 20
+      return x(Number(d[selectedStat]))*0.7 - 20 + 90
     })
-    .attr("y",  d => y(d.team.replaceAll('-',' ')) + 13.5)
+    .attr("y",  d => y(d.team.replaceAll('-',' ')) - 30)
     .attr("text-anchor", "middle")  
-    .style("font-size", "12px") 
+    .style("font-size", "14px") 
+    .style("font-weight","bold")
     .style("filter", "url(#glow)")
     .style("fill","white")
     .text(d => Number(d[selectedStat]));
