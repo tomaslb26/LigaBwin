@@ -1,5 +1,6 @@
 var dataset;
 var currentTeam = "Benfica"
+var display_name = "Benfica"
 var currentSelectedTeam = "Braga"
 var currentPassNetworkState = "Home"
 var allPasses = false
@@ -10,6 +11,7 @@ var ProgressiveCarries = false
 var UnsuccessfulPasses = false
 var defensiveActions = false
 var currentTeamId = 299;
+var once = false;
 var selectedStat = "OppHalfDefActions"
 var teams = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
 'Arouca', 'Belenenses SAD', 'Boavista', 'Braga',
@@ -19,7 +21,7 @@ var teams = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
 
 var teams_colors = [{"team": "Benfica", "color":"#cf261f"},{"team": "Famalicao", "color":"#163b66"},{"team":"Moreirense","color":"#145f25"},{"team":"Vizela","color":"#014694"},
                     {"team":"Arouca","color":"#fff400"},{"team":"Belenenses SAD","color":"#02578d"},{"team":"Boavista","color":"black"},{"team":"Braga","color":"#dc0b15"},
-                    {"team":"Maritimo","color":"#073219"},{"team":"Pacos de Ferreira","color":"#f5eb00"},{"team":"Vitoria de Guimaraes","color":"white"},
+                    {"team":"Maritimo","color":"#073219"},{"team":"Pacos de Ferreira","color":"#f5eb00"},{"team":"Vitoria de Guimaraes","color":"#97928B"},
                     {"team":"Gil Vicente","color":"#ee2623"},{"team":"Porto","color":"#040c55"},{"team":"Portimonense","color":"black"},{"team":"Santa Clara","color":"#b5252e"},
                     {"team":"Tondela","color":"#06653d"},{"team":"Estoril","color":"#ffed00"},{"team":"Sporting","color":"#008057"}]
 
@@ -28,6 +30,7 @@ var teamDict = {'Benfica': 299, 'Famalicao': 935, 'Moreirense' : 108, 'Vizela': 
             'Maritimo': 264, 'Pacos-de-Ferreira': 786, 'Vitoria-de-Guimaraes': 107, 'Gil-Vicente': 290,
             'Porto': 297, 'Portimonense': 1463, 'Santa-Clara': 251, 'Tondela': 8071,
             'Estoril': 2188, 'Sporting': 296}
+
 function init(){
   selectTeam();
   PassNetwork();
@@ -116,7 +119,7 @@ function mouseaux(svg,div,d,option,option_2){
 
 function movingAverage(){
   d3.select("div#movingAverage").select("svg").remove();
-  d3.select("body").selectAll("div#tooltip_actions").remove()
+  d3.select("body").selectAll("div#tooltip_moving_average").remove()
 
   let tooltip = d3.select("body").append("div").attr("id","tooltip_moving_average")
   .attr("class", "tooltip")
@@ -239,8 +242,8 @@ function movingAverage(){
       .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
 
       var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + homeTeam + " - " + awayTeam + "<br\>"
-       + "Benfica xG: " + String(benficaxg).substring(0,5) + "<br\>"
-       + "Benfica xGA: " + String(oppxg).substring(0,5) + "<p/>";
+       + currentTeam + " xG: " + String(benficaxg).substring(0,5) + "<br\>"
+       + currentTeam + " xGA: " + String(oppxg).substring(0,5) + "<p/>";
 
       tooltip.transition()		
       .duration(200)		
@@ -337,6 +340,7 @@ function movingAverage(){
     .style("font-size", "20px") 
     .style("filter", "url(#glow)")
     .style("fill","white")
+    .style("font-weight","bold")
     .text("xG"); 
 
     svg
@@ -367,12 +371,49 @@ function movingAverage(){
 }
 
 function selectTeam(){
+  if(once == false){
+    d3.select("#selectStat").on("change", function(d) {
+      // recover the option that has been chosen
+      selectedStat = d3.select(this).property("value");
+      table_bar();
+    })
 
-  d3.select("#selectStat").on("change", function(d) {
+    d3.select("#selectHome")
+    .selectAll('myOptions')
+    .data(['Home','Away'])
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+  
+    d3.select("#selectHome").on("change", function(d) {
     // recover the option that has been chosen
-    selectedStat = d3.select(this).property("value");
-    table_bar();
-  })
+      currentPassNetworkState= d3.select(this).property("value")
+      PassNetwork()
+      actions(currentOption)
+    })
+  
+    d3.select("#selectHome").property("value",currentPassNetworkState)
+  
+    var data_calc;
+    d3.csv("data/calculations.csv").then((data) => {
+      data_calc = data;
+  
+      array = Object.keys(data_calc[0])
+      array.splice(0,2)
+  
+      d3.select("#selectStat")
+      .selectAll('myOptions')
+      .data(array)
+      .enter()
+      .append('option')
+      .text(function (d) { 
+                    if(d == "OppHalfDefActions") return "Defensive Actions in the opponent's half"
+                    else if(d == "OwnHalfDefActions") return "Defensive Actions in own half"
+                    else return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; })
+    })
+  }
 
   d3.select("#selectTeam")
   .selectAll('myOptions')
@@ -385,41 +426,28 @@ function selectTeam(){
   d3.select("#selectTeam").on("change", function(d) {
     // recover the option that has been chosen
     currentTeam= d3.select(this).property("value")
+    console.log(getColor(currentTeam))
+    d3.select("#selectTeam").style("color",getColor(currentTeam))
     currentTeamId = teamDict[currentTeam.replaceAll(" ","-")]
     document.getElementById("image_logo").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
     init()
   })
 
-  teams = teams.filter(item => item !== currentTeam)
+  console.log(teams)
+  new_teams = teams.filter(item => item !== currentTeam)
 
-  if (currentSelectedTeam == currentTeam) currentSelectedTeam = teams[6]
+  if (currentSelectedTeam == currentTeam) currentSelectedTeam = new_teams[6]
+
+  d3.select("#selectButton").selectAll("#options").remove()
 
   d3.select("#selectButton")
   .selectAll('myOptions')
-  .data(teams)
+  .data(new_teams)
   .enter()
   .append('option')
+  .attr("id","options")
   .text(function (d) { return d; }) // text showed in the menu
   .attr("value", function (d) { return d; })
-
-  var data_calc;
-  d3.csv("data/calculations.csv").then((data) => {
-    data_calc = data;
-
-    array = Object.keys(data_calc[0])
-    array.splice(0,2)
-
-    d3.select("#selectStat")
-    .selectAll('myOptions')
-    .data(array)
-    .enter()
-    .append('option')
-    .text(function (d) { 
-                  if(d == "OppHalfDefActions") return "Defensive Actions in the opponent's half"
-                  else if(d == "OwnHalfDefActions") return "Defensive Actions in own half"
-                  else return d; }) // text showed in the menu
-    .attr("value", function (d) { return d; })
-  })
 
   d3.select("#selectButton").on("change", function(d) {
   // recover the option that has been chosen
@@ -430,25 +458,11 @@ function selectTeam(){
 
   d3.select("#selectButton").property("value",currentSelectedTeam)
 
-  d3.select("#selectHome")
-  .selectAll('myOptions')
-  .data(['Home','Away'])
-  .enter()
-  .append('option')
-  .text(function (d) { return d; }) // text showed in the menu
-  .attr("value", function (d) { return d; })
-
-  d3.select("#selectHome").on("change", function(d) {
-  // recover the option that has been chosen
-    currentPassNetworkState= d3.select(this).property("value")
-    PassNetwork()
-    actions(currentOption)
-  })
-
-  d3.select("#selectHome").property("value",currentPassNetworkState)
+  once = true;
 }
 
 function newSelects(){
+
   d3.select("#a0").on("change", function(d) {
     // recover the option that has been chosen
     allPasses = !allPasses;
@@ -1292,7 +1306,7 @@ function table_bar(option){
     .rangeRound([margin.top, height - margin.bottom])
   
     x = d3.scaleLinear()
-    .domain([0, d3.max(data_selected, (d) => Number(d[selectedStat]))])
+    .domain([0, 40 + d3.max(data_selected, (d) => Number(d[selectedStat]))])
     .rangeRound([margin.left,width - margin.right])
   
     xAxis = (g) => g
@@ -1317,27 +1331,18 @@ function table_bar(option){
     //svg.append("g").attr("class","XAxisBar").call(xAxis);
     svg.append("g").attr("class","YAxisBar").call(yAxis);
 
-    d3.selectAll(".YAxisBar .tick text")
-    .attr("id","label_bar") // selects the text within all groups of ticks
-        .attr("x", "75")
-        .style("filter", "url(#glow)")
-        .style("font-size",   function(d){
-          if(d == currentTeam) return "20px"
-          else return "8px"
-        }) 
-
-
     function handleMouseOver(event,d){
+      console.log(event.path[0].getAttribute("width"))
       d3.select(this).style("cursor", "pointer")
       mouseaux(svg,"rect",d,"over")
       
       svg
       .append("text")
       .attr("id","display_over")
-      .attr("x", 0 + 410)
+      .attr("x", 0 + event.path[0].getAttribute("width") - 20)
       .attr("y",  y(d.team.replaceAll('-',' ')) + 13.5)
       .attr("text-anchor", "middle")  
-      .style("font-size", "15px") 
+      .style("font-size", "12px") 
       .style("filter", "url(#glow)")
       .style("fill","white")
       .text(Number(d[selectedStat]));  
@@ -1358,7 +1363,7 @@ function table_bar(option){
     .selectAll("rect")
     .data(data_selected)
     .join("rect")
-    .attr("x", 80)
+    .attr("x", 0)
     .attr("y", d => y(d.team.replaceAll('-',' ')) + 1.5)
     .on("mouseover",handleMouseOver)
     .on("mouseleave",handleMouseLeave)
@@ -1376,6 +1381,16 @@ function table_bar(option){
     }) 
     .style("fill",d => getColor(d.team))
     .attr("width", d => x(Number(d[selectedStat]))*0.7)
+
+    
+    d3.selectAll(".YAxisBar .tick text")
+    .attr("id","label_bar") // selects the text within all groups of ticks
+    .attr("x",width)
+        .style("filter", "url(#glow)")
+        .style("font-size",   function(d){
+          if(d == currentTeam) return "15px"
+          else return "8px"
+        })
 
   })
 }
