@@ -449,6 +449,8 @@ function selectTeam(){
       var array = array.filter(function(value, index, arr){ 
         if(value != "team" && value != "teamId") return value;
       });
+
+      selectedStat = array[0]
   
       d3.select("#selectStat")
       .selectAll('myOptions')
@@ -475,10 +477,11 @@ function selectTeam(){
   d3.select("#selectTeam").on("change", function(d) {
     // recover the option that has been chosen
     currentTeam= d3.select(this).property("value")
+    console.log(currentTeam)
     d3.select("#selectTeam").style("color",getColor(currentTeam))
     currentTeamId = teamDict[currentTeam.replaceAll(" ","-")]
     document.getElementById("image_logo").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
-    d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam + ".jpg)").style("opacity", 0.05)
+    d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
     d3.select("div#rectangle").style("border","2px solid " + getColor(currentTeam))
     d3.select("div#rectangle_1").style("border","2px solid " + getColor(currentTeam))
     d3.select("div#rectangle_2").style("border","2px solid " + getColor(currentTeam))
@@ -1355,17 +1358,17 @@ function table_bar(option){
 
     d3.select("div#table").select("svg").remove();
 
-    var margin = {top: 0, right: 0, bottom: 0, left: 0}
+    var margin = {top: 12, right: 0, bottom: 0, left: 0}
     if(window.innerWidth > 600) width = window.innerWidth/3 - 40
     else width = 270
-    height = 470;
+    height = 420;
   
     y = d3.scaleBand()
     .domain(data_selected.map(d => d.team.replaceAll('-',' ')))
-    .rangeRound([margin.top, height - margin.bottom]).padding(2)
+    .rangeRound([margin.top, height - margin.bottom]).padding(1.7)
   
     x = d3.scaleLinear()
-    .domain([0, 40 + d3.max(data_selected, (d) => Number(d[selectedStat]))])
+    .domain([0, d3.max(data_selected, (d) => Number(d[selectedStat]))])
     .rangeRound([margin.left,width - margin.right])
   
     xAxis = (g) => g
@@ -1416,7 +1419,7 @@ function table_bar(option){
     .selectAll("rect")
     .data(data_selected)
     .join("rect")
-    .attr("x", 50)
+    .attr("x", 28)
     .attr("y", d => y(d.team.replaceAll('-',' ')) -40)
     .attr("rx", 5)
     .on("mouseover",handleMouseOver)
@@ -1450,7 +1453,7 @@ function table_bar(option){
     .enter()
     .append("image")
     .attr("id","logos_1")
-    .attr("x", 20)
+    .attr("x", 5)
     .attr("y", d => y(d.team.replaceAll('-',' ')) - 46)
     .attr('width', 18)
     .attr('height', 22)
@@ -1462,7 +1465,7 @@ function table_bar(option){
     .append("text")
     .attr("id","display_over")
     .attr("x", d => {
-      return x(Number(d[selectedStat]))*0.7 - 20 + 90
+      return x(Number(d[selectedStat]))*0.7 - 20 + 70
     })
     .attr("y",  d => y(d.team.replaceAll('-',' ')) - 30)
     .attr("text-anchor", "middle")  

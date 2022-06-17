@@ -23,7 +23,7 @@
 		<link rel="stylesheet" href="style/styles.css">
 	</head>
 
-	<body style="background-color:#2a2e30;" onload="init()">
+	<body scroll="no" style="background-color:#2a2e30;" onload="init()">
 
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
 			<a class="navbar-brand" href="#">
@@ -45,7 +45,7 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-sm-12 col-xl-4 col-xxl-5">
-					<div id = "rectangle" style="background: #2a2e3096; width: 90%; height: 90%; margin-top: 3%; border:2px solid #cf261f; border-radius: .45em;">
+					<div id = "rectangle" style="background: #2a2e30de; width: 90%; height: 94%; margin-top: 3%; border:2px solid #cf261f; border-radius: .45em;">
 						<div style = "padding-top: 1%; padding-left: 2%; padding-bottom: 2%;" id = "movingAverage"></div>
 						<span id="Rank" style="color: white; font-size: 120%;padding-left: 3%; font-weight: bold; vertical-align: middle;" >Rank By Stat:</span>
 						<select  style = "vertical-align: middle; margin-left: 2%;" id="selectStat"></select>
@@ -53,7 +53,7 @@
 					</div>
 				</div>
 				<div class="col-sm-12 col-xl-4 col-xxl-3">
-					<div id = "rectangle_1" style="background: #2a2e3096; width: 110%; height: 90%; margin-top: 5%;  position: relative; left: -15%; border:2px solid #cf261f; border-radius: .45em;">
+					<div id = "rectangle_1" style="background: #2a2e30de; width: 110%; height: 94%; margin-top: 5%;  position: relative; left: -15%; border:2px solid #cf261f; border-radius: .45em;">
 						<p id="PassingNetwork" style="color: white; font-size: 150%; font-weight: bold; vertical-align: middle; padding-top: 3%; padding-left: 5%" >Passing Network:</p>
 						<span id="Game" style="color: white; font-size: 110%; font-weight: bold; vertical-align: middle; padding-left: 5%" >Game:</span>
 						<select  style = "vertical-align: middle; padding-left: 5%" id="selectButton"></select>
@@ -62,12 +62,12 @@
 					</div>
 				</div>
 				<div class="col-sm-12 col-xl-4 col-xxl-3" id = "lastrow">
-					<div id = "rectangle_2" style="background: #2a2e3096; width: 110%; height: 90%; margin-top: 5%;  position: relative; left: -8%; border:2px solid #cf261f; border-radius: .45em;">
+					<div id = "rectangle_2" style="background: #2a2e30de; width: 110%; height: 94%; margin-top: 5%;  position: relative; left: -8%; border:2px solid #cf261f; border-radius: .45em;">
 						<p id="Plot" style="color: white; font-size: 150%; font-weight: bold; vertical-align: middle; padding-top: 3%; padding-left: 5%" >Plot:</span>
 						<button type="button" onclick = "actions('actions')" style="background-color: rgba(255, 255, 255, 0); padding-left: 3%; color: white;" class="btn">Actions</button>
 						<button type="button" onclick = "actions('shots')" style="background-color: rgba(255, 255, 255, 0); padding-left: 3%; color: white;" class="btn">Shots</button>
 						<button type="button" onclick = "actions('def.actions')" style="background-color: rgba(255, 255, 255, 0); padding-left: 3%; color: white;" class="btn">Def. Actions</button>
-						<div id = "actions" style="padding-top:0%; padding-left: 5%"></div>
+						<div id = "actions" style="padding-top:0%; padding-left: 0%"></div>
 					</div>
 				</div>
 			</div>
