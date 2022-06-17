@@ -413,15 +413,16 @@ function selectTeam(){
                     else return d; }) // text showed in the menu
       .attr("value", function (d) { return d; })
     })
+
+    d3.select("#selectTeam")
+    .selectAll('myOptions')
+    .data(teams)
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
   }
 
-  d3.select("#selectTeam")
-  .selectAll('myOptions')
-  .data(teams)
-  .enter()
-  .append('option')
-  .text(function (d) { return d; }) // text showed in the menu
-  .attr("value", function (d) { return d; })
 
   d3.select("#selectTeam").on("change", function(d) {
     // recover the option that has been chosen
