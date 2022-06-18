@@ -302,7 +302,6 @@ function movingAverage(){
     .attr("id","logos")
     .attr('x', d => xScale(d.round) - 7)
     .attr('y', d => yScale(d.value)-7)
-    .attr('width', 12)
     .on("mouseover",handleMouseOver)
     .on("mouseleave",handleMouseLeave)
     .on("click",handleMouseClick)
@@ -332,7 +331,6 @@ function movingAverage(){
     .attr("id","logos")
     .attr('x', d => xScale(d.round) - 7)
     .attr('y', d => yScale(d.value)-7)
-    .attr('width', 12)
     .on("mouseover",handleMouseOver)
     .on("mouseleave",handleMouseLeave)
     .on("click",handleMouseClick)
@@ -488,6 +486,8 @@ function selectTeam(){
     d3.select("#selectButton").style("border","2px solid " + getColor(currentTeam))
     d3.select("#selectStat").style("border","2px solid " + getColor(currentTeam))
     d3.select("#selectHome").style("border","2px solid " + getColor(currentTeam))
+    d3.select("#selectTeam").style("border","2px solid " + getColor(currentTeam))
+    d3.select("#navbar").style("border","2px solid " + getColor(currentTeam))
     d3.selectAll(".btn").style("border","2px solid " + getColor(currentTeam))
     init()
   })
@@ -963,9 +963,20 @@ function actions(option){
           var matrix = this.getScreenCTM()
           .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
 
+          if(currentPassNetworkState == "Home"){
+            if(Number(d.home_score) > Number(d.away_score)) game_state = "Winning: " + Number(d.home_score) + " - " + Number(d.away_score)
+            else if(Number(d.home_score) < Number(d.away_score)) game_state = "Losing: " + Number(d.home_score) + " - " + Number(d.away_score)
+            else game_state = "Drawing: " + Number(d.home_score) + " - " + Number(d.away_score)
+          }
+          else{
+            if(Number(d.home_score) < Number(d.away_score)) game_state = "Winning: " + Number(d.home_score) + " - " + Number(d.away_score)
+            else if(Number(d.home_score) > Number(d.away_score)) game_state = "Losing: " + Number(d.home_score) + " - " + Number(d.away_score)
+            else game_state = "Drawing: " + Number(d.home_score) + " - " + Number(d.away_score)
+          }
+
     
           var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.playerName + "<br>" + "Minute: "
-            + String(Number(d.min)) + "<br>" + d.homeTeam + " - " + d.awayTeam + "<br>" + d.eventType + " " + String(d.expectedGoals).substring(0,4) + " xG" + "<p/>";
+            + String(Number(d.min)) + "<br>" + "Game State: " + game_state + "<br>" + d.eventType + " " + String(d.expectedGoals).substring(0,4) + " xG" + "<p/>";
     
           tooltip.transition()		
           .duration(200)		
