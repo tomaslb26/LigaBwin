@@ -476,7 +476,7 @@ function selectTeam(){
     // recover the option that has been chosen
     currentTeam= d3.select(this).property("value")
     console.log(currentTeam)
-    d3.select("#selectTeam").style("color",getColor(currentTeam))
+    //d3.select("#selectTeam").style("color",getColor(currentTeam))
     currentTeamId = teamDict[currentTeam.replaceAll(" ","-")]
     document.getElementById("image_logo").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
     d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)

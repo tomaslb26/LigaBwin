@@ -58,10 +58,6 @@ select {
   
 }
 
-#selectTeam option{
-  background: white;
-}
-
 select option{
   background: #2a2e30;
 }
