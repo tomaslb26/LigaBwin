@@ -17,7 +17,7 @@ var teams = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
 'Arouca', 'Belenenses SAD', 'Boavista', 'Braga',
 'Maritimo', 'Pacos de Ferreira', 'Vitoria de Guimaraes', 'Gil Vicente',
 'Porto', 'Portimonense', 'Santa Clara', 'Tondela',
-'Estoril', 'Sporting']
+'Estoril', 'Sporting'].sort()
 
 var teams_colors = [{"team": "Benfica", "color":"#cf261f"},{"team": "Famalicao", "color":"#163b66"},{"team":"Moreirense","color":"#145f25"},{"team":"Vizela","color":"#014694"},
                     {"team":"Arouca","color":"#fff400"},{"team":"Belenenses SAD","color":"#02578d"},{"team":"Boavista","color":"black"},{"team":"Braga","color":"#dc0b15"},
@@ -438,6 +438,7 @@ function selectTeam(){
     })
   
     d3.select("#selectHome").property("value",currentPassNetworkState)
+
   
     var data_calc;
     d3.csv("data/calculations.csv").then((data) => {
@@ -458,6 +459,7 @@ function selectTeam(){
       .text(function (d) { 
                     if(d == "OppHalfDefActions") return "Def. Actions in the Opp. Half"
                     else if(d == "OwnHalfDefActions") return "Def. Actions in Own half"
+                    else if(d == "expectedGoals") return "Expected Goals"
                     else return d; }) // text showed in the menu
       .attr("value", function (d) { return d; })
     })
@@ -506,6 +508,8 @@ function selectTeam(){
   .attr("id","options")
   .text(function (d) { return d; }) // text showed in the menu
   .attr("value", function (d) { return d; })
+
+  d3.select("#selectTeam").property("value",currentTeam)
 
   d3.select("#selectButton").on("change", function(d) {
   // recover the option that has been chosen
@@ -1357,6 +1361,8 @@ function getColor(item){
 
 function table_bar(option){
 
+  function roundToTwo(num) { return +(Math. round(num + "e+2") + "e-2"); }
+
   d3.csv("data/calculations.csv").then((data) => {
     var data_selected = data;
 
@@ -1485,7 +1491,7 @@ function table_bar(option){
     .style("font-weight","bold")
     .style("filter", "url(#glow)")
     .style("fill","white")
-    .text(d => Number(d[selectedStat]));
+    .text(d => roundToTwo(Number(d[selectedStat])));
 
   })
 }
