@@ -146,3 +146,18 @@ div.tooltip {
   border: 2px solid #cf261f;
   border-radius: 10px;
 }
+
+div.tooltip2 {	
+  position: absolute;
+  top: 405px;
+  left: 360px;
+  width: 420px;					
+  height: 110px;
+  font-weight: bold;							
+  font-size: 130%;	
+  background: #2a2e30d3;	
+  color: white;
+  right: 10px;
+  border: 2px solid #cf261f;
+  border-radius: 10px;
+}

@@ -534,6 +534,7 @@ function newSelects(){
   d3.select("#a1").on("change", function(d) {
     // recover the option that has been chosen
     ProgressivePasses = !ProgressivePasses;
+    d3.select("div#tooltip_definitions").style("opacity",0).style("visibility", "hidden");
     actions()
   })
 
@@ -552,6 +553,7 @@ function newSelects(){
   d3.select("#a4").on("change", function(d) {
     // recover the option that has been chosen
     ProgressiveCarries = !ProgressiveCarries;
+    d3.select("div#tooltip_definitions").style("opacity",0).style("visibility", "hidden");
     actions()
   })
 
@@ -806,9 +808,15 @@ function actions(option){
   .attr("class", "tooltip")
   .style("border","2px solid " + getColor(currentTeam))
   .style("opacity", 0);
+  
+  let tooltip2 = d3.select("body").append("div").attr("id","tooltip_definitions")
+  .attr("class", "tooltip2")
+  .style("border","2px solid " + getColor(currentTeam))
+  .style("opacity", 0);
 
   d3.select("body").on("click",function(){
     d3.select("div#tooltip_actions").style("opacity",0).style("visibility", "hidden");
+    d3.select("div#tooltip_definitions").style("opacity",0).style("visibility", "hidden");
     d3.select("div#tooltip_pass").style("opacity",0).style("visibility", "hidden");
     d3.select("div#tooltip_moving_average").style("opacity",0).style("visibility", "hidden");
   });
@@ -908,6 +916,7 @@ function actions(option){
     }
 
     if(option == "actions"){
+
       setAllFalse()
       d3.select("div#rectangle_2").selectAll("input")
       .data(["All Passes", "Progressive Passes", "Unsuccessful Passes", "All Carries", "Progressive Carries"])
@@ -1165,6 +1174,36 @@ function actions(option){
         .style("border-radius","50%")
       
     }
+
+    function handleMouseOver2(event,d){
+      if(event.path[0].type == "checkbox") return
+      if(d == "Progressive Passes"){
+        var string2 = "<p style='display: inline-block; font-size:55%; padding-left:2%'>" + "It's progressive if the pass moves the ball:" + "<br>" + 
+        "  - 30m closer to the goal if the pass start and finish are on the team's own half." + "<br>" 
+        + "  - 15m closer to the goal if the pass start and finish are on different halves." + "<br>" 
+        + "  - 10m closer to the goal if the pass start and finish are on the opponent's half." + "<p/>";
+      }
+      else if(d == "Progressive Carries"){
+        var string2 = "<p style='display: inline-block; font-size:55%; padding-left:2%'>" + "It's progressive if the carry moves the ball:" + "<br>" + 
+        "  - 10m closer to the goal if the pass start and finish are on the team's own half." + "<br>" 
+        + "  - 7.5m closer to the goal if the pass start and finish are on different halves." + "<br>" 
+        + "  - 5m closer to the goal if the pass start and finish are on the opponent's half." + "<p/>";
+      }
+      else return
+
+      tooltip2.transition()		
+      .duration(200)		
+      .style("opacity", 1).style("visibility", "visible");		
+      tooltip2.html(string2).style("left", event.x - 140 + "px")
+      .style("top", event.y - 140 + "px");
+    }
+
+    function handleMouseLeave2(event,d){
+      tooltip2.style("opacity",0).style("visibility", "hidden")
+    }
+
+    d3.select("div#rectangle_2").selectAll("label").on("mouseover",handleMouseOver2)
+    .on("mouseleave",handleMouseLeave2)
 
     function handleMouseClick(event,d){
       var matrix = this.getScreenCTM()
