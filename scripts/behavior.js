@@ -378,7 +378,7 @@ function movingAverage(){
     svg
     .append("text")
     .attr("x", 0)             
-    .attr("y", 5)
+    .attr("y", -2)
     .attr("dy","-.55em")
     .attr("text-anchor", "middle")  
     .style("font-size", "20px") 
@@ -390,7 +390,7 @@ function movingAverage(){
     svg
     .append("text")
     .attr("x", 35)             
-    .attr("y", 5)
+    .attr("y", -2)
     .attr("dy","-.55em")
     .attr("text-anchor", "middle")  
     .style("font-size", "20px") 
@@ -402,7 +402,7 @@ function movingAverage(){
     svg
     .append("text")
     .attr("x",93)             
-    .attr("y", 5)
+    .attr("y", -2)
     .attr("dy","-.55em")
     .attr("text-anchor", "middle")  
     .style("font-size", "20px") 
@@ -939,6 +939,7 @@ function actions(option){
         })
 
         function handleMouseOver(event,d){
+          console.log(d)
           d3.select(this).style("cursor", "pointer")
           pitch.selectAll('line#remove')
           .remove()
@@ -949,8 +950,14 @@ function actions(option){
           .attr("id","remove")
           .attr("x1",d => (68 - Number(d.y)) * pitchMultiplier)  
           .attr("y1",d => (105-Number(d.x)) * pitchMultiplier)  
-          .attr("x2",d => (68-Number(d.goalCrossedY)) * pitchMultiplier)  
-          .attr("y2",d => (105-105) * pitchMultiplier)  
+          .attr("x2",d =>{ 
+            if(d.blockedY == "") return (68-Number(d.goalCrossedY)) * pitchMultiplier
+            else return (68-Number(d.blockedY)) * pitchMultiplier})  
+          .attr("y2",d => { 
+            if(d.blockedX == ""){
+              return (105-105) * pitchMultiplier
+            }
+            else return (105-Number(d.blockedX)) * pitchMultiplier})  
           //.style("filter", "url(#glow)")
           .attr("stroke","white") 
           .style("stroke-width",2)
@@ -979,9 +986,11 @@ function actions(option){
             else game_state = "Drawing: " + Number(d.home_score) + " - " + Number(d.away_score)
           }
 
-    
+          if(d.blockedX == "") event = d.eventType
+          else event = "Blocked"
+
           var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.playerName + "<br>" + "Minute: "
-            + String(Number(d.min)) + "<br>" + "Game State: " + game_state + "<br>" + d.eventType + " " + String(d.expectedGoals).substring(0,4) + " xG" + "<p/>";
+            + String(Number(d.min)) + "<br>" + "Game State: " + game_state + "<br>" + event + " " + String(d.expectedGoals).substring(0,4) + " xG" + "<p/>";
     
           tooltip.transition()		
           .duration(200)		

@@ -660,7 +660,7 @@ id,eventId,minute,second,teamId,x,y,expandedMinute,period,type,outcomeType,quali
 2372006065.0,265.0,35.0,15.0,251.0,30.03,7.752000000000001,35.0,"{'value': 1, 'displayName': 'FirstHalf'}",Pass,Successful,"['PassEndX', 'Angle', 'StandingSave', 'PassEndY', 'Length', 'Zone']","[91, 117, 30, 36, 38, 216, 218]",True,279531.0,45.99,7.276,,,,,,,,,,23.0,Crysan,False,Santa Clara,Sporting
 ,,35.0,15.0,,45.99,7.276,,,Carry,,,,,351562.0,50.505,8.296,,,,,,,,,,77.0,Rui Costa,False,Santa Clara,Sporting
 2372006067.0,266.0,35.0,18.0,251.0,50.505,8.296,35.0,"{'value': 1, 'displayName': 'FirstHalf'}",Pass,Successful,"['PassEndY', 'Angle', 'Length', 'PassEndX', 'StandingSave', 'Zone']","[91, 117, 30, 35, 37, 216, 218]",True,351562.0,49.455000000000005,24.48,,,,,,,,,,77.0,Rui Costa,False,Santa Clara,Sporting
-,,35.0,18.0,,49.455000000000005,24.48,,,Carry,,,,,279478.0,56.7,21.488000000000003,,,,,,,,,,10.0,Lincoln,True,Santa Clara,Sporting
+,,35.0,18.0,,49.455000000000005,24.48,,,Carry,,,,,279478.0,56.7,21.488000000000003,,,,,,,,,,10.0,Lincoln,False,Santa Clara,Sporting
 2372006069.0,267.0,35.0,23.0,251.0,56.7,21.488000000000003,35.0,"{'value': 1, 'displayName': 'FirstHalf'}",Pass,Successful,"['Length', 'PassEndX', 'Zone', 'Angle', 'StandingSave', 'PassEndY']","[91, 119, 117, 30, 36, 38, 216, 218]",True,279478.0,65.83500000000001,4.556,,,,,,,,,,10.0,Lincoln,False,Santa Clara,Sporting
 ,,35.0,23.0,,65.83500000000001,4.556,,,Carry,,,,,279531.0,74.34,7.888,,,,,,,,,,23.0,Crysan,True,Santa Clara,Sporting
 2372006075.0,268.0,35.0,26.0,251.0,74.34,7.888,35.0,"{'value': 1, 'displayName': 'FirstHalf'}",TakeOn,Successful,"['StandingSave', 'Offensive', 'Zone', 'OppositeRelatedEvent']","[91, 54]",True,279531.0,,,,,,,,,,,,23.0,Crysan,,Santa Clara,Sporting
@@ -1243,7 +1243,7 @@ id,eventId,minute,second,teamId,x,y,expandedMinute,period,type,outcomeType,quali
 2372011967.0,649.0,65.0,59.0,296.0,61.32,45.016000000000005,68.0,"{'value': 2, 'displayName': 'SecondHalf'}",TakeOn,Unsuccessful,"['StandingSave', 'Zone', 'OppositeRelatedEvent', 'Offensive']","[91, 53]",True,394933.0,,,,,,,,,,,,,,,Santa Clara,Sporting
 2372022921.0,11514.0,65.0,,251.0,87.465,50.728,68.0,"{'value': 2, 'displayName': 'SecondHalf'}",OffsideGiven,Unsuccessful,[],[61],False,351562.0,,,,,,,,,,,,77.0,Rui Costa,,Santa Clara,Sporting
 2372011969.0,517.0,66.0,0.0,251.0,43.68000000000001,22.983999999999998,69.0,"{'value': 2, 'displayName': 'SecondHalf'}",Tackle,Successful,"['OppositeRelatedEvent', 'Defensive', 'StandingSave', 'Zone']","[91, 143]",True,101748.0,,,,,,,,,,,,8.0,Anderson Carvalho,,Santa Clara,Sporting
-,,66.0,0.0,,43.68000000000001,22.983999999999998,,,Carry,,,,,101748.0,48.72,23.732,,,,,,,,,,8.0,Anderson Carvalho,True,Santa Clara,Sporting
+,,66.0,0.0,,43.68000000000001,22.983999999999998,,,Carry,,,,,101748.0,48.72,23.732,,,,,,,,,,8.0,Anderson Carvalho,False,Santa Clara,Sporting
 2372011981.0,519.0,66.0,1.0,251.0,48.72,23.732,69.0,"{'value': 2, 'displayName': 'SecondHalf'}",BallRecovery,Successful,[],[93],False,101748.0,,,,,,,,,,,,8.0,Anderson Carvalho,,Santa Clara,Sporting
 ,,66.0,1.0,,48.72,23.732,,,Carry,,,,,101748.0,60.58500000000001,25.840000000000003,,,,,,,,,,8.0,Anderson Carvalho,True,Santa Clara,Sporting
 2372011995.0,520.0,66.0,3.0,251.0,60.58500000000001,25.840000000000003,69.0,"{'value': 2, 'displayName': 'SecondHalf'}",Pass,Successful,"['Angle', 'PassEndY', 'Length', 'Zone', 'StandingSave', 'PassEndX']","[91, 119, 117, 30, 36, 38, 216, 218]",True,101748.0,66.36,10.676,,,,,,,,,,8.0,Anderson Carvalho,False,Santa Clara,Sporting
@@ -1373,7 +1373,7 @@ id,eventId,minute,second,teamId,x,y,expandedMinute,period,type,outcomeType,quali
 2372013535.0,727.0,73.0,50.0,296.0,76.86,25.432000000000002,76.0,"{'value': 2, 'displayName': 'SecondHalf'}",Challenge,Unsuccessful,"['OppositeRelatedEvent', 'Offensive', 'Zone']",[55],False,109474.0,,,,,,,,,,,,,,,Santa Clara,Sporting
 2372013543.0,562.0,73.0,52.0,251.0,25.62,42.568000000000005,76.0,"{'value': 2, 'displayName': 'SecondHalf'}",BallRecovery,Successful,[],[93],False,422199.0,,,,,,,,,,,,4.0,Kennedy Boateng,,Santa Clara,Sporting
 2372013551.0,563.0,73.0,52.0,251.0,31.395,45.967999999999996,76.0,"{'value': 2, 'displayName': 'SecondHalf'}",Pass,Successful,"['Length', 'Angle', 'Zone', 'PassEndY', 'PassEndX', 'StandingSave']","[91, 117, 30, 36, 38, 216, 218]",True,422199.0,43.785000000000004,43.724000000000004,,,,,,,,,,4.0,Kennedy Boateng,False,Santa Clara,Sporting
-,,73.0,52.0,,25.62,42.568000000000005,,,Carry,,,,,422199.0,31.395,45.967999999999996,,,,,,,,,,4.0,Kennedy Boateng,True,Santa Clara,Sporting
+,,73.0,52.0,,25.62,42.568000000000005,,,Carry,,,,,422199.0,31.395,45.967999999999996,,,,,,,,,,4.0,Kennedy Boateng,False,Santa Clara,Sporting
 2372013575.0,564.0,73.0,53.0,251.0,43.785000000000004,43.724000000000004,76.0,"{'value': 2, 'displayName': 'SecondHalf'}",Pass,Successful,"['Angle', 'StandingSave', 'PassEndY', 'Zone', 'Length', 'PassEndX']","[91, 117, 30, 35, 38, 216, 218]",True,351562.0,41.37,37.06,,,,,,,,,,77.0,Rui Costa,False,Santa Clara,Sporting
 ,,73.0,53.0,,41.37,37.06,,,Carry,,,,,279478.0,44.625,36.312000000000005,,,,,,,,,,10.0,Lincoln,False,Santa Clara,Sporting
 2372013605.0,565.0,73.0,55.0,251.0,44.625,36.312000000000005,76.0,"{'value': 2, 'displayName': 'SecondHalf'}",Pass,Successful,"['StandingSave', 'PassEndX', 'Length', 'Angle', 'PassEndY', 'Zone']","[91, 119, 117, 30, 36, 38, 216, 218]",True,279478.0,64.89,17.136,,,,,,,,,,10.0,Lincoln,True,Santa Clara,Sporting
@@ -1495,7 +1495,7 @@ id,eventId,minute,second,teamId,x,y,expandedMinute,period,type,outcomeType,quali
 2372016217.0,602.0,81.0,51.0,251.0,34.964999999999996,65.07600000000001,84.0,"{'value': 2, 'displayName': 'SecondHalf'}",Interception,Successful,"['Zone', 'StandingSave']","[91, 101, 56]",True,401125.0,,,,,,,,,,,,26.0,Jean Patric,,Santa Clara,Sporting
 ,,81.0,51.0,,34.964999999999996,65.07600000000001,,,Carry,,,,,401125.0,37.905,63.104,,,,,,,,,,26.0,Jean Patric,False,Santa Clara,Sporting
 2372134079.0,720.0,81.0,52.0,251.0,37.905,63.104,84.0,"{'value': 2, 'displayName': 'SecondHalf'}",BallRecovery,Successful,[],[93],False,401125.0,,,,,,,,,,,,26.0,Jean Patric,,Santa Clara,Sporting
-,,81.0,52.0,,37.905,63.104,,,Carry,,,,,401125.0,45.99,64.05600000000001,,,,,,,,,,26.0,Jean Patric,True,Santa Clara,Sporting
+,,81.0,52.0,,37.905,63.104,,,Carry,,,,,401125.0,45.99,64.05600000000001,,,,,,,,,,26.0,Jean Patric,False,Santa Clara,Sporting
 2372016257.0,603.0,81.0,55.0,251.0,45.99,64.05600000000001,84.0,"{'value': 2, 'displayName': 'SecondHalf'}",Pass,Successful,"['StandingSave', 'Length', 'PassEndX', 'Angle', 'Zone', 'PassEndY']","[91, 117, 30, 36, 38, 216, 218]",True,401125.0,47.145,58.004000000000005,,,,,,,,,,26.0,Jean Patric,False,Santa Clara,Sporting
 ,,81.0,55.0,,47.145,58.004000000000005,,,Carry,,,,,279478.0,59.85,59.84,,,,,,,,,,10.0,Lincoln,True,Santa Clara,Sporting
 2372016263.0,604.0,81.0,57.0,251.0,59.85,59.84,84.0,"{'value': 2, 'displayName': 'SecondHalf'}",Foul,Successful,"['OppositeRelatedEvent', 'Offensive', 'Zone', 'Foul']","[91, 63]",True,279478.0,,,,,,,,,,,,10.0,Lincoln,,Santa Clara,Sporting
@@ -1620,7 +1620,7 @@ id,eventId,minute,second,teamId,x,y,expandedMinute,period,type,outcomeType,quali
 2372018519.0,642.0,89.0,16.0,251.0,7.3500000000000005,7.140000000000001,92.0,"{'value': 2, 'displayName': 'SecondHalf'}",Tackle,Successful,"['Defensive', 'StandingSave', 'OppositeRelatedEvent', 'Zone']","[91, 143]",True,422200.0,,,,,,,,,,,,98.0,Ricardinho,,Santa Clara,Sporting
 ,,89.0,16.0,,7.3500000000000005,7.140000000000001,,,Carry,,,,,422200.0,6.510000000000001,10.132000000000001,,,,,,,,,,98.0,Ricardinho,False,Santa Clara,Sporting
 2372018499.0,641.0,89.0,17.0,251.0,6.510000000000001,10.132000000000001,92.0,"{'value': 2, 'displayName': 'SecondHalf'}",BallRecovery,Successful,[],[93],False,422200.0,,,,,,,,,,,,98.0,Ricardinho,,Santa Clara,Sporting
-,,89.0,17.0,,6.510000000000001,10.132000000000001,,,Carry,,,,,422200.0,14.595,2.788,,,,,,,,,,98.0,Ricardinho,True,Santa Clara,Sporting
+,,89.0,17.0,,6.510000000000001,10.132000000000001,,,Carry,,,,,422200.0,14.595,2.788,,,,,,,,,,98.0,Ricardinho,False,Santa Clara,Sporting
 2372018525.0,643.0,89.0,22.0,251.0,14.595,2.788,92.0,"{'value': 2, 'displayName': 'SecondHalf'}",Pass,Successful,"['Length', 'StandingSave', 'Zone', 'PassEndY', 'Angle', 'PassEndX']","[91, 117, 30, 36, 37, 216, 218]",True,422200.0,35.07,10.200000000000001,,,,,,,,,,98.0,Ricardinho,False,Santa Clara,Sporting
 2372018559.0,644.0,89.0,22.0,251.0,35.07,10.200000000000001,92.0,"{'value': 2, 'displayName': 'SecondHalf'}",Pass,Successful,"['StandingSave', 'Zone', 'PassEndY', 'Length', 'PassEndX', 'Angle']","[91, 117, 30, 35, 37, 215, 218]",True,422201.0,27.72,14.008000000000003,,,,,,,,,,9.0,Mohamed Bouldini,False,Santa Clara,Sporting
 ,,89.0,22.0,,27.72,14.008000000000003,,,Carry,,,,,422200.0,27.51,18.768,,,,,,,,,,98.0,Ricardinho,False,Santa Clara,Sporting
