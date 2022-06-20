@@ -161,3 +161,18 @@ div.tooltip2 {
   border: 2px solid #cf261f;
   border-radius: 10px;
 }
+
+div.tooltip3 {	
+  position: absolute;
+  top: 405px;
+  left: 360px;
+  width: 380px;					
+  height: 190px;
+  font-weight: bold;							
+  font-size: 130%;	
+  background: #2a2e30d3;	
+  color: white;
+  right: 10px;
+  border: 2px solid #cf261f;
+  border-radius: 10px;
+}

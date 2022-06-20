@@ -48,7 +48,7 @@ function fill_glow(){
   d3.select("select#selectButton").style("filter", "url(#glow)")
   d3.select("select#selectHome").style("filter", "url(#glow)")
   d3.select("select#selectStat").style("filter", "url(#glow)")
-  //d3.select("select#selectTeam").style("filter", "url(#glow)")
+  d3.select("select#selectTeam").style("filter", "url(#glow)")
 }
 
 function createTriangle(svg,id,opacity){
@@ -800,6 +800,130 @@ function PassNetwork(){
 
 }
 
+function plot_goal(event,d){
+  d3.select("div#tooltip_shots").select("svg").remove()
+
+  d3.select("div#tooltip_shots").transition()		
+  .duration(200)		
+  .style("opacity", 1).style("visibility", "visible");	
+
+  d3.select("div#tooltip_shots").style("left", event.x - 140 + "px")
+  .style("top", event.y - 140 + "px");
+
+  var lineColor = "white"
+  var lineWidth = 1.8
+  var pitchColor = "#eee"
+  var pitchMultiplier = 25.5
+  goalWidth = 7.5
+  goalHeight = 2.5
+
+  var margin = {
+  top: 20,
+  right: 20,
+  bottom: 20,
+  left: 20
+  }
+
+  var width = 480
+  var height = 250
+
+  const svg = d3.select("div#tooltip_shots").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom).style("padding-left","18.5%").style("padding-top","2.5%");
+  
+  const goal = svg.append('g')
+  .attr('transform', `translate(${margin.left},${margin.right})`)
+
+  goal.append('rect')
+  .attr('x', margin.left)
+  .attr('y', margin.top)
+  .attr('width', width + margin.left + margin.right)
+  .attr('height', height + margin.top + margin.bottom)
+  .style('fill', pitchColor)
+  .style("opacity","0")
+
+  getGoalLines = [{'x1':-0.5,'x2':8,'y1':2.5,'y2':2.5,"type":"underline"},{'x1':0,'x2':7.5,'y1':0,'y2':0},{'x1':0,'x2':0,'y1':0,'y2':2.5},{'x1':7.5,'x2':7.5,'y1':0,'y2':2.5}]
+
+  const goalLineData = getGoalLines;
+  goal.selectAll('.goalLines')
+      .data(goalLineData)
+    .enter().append('line')
+      .attr('x1', d => d['x1'] * pitchMultiplier)
+      .attr('x2', d => d['x2'] * pitchMultiplier)
+      .attr('y1', d => d['y1'] * pitchMultiplier)
+      .attr('y2', d => d['y2'] * pitchMultiplier)
+      .style('stroke-width', d => { if(d.type == "underline") return 1
+    else return 2.2 })
+      .style('stroke', lineColor)
+      .style("stroke-dasharray", d => { if(d.type == "underline") return ("10,3") });
+
+
+  if(d.blockedX == ""){ 
+    event = d.eventType
+    goal.selectAll('.goalCircles')
+    .data([d])
+    .enter().append("circle")
+    .attr("cx", d => {
+      console.log(d['goalCrossedY'] - 30)
+      return ((7.5-(Number(d['goalCrossedY'])-30))*pitchMultiplier)
+    })
+    .attr("cy", d => { 
+      console.log(Math.abs(2.5 - d['goalCrossedZ']))
+      return (2.5 - d['goalCrossedZ']) * pitchMultiplier })
+    .attr('r', 5)
+    .style('stroke-width', 0.5)
+    .style('stroke', "white")
+    .style("filter", "url(#glow)")
+    .style("fill",function(d){
+      if(d.eventType == "Goal") return "#42DC60"
+      else if(d.eventType == "AttemptSaved") return "red"
+      else if(d.eventType == "Post") return "#42DCD5"
+      else return "red"
+    })
+  }
+  else event = "Blocked"
+
+  if(currentPassNetworkState == "Home"){
+    if(Number(d.home_score) > Number(d.away_score)) game_state = "Winning " + Number(d.home_score) + " - " + Number(d.away_score)
+    else if(Number(d.home_score) < Number(d.away_score)) game_state = "Losing " + Number(d.home_score) + " - " + Number(d.away_score)
+    else game_state = "Drawing: " + Number(d.home_score) + " - " + Number(d.away_score)
+  }
+  else{
+    if(Number(d.home_score) < Number(d.away_score)) game_state = "Winning " + Number(d.home_score) + " - " + Number(d.away_score)
+    else if(Number(d.home_score) > Number(d.away_score)) game_state = "Losing " + Number(d.home_score) + " - " + Number(d.away_score)
+    else game_state = "Drawing " + Number(d.home_score) + " - " + Number(d.away_score)
+  }
+
+  var string2 = "Player: " + d.playerName
+  var string3 = "Game State: " + game_state
+  var string4 = String(d.expectedGoals).substring(0,4) + " xG";
+
+  function append_text(svg,y,text){
+    svg
+    .append("text")
+    .attr("x", 4.3*pitchMultiplier)             
+    .attr("y", y * pitchMultiplier)
+    .attr("dx","0%")
+    .attr("text-anchor", "middle")  
+    .style("font-size", "12px") 
+    .style("filter", "url(#glow)")
+    .style("fill","white")
+    .style("font-weight","bold")
+    .text(text);  
+  }
+
+  append_text(svg,3.8,string2)
+  append_text(svg,4.3,event)
+  append_text(svg,4.8,"Situation: " + d.situation.replace(/([A-Z])/g, ' $1').trim())
+  append_text(svg,5.3,d.shotType.replace(/([A-Z])/g, ' $1').trim())
+  if(d.expectedGoalsOnTarget != "") append_text(svg,6.8,String(d.expectedGoalsOnTarget).substring(0,4) + " xGOT")
+  append_text(svg,5.8,string3)
+  append_text(svg,6.3,string4)
+
+
+
+}
+
 function actions(option){
 
   d3.select("body").selectAll("div#tooltip_actions").remove()
@@ -814,9 +938,15 @@ function actions(option){
   .style("border","2px solid " + getColor(currentTeam))
   .style("opacity", 0);
 
+  d3.select("body").append("div").attr("id","tooltip_shots")
+  .attr("class", "tooltip3")
+  .style("border","2px solid " + getColor(currentTeam))
+  .style("opacity", 0);
+
   d3.select("body").on("click",function(){
     d3.select("div#tooltip_actions").style("opacity",0).style("visibility", "hidden");
-    d3.select("div#tooltip_definitions").style("opacity",0).style("visibility", "hidden");
+    d3.select("div#tooltip_shots").style("opacity",0).style("visibility", "hidden");
+    d3.select("div#tooltip_definitions").style("opacity",0).style("visibility", "hidden").style("left",0);
     d3.select("div#tooltip_pass").style("opacity",0).style("visibility", "hidden");
     d3.select("div#tooltip_moving_average").style("opacity",0).style("visibility", "hidden");
   });
@@ -833,7 +963,7 @@ function actions(option){
     lineColor = "#757272"
     lineWidth = 1.8
     pitchColor = "#eee"
-    pitchMultiplier = 5.5
+    var pitchMultiplier = 5.5
     pitchWidth = 105
     pitchHeight = 68
     margin = {
@@ -948,7 +1078,6 @@ function actions(option){
         })
 
         function handleMouseOver(event,d){
-          console.log(d)
           d3.select(this).style("cursor", "pointer")
           pitch.selectAll('line#remove')
           .remove()
@@ -967,7 +1096,7 @@ function actions(option){
               return (105-105) * pitchMultiplier
             }
             else return (105-Number(d.blockedX)) * pitchMultiplier})  
-          //.style("filter", "url(#glow)")
+          .style("filter", "url(#glow)")
           .attr("stroke","white") 
           .style("stroke-width",2)
           .style("stroke-opacity",1)
@@ -981,6 +1110,7 @@ function actions(option){
         }
 
         function handleClick(event,d){
+          /*
           var matrix = this.getScreenCTM()
           .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
 
@@ -1006,6 +1136,8 @@ function actions(option){
           .style("opacity", 1).style("visibility", "visible");		
           tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
           .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+          */
+         plot_goal(event,d);
         }
 
         _data = []
@@ -1409,7 +1541,7 @@ function getColor(item){
 
 function table_bar(option){
 
-  function roundToTwo(num) { return +(Math. round(num + "e+2") + "e-2"); }
+  function roundToTwo(num) { return +(Math. round(num + "e+1") + "e-1"); }
 
   d3.csv("data/calculations.csv").then((data) => {
     var data_selected = data;
