@@ -262,8 +262,8 @@ function movingAverage(){
       tooltip.transition()		
       .duration(200)		
       .style("opacity", 1).style("visibility", "visible");		
-      tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
-      .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+      tooltip.html(string2).style("left", event.x + "px")
+      .style("top", event.y + "px");
 
     }
 
@@ -716,8 +716,8 @@ function PassNetwork(){
       tooltip.transition()		
       .duration(200)		
       .style("opacity", 1).style("visibility","visible");		
-      tooltip.html(string + string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
-      .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+      tooltip.html(string + string2).style("left", event.x + "px")
+      .style("top", event.y + "px");
     }
 
     function handleMouseOver(event,d){
@@ -808,7 +808,7 @@ function plot_goal(event,d){
   .style("opacity", 1).style("visibility", "visible");	
 
   d3.select("div#tooltip_shots").style("left", event.x - 140 + "px")
-  .style("top", event.y - 140 + "px");
+  .style("top", event.y - 140 + "px").style("border","2px solid " + getColor(currentTeam));
 
   var lineColor = "white"
   var lineWidth = 1.8
@@ -898,10 +898,32 @@ function plot_goal(event,d){
   var string3 = "Game State: " + game_state
   var string4 = String(d.expectedGoals).substring(0,4) + " xG";
 
+  colors = ['#8C8984',"#35322E"]
+
+  var i = 0
+
   function append_text(svg,y,text){
     svg
+    .append("rect")
+    .attr("x",0.1*pitchMultiplier)
+    .attr("y", (y - 0.5) * pitchMultiplier)
+    .attr("height", 0.6*pitchMultiplier)
+    .style("stroke-width", 1)
+    .style("filter", "url(#glow)")
+    .style("stroke",getColor(currentTeam)) 
+    .style("fill",function(d){
+      if(i == 0) i = 1
+      else{
+        i = 0
+      }
+      return colors[i]
+    })
+    .attr("width", 8.85*pitchMultiplier)
+
+    
+    svg
     .append("text")
-    .attr("x", 4.3*pitchMultiplier)             
+    .attr("x", 4.4*pitchMultiplier)             
     .attr("y", y * pitchMultiplier)
     .attr("dx","0%")
     .attr("text-anchor", "middle")  
@@ -910,15 +932,16 @@ function plot_goal(event,d){
     .style("fill","white")
     .style("font-weight","bold")
     .text(text);  
+  
+
   }
 
-  append_text(svg,3.8,string2)
-  append_text(svg,4.3,event)
-  append_text(svg,4.8,"Situation: " + d.situation.replace(/([A-Z])/g, ' $1').trim())
-  append_text(svg,5.3,d.shotType.replace(/([A-Z])/g, ' $1').trim())
-  if(d.expectedGoalsOnTarget != "") append_text(svg,6.8,String(d.expectedGoalsOnTarget).substring(0,4) + " xGOT")
-  append_text(svg,5.8,string3)
-  append_text(svg,6.3,string4)
+  append_text(svg,4.2,string2)
+  append_text(svg,4.8,event)
+  append_text(svg,5.4,"Situation: " + d.situation.replace(/([A-Z])/g, ' $1').trim())
+  append_text(svg,6,d.shotType.replace(/([A-Z])/g, ' $1').trim())
+  append_text(svg,6.6,string3)
+  append_text(svg,7.2,string4 + " - " + String(d.expectedGoalsOnTarget).substring(0,4) + " xGOT")
 
 
 
@@ -1110,33 +1133,6 @@ function actions(option){
         }
 
         function handleClick(event,d){
-          /*
-          var matrix = this.getScreenCTM()
-          .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
-
-          if(currentPassNetworkState == "Home"){
-            if(Number(d.home_score) > Number(d.away_score)) game_state = "Winning: " + Number(d.home_score) + " - " + Number(d.away_score)
-            else if(Number(d.home_score) < Number(d.away_score)) game_state = "Losing: " + Number(d.home_score) + " - " + Number(d.away_score)
-            else game_state = "Drawing: " + Number(d.home_score) + " - " + Number(d.away_score)
-          }
-          else{
-            if(Number(d.home_score) < Number(d.away_score)) game_state = "Winning: " + Number(d.home_score) + " - " + Number(d.away_score)
-            else if(Number(d.home_score) > Number(d.away_score)) game_state = "Losing: " + Number(d.home_score) + " - " + Number(d.away_score)
-            else game_state = "Drawing: " + Number(d.home_score) + " - " + Number(d.away_score)
-          }
-
-          if(d.blockedX == "") event = d.eventType
-          else event = "Blocked"
-
-          var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.playerName + "<br>" + "Minute: "
-            + String(Number(d.min)) + "<br>" + "Game State: " + game_state + "<br>" + event + " " + String(d.expectedGoals).substring(0,4) + " xG" + "<p/>";
-    
-          tooltip.transition()		
-          .duration(200)		
-          .style("opacity", 1).style("visibility", "visible");		
-          tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
-          .style("top", (window.pageYOffset + matrix.f - 30) + "px");
-          */
          plot_goal(event,d);
         }
 
@@ -1225,8 +1221,8 @@ function actions(option){
         tooltip.transition()		
         .duration(200)		
         .style("opacity", 1).style("visibility", "visible");		
-        tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
-        .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+        tooltip.html(string2).style("left", event.x + "px")
+        .style("top", event.y + "px");
       }
   
       function handleMouseOver(event,d){
@@ -1347,8 +1343,8 @@ function actions(option){
       tooltip.transition()		
       .duration(200)		
       .style("opacity", 1).style("visibility","visible");		
-      tooltip.html(string2).style("left", (window.pageXOffset + matrix.e + 15) + "px")
-      .style("top", (window.pageYOffset + matrix.f - 30) + "px");
+      tooltip.html(string2).style("left", event.x + "px")
+      .style("top", event.y + "px");
     }
 
     function handleMouseOver(event,d){
