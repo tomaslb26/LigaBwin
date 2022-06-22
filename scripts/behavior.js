@@ -38,6 +38,11 @@ function init(){
   actions("actions")
   table_bar()
   fill_glow()
+  if(window.innerWidth < 800){
+    d3.select("div#rectangle").style("width","130%")
+    d3.select("div#rectangle_1").style("width","130%").style("left","0%").style("height","100%")
+    d3.select("div#rectangle_2").style("width","130%").style("left","0%").style("height","90%").style("margin-top","50%")
+  }
 }
 
 function fill_glow(){
@@ -167,11 +172,11 @@ function movingAverage(){
       return a.round - b.round
     });
     //--------------------------------------------------------------------------------------/
-    if(window.innerWidth > 1400) width = window.innerWidth/3 - 50
-    else if(window.innerWidth > 600) width = window.innerWidth/3 - 150
-    else width = 270
-    height = window.innerHeight/4
-    margin = {'top': 40, 'right':380, 'bottom':40, 'left':20}
+    if(window.innerWidth > 1400) var width = window.innerWidth/3 - 50
+    else if(window.innerWidth > 1150) var width = window.innerWidth/3 - 150
+    else var width = 380
+    var height = window.innerHeight/4
+    var margin = {'top': 40, 'right':380, 'bottom':40, 'left':20}
 
 
     var yScale = d3.scaleLinear()
@@ -587,15 +592,15 @@ function PassNetwork(){
     pitchMultiplier = 5.5
     pitchWidth = 105
     pitchHeight = 68
-    margin = {
-    top: 10,
-    right: 9,
-    bottom: 0,
-    left: 5
+    var margin = { top: 10, right: 9, bottom: 0, left: 5 }
+
+
+    var width = 590
+    if(window.innerWidth > 1150) var height = window.innerWidth/3 - 60
+    else{ 
+      var height = 950
+      var margin = { top: 50, right: 9, bottom: 0, left: 5 }
     }
-    width = 590
-    if(window.innerWidth > 600) height = window.innerWidth/3 - 60
-    else height = 350
 
     getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":0,"x2":-1.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
     getPitchCircles = [{"cy":52.5,"cx":34,"r":9.15,"color":"none"},{"cy":11,"cx":34,"r":0.3,"color":"#000"},{"cy":94,"cx":34,"r":0.3,"color":"#000"},{"cy":52.5,"cx":34,"r":0.3,"color":"#000"}]
@@ -989,15 +994,13 @@ function actions(option){
     var pitchMultiplier = 5.5
     pitchWidth = 105
     pitchHeight = 68
-    margin = {
-    top: 20,
-    right: 9,
-    bottom: 20,
-    left: 5
+    var margin = { top: 50, right: 9, bottom: 0, left: 5 }
+    var width = 590
+    if(window.innerWidth > 1150) var height = window.innerWidth/3 - 60
+    else {
+      var height = 950
+      var margin = { top: 120, right: 9, bottom: 0, left: 5 }
     }
-    width = 590
-    if(window.innerWidth > 600) height = window.innerWidth/3 - 60
-    else height = 350
 
     getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
     getPitchCircles = [{"cy":52.5,"cx":34,"r":9.15,"color":"none"},{"cy":11,"cx":34,"r":0.3,"color":"#000"},{"cy":94,"cx":34,"r":0.3,"color":"#000"},{"cy":52.5,"cx":34,"r":0.3,"color":"#000"}]
@@ -1553,9 +1556,9 @@ function table_bar(option){
     d3.select("div#table").select("svg").remove();
 
     var margin = {top: 12, right: 0, bottom: 0, left: 0}
-    if(window.innerWidth > 600) width = window.innerWidth/3 - 40
-    else width = 270
-    height = 420;
+    if(window.innerWidth > 1000) var width = window.innerWidth/3 - 40
+    else var width = 470
+    var height = 420;
   
     y = d3.scaleBand()
     .domain(data_selected.map(d => d.team.replaceAll('-',' ')))
