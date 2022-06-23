@@ -1,7 +1,7 @@
 var dataset;
 var currentTeam = "Benfica"
 var display_name = "Benfica"
-var currentSelectedTeam = "Braga"
+var currentSelectedTeam = "Sporting"
 var currentPassNetworkState = "Home"
 var allPasses = false
 var currentOption = "actions"
@@ -69,10 +69,14 @@ function flow_chart(){
     dataset = data;
     var xt = [];
     var xt_2 = [];
+    goals = data.filter(function(d){ if(d.type=="Goal" && d.teamId == currentTeamId) return d })
     d3.csv(string.replaceAll("/" + currentTeam + "/","/" + currentSelectedTeam + "/"))
     .then((data) => {
+      goals_2 = data.filter(function(d){ if(d.type=="Goal" && d.teamId != currentTeamId) return d })
       data = data.filter(d => {if(d.teamId == teamDict[currentSelectedTeam] || d.type == "Carry") return d})
       data = d3.rollup(data, v => d3.sum(v, d => d.xT), d => d.minute);
+
+      goals = goals.concat(goals_2)
       
       data.forEach((value, key) => {
         xt_2.push({'minute':Number(key), 'xT': value})
@@ -95,31 +99,43 @@ function flow_chart(){
         if(away_xT == null) away_xT = 0;
         else away_xT = away_xT['xT']
 
-        xt_final.push({'minute':minute, 'home_xT': home_xT, 'away_xT': away_xT})
+        xt_final.push({'minute':minute, 'home_xT': Number(home_xT), 'away_xT': Number(away_xT)})
       }
 
-      console.log(xt_final)
-
-      var margin = {top: 10, right: 0  , bottom: 0, left: 35}
-      var width = window.innerWidth
-      var height = 720;
+      var margin = {top: 50, right: 10  , bottom: 35, left: 55}
+      var width = window.innerWidth - 200
+      var height = 520;
       
       var y = d3.scaleLinear()
-      .domain([d3.max(xt_final, (d) => Number(d.away_xT)), d3.max(xt_final, (d) => Number(d.home_xT))])
+      .domain([-0.5,0.5])
       .range([ height, 0 ]);
 
       var x = d3.scaleBand()
       .domain(xt_final.map(d => d.minute))
       .range([0, width])
-      .padding([0.1])
+      .padding([0])
+
+      var formatTick = function(d){
+        if(d == 45) return "HT"
+        else if(d % 15 == 0) return String(d) + "'"
+      }
+
+      var formatYTick = function(d){
+        if(d < 0) return (-d)
+        else return d
+      }
+
+      console.log(goals)
     
       xAxis = (g) => g
       .call(d3
-          .axisBottom(x)
-          .tickSizeOuter(0))
+          .axisBottom(x).tickFormat(formatTick).tickSizeOuter(0))
           
       yAxis = (g) => g
-      .call(d3.axisLeft(y))
+      .call(d3.axisLeft(y).tickFormat(formatYTick).tickSizeOuter(0))
+
+      yAxis2 = (g) => g
+      .call(d3.axisRight(y).tickFormat(formatYTick).tickSizeOuter(0))
     
       const svg = d3
       .select("div#flow_chart")
@@ -128,31 +144,105 @@ function flow_chart(){
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            "translate(" + (margin.left-20) + "," + (margin.top - 20) + ")");
 
-      svg.append("g").attr("class","XAxisFlowChart").call(xAxis);
+      create_glow(svg)
+
+      svg.append("g").attr("class","XAxisFlowChart").attr('transform', 'translate(0,' + (y(0)) + ')')
+      .call(xAxis);
       svg.append("g").attr("class","YAxisFlowChart").call(yAxis);
+      svg.append("g").attr("class","YAxisFlowChart2").attr('transform', 'translate(' + (x(lastMin) + 18) + ',0)').call(yAxis2);
+
+      svg.append("g")
+      .selectAll('lines')
+        .data(goals)
+      .enter().append('line')
+        .attr('y1', d => y(0))
+        .attr('y2', function(d){
+          if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.5)
+          else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.5)
+          else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.5)
+          else return y(0.5) 
+        })
+        .attr('x1', d => x(Number(d['minute'])) + 8)
+        .attr('x2', d => x(Number(d['minute'])) + 8)
+        .style('stroke-width', 1)
+        .style('stroke-opacity',0.5)
+        .style('stroke', "white")
+        .style("stroke-dasharray", ("10,3"));
+
+      
+    svg.selectAll("XAxisScatter .tick")
+    .data(goals).enter()
+    .append("image")
+    .attr("x",d => x(Number(d['minute'])) - 15)
+    .attr('y', function(d){
+      if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.5 + 0.03)
+      else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.5 + 0.03)
+      else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.5 + 0.03)
+      else return y(0.5 + 0.03)
+    })
+    .attr('height', 50)
+    .attr("xlink:href",  function(d){
+      if(Number(d.teamId) == currentTeamId && currentPassNetworkState == "Home") string = "data/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
+      else if(Number(d.teamId) == currentTeamId && currentPassNetworkState == "Away") string = "data/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
+      else if(Number(d.teamId) != currentTeamId && currentPassNetworkState == "Home") string = "data/" + d.awayTeam + "/Photos/" + d.name + ".png"
+      else string = "data/" + d.homeTeam + "/Photos/" + d.name + ".png"
+      return string
+    })
+    
+
+
+    svg.selectAll("XAxisScatter .tick")
+    .data(goals).enter()
+    .append("image")
+    .attr("x",d => x(Number(d['minute'])) - 2)
+    .attr('y', function(d){
+      if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.3 + 0.03)
+      else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.3 + 0.03)
+      else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.3 + 0.03)
+      else return y(0.3 + 0.03)
+    })
+    .attr('height', 20)
+    .attr("xlink:href","data/football_ball.png")
+
+    
+    svg.selectAll("YAxisScatter").style("filter", "url(#glow)")
 
       svg.append("g")
       .selectAll("rect")
       .data(xt_final)
       .join("rect")
       .attr("y", function(d) { 
-        return y(d.home_xT)
+        if(d.home_xT > d.away_xT) return y(d.home_xT)
+        else return y(0)
       })
       .attr("x", function(d) { 
         return x(d.minute); })
       .attr("height", function(d) { 
-        return Math.abs(y(d.home_xT))
+        if(d.home_xT > d.away_xT) return Math.abs(y(d.home_xT) - y(0));
+        else return Math.abs(y(d.away_xT) - y(0));
       })
       .attr("width", x.bandwidth())
       .style("fill", function(d) { 
-        return getColor(currentTeam)
+        if(d.home_xT > d.away_xT) return getColor(currentTeam);
+        else return "#48EDDB";
       })
-      .style("filter", "url(#glow)")
-      .style("stroke","white")
-      .style("stroke-width",0.5);
+      .style("stroke","black")
+      .style("stroke-width",0.1)
+      .style("filter", "url(#glow)");
 
+      d3.selectAll(".YAxisFlowChart").style("filter", "url(#glow)")
+      d3.selectAll(".YAxisFlowChart2").style("filter", "url(#glow)")
+
+      d3.selectAll(".XAxisFlowChart .tick text")
+      .style("filter", "url(#glow)")
+      .attr("y", d =>{ 
+        return  300})
+      .attr("font-size","20")
+      .attr("font-weight","bold");
+
+        
 
     })
     

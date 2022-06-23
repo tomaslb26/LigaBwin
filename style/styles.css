@@ -95,6 +95,18 @@ td, th {
   color: white;
 }
 
+.YAxisFlowChart2 line{
+  stroke: none;
+}
+
+.YAxisFlowChart2 text{
+  stroke: white;
+}
+
+.YAxisFlowChart2 path{
+  stroke: white;
+}
+
 .YAxisFlowChart line{
   stroke: none;
 }
@@ -108,7 +120,7 @@ td, th {
 }
 
 .XAxisFlowChart line{
-  stroke: white;
+  stroke: rgba(255, 255, 255, 0);
 }
 
 .XAxisFlowChart text{
@@ -116,7 +128,7 @@ td, th {
 }
 
 .XAxisFlowChart path{
-  stroke: none;
+  stroke: white;
 }
 
 .YAxisScatter line{
