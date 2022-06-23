@@ -95,6 +95,54 @@ td, th {
   color: white;
 }
 
+.YAxisFlowChart line{
+  stroke: none;
+}
+
+.YAxisFlowChart text{
+  stroke: white;
+}
+
+.YAxisFlowChart path{
+  stroke: white;
+}
+
+.XAxisFlowChart line{
+  stroke: white;
+}
+
+.XAxisFlowChart text{
+  color: rgb(255, 255, 255);
+}
+
+.XAxisFlowChart path{
+  stroke: none;
+}
+
+.YAxisScatter line{
+  stroke: none;
+}
+
+.YAxisScatter text{
+  stroke: white;
+}
+
+.YAxisScatter path{
+  stroke: none;
+}
+
+.XAxisScatter line{
+  stroke: none;
+}
+
+.XAxisScatter text{
+  color: rgba(255, 255, 255, 0);
+}
+
+.XAxisScatter path{
+  stroke: none;
+}
+
 .XAxisBar line{
   stroke: white;
 }
