@@ -41,9 +41,18 @@
 			</div>
 	</nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <div id = "rectangle" style="background: #2a2e30de; width: 95%; height: 130%; margin-top: 2%; margin-left: 2.5%; padding-top: 2%; padding-bottom: 2%;  border:2px solid #cf261f; border-radius: .45em;">
+    
+	<div class="container-fluid">
+		<p id="flow_title" style="color: white; text-align:center; font-size: 200%;padding-left: 0%; margin-top: 1%; font-weight: bold;" >Threat Momentum Chart</p>
+		<div style="margin: auto; width: 45%; background: #2a2e30de; text-align: center; border:2px solid #cf261f; border-radius: .45em;">
+			<img src="data/Benfica.png" height="55px" style="padding-top: 1%; padding-bottom: 1%; vertical-align: middle; margin-left: 0%; margin-right: 7%;" id="home_team" alt="">
+			<span id="home_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >Benfica 1</span>
+			<span id="hifen_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >-</span>
+			<span id="away_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >3 Sporting</span>
+			<img src="data/Sporting.png" height="55px" style="padding-top: 1%; padding-bottom: 1%; vertical-align: middle;  margin-left: 7%;" id="away_team" alt="">
+		</div>
+		<div class="row" id = "row" style = "margin-top: 0.5%;">
+            <div id = "rectangle" style="background: #2a2e30de; width: 95%; height: 130%; margin-top: 0%; margin-left: 2.5%; padding-top: 2%; padding-bottom: 2%;  border:2px solid #cf261f; border-radius: .45em;">
                 <div id = "flow_chart"></div>
             </div>
         </div>

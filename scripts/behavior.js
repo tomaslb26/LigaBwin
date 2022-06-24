@@ -1,8 +1,8 @@
 var dataset;
 var currentTeam = "Benfica"
 var display_name = "Benfica"
-var currentSelectedTeam = "Sporting"
-var currentPassNetworkState = "Home"
+var currentSelectedTeam = "Belenenses SAD"
+var currentPassNetworkState = "Away"
 var allPasses = false
 var currentOption = "actions"
 var allCarries = false
@@ -59,6 +59,15 @@ function flow_chart_selects(){
 
 }
 
+function checkOwnGoal(array_goals){
+  var goals_flag = 0;
+  for(i = 0; i < array_goals.length; i++){
+    if(array_goals[i].isOwnGoal == "True") goals_flag -= 1
+  }
+  return goals_flag
+
+}
+
 function flow_chart(){
 
   if(currentPassNetworkState == "Home") var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
@@ -69,19 +78,52 @@ function flow_chart(){
     dataset = data;
     var xt = [];
     var xt_2 = [];
-    goals = data.filter(function(d){ if(d.type=="Goal" && d.teamId == currentTeamId) return d })
-    d3.csv(string.replaceAll("/" + currentTeam + "/","/" + currentSelectedTeam + "/"))
+    goals_1 = data.filter(function(d){ if(d.type=="Goal" && d.teamId == currentTeamId) return d })
+    var team_1_own_goals = checkOwnGoal(goals_1)
+    d3.csv(string.replaceAll("/" + currentTeam + "/","/" + currentSelectedTeam.replaceAll(" ","-") + "/"))
     .then((data) => {
       goals_2 = data.filter(function(d){ if(d.type=="Goal" && d.teamId != currentTeamId) return d })
+      var team_2_own_goals = checkOwnGoal(goals_2)
       data = data.filter(d => {if(d.teamId == teamDict[currentSelectedTeam] || d.type == "Carry") return d})
       data = d3.rollup(data, v => d3.sum(v, d => d.xT), d => d.minute);
 
-      goals = goals.concat(goals_2)
+      goals = goals_1.concat(goals_2)
+
+      console.log(team_1_own_goals)
+
+
+      if(currentPassNetworkState == "Home"){
+        document.getElementById('home_span').textContent = currentTeam + " " + 
+        String(goals_1.length + Math.abs(team_2_own_goals) - Math.abs(team_1_own_goals))
+        document.getElementById('away_span').textContent = String(goals_2.length - Math.abs(team_2_own_goals) + Math.abs(team_1_own_goals)) 
+        + " " + currentSelectedTeam
+        document.getElementById("home_team").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
+        document.getElementById("away_team").src="data/" + currentSelectedTeam.replaceAll(" ","-") + ".png";
+        d3.select("span#away_span").style("filter", "url(#glow)").style("text-shadow","0px 0px 5px #48EDDB");
+        d3.select("span#home_span").style("filter", "url(#glow)").style("text-shadow","0px 0px 5px " + getColor(currentTeam));
+      }
+      else{
+        document.getElementById('home_span').textContent = currentSelectedTeam + " " +
+         String(goals_2.length - Math.abs(team_2_own_goals) + Math.abs(team_1_own_goals))
+        document.getElementById('away_span').textContent = String(goals_1.length + Math.abs(team_2_own_goals) - Math.abs(team_1_own_goals)) 
+        + " " + currentTeam
+        document.getElementById("away_team").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
+        document.getElementById("home_team").src="data/" + currentSelectedTeam.replaceAll(" ","-") + ".png";
+        d3.select("span#away_span").style("filter", "url(#glow)").style("text-shadow","0px 0px 5px " + getColor(currentTeam));
+        d3.select("span#home_span").style("filter", "url(#glow)").style("text-shadow","0px 0px 5px #48EDDB")
+      
+      }
+
+      d3.select("p#flow_title").style("filter", "url(#glow)").style("text-shadow","0px 1px 4px " + getColor(currentTeam));
+      d3.select("span#hifen_span").style("filter", "url(#glow)");
+
       
       data.forEach((value, key) => {
         xt_2.push({'minute':Number(key), 'xT': value})
       })
 
+
+      dataset = dataset.filter(d => {if(d.teamId == currentTeamId || d.type == "Carry") return d})
       dataset = d3.rollup(dataset, v => d3.sum(v, d => d.xT), d => d.minute);
       dataset.forEach((value, key) => {
         xt.push({'minute':Number(key), 'xT': value})
@@ -102,9 +144,9 @@ function flow_chart(){
         xt_final.push({'minute':minute, 'home_xT': Number(home_xT), 'away_xT': Number(away_xT)})
       }
 
-      var margin = {top: 50, right: 10  , bottom: 40, left: 55}
+      var margin = {top: 50, right: 10  , bottom: 80, left: 55}
       var width = window.innerWidth - 200
-      var height = 520;
+      var height = window.innerHeight/2 - 70;
       
       var y = d3.scaleLinear()
       .domain([-0.5,0.5])
@@ -155,14 +197,17 @@ function flow_chart(){
 
       svg.append("g")
       .selectAll('lines')
-        .data(goals)
+      .data(goals)
       .enter().append('line')
         .attr('y1', d => y(0))
         .attr('y2', function(d){
-          if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.5)
-          else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.5)
-          else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.5)
-          else return y(0.5) 
+          var change = 1
+          if(d.isOwnGoal == "True") change = -1
+
+          if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.5 * change)
+          else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.5 * change)
+          else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.5 * change)
+          else return y(0.5 * change) 
         })
         .attr('x1', d => x(Number(d['minute'])) + 8)
         .attr('x2', d => x(Number(d['minute'])) + 8)
@@ -177,10 +222,13 @@ function flow_chart(){
     .append("image")
     .attr("x",d => x(Number(d['minute'])) - 15)
     .attr('y', function(d){
-      if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.5 + 0.03)
-      else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.5 + 0.03)
-      else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.5 + 0.03)
-      else return y(0.5 + 0.03)
+      var change = 1
+      if(d.isOwnGoal == "True") change = -1
+
+      if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.5 * change + 0.03)
+      else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.5 * change + 0.03)
+      else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.5 * change + 0.03)
+      else return y(0.5 * change + 0.03)
     })
     .attr('height', 50)
     .attr("xlink:href",  function(d){
@@ -198,10 +246,13 @@ function flow_chart(){
     .append("image")
     .attr("x",d => x(Number(d['minute'])) - 2)
     .attr('y', function(d){
-      if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.3 + 0.03)
-      else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.3 + 0.03)
-      else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.3 + 0.03)
-      else return y(0.3 + 0.03)
+      var change = 1
+      if(d.isOwnGoal == "True") change = -1
+
+      if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.3 * change + 0.03)
+      else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.3 * change + 0.03)
+      else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.3 * change + 0.03)
+      else return y(0.3 * change + 0.03)
     })
     .attr('height', 20)
     .attr("xlink:href","data/football_ball.png")
@@ -214,8 +265,14 @@ function flow_chart(){
       .data(xt_final)
       .join("rect")
       .attr("y", function(d) { 
-        if(d.home_xT > d.away_xT) return y(d.home_xT)
-        else return y(0)
+        if(currentPassNetworkState == "Home"){
+          if(d.home_xT > d.away_xT) return y(d.home_xT)
+          else return y(0)
+        }
+        else{
+          if(d.home_xT > d.away_xT) return y(0)
+          else return y(d.away_xT)
+        }
       })
       .attr("x", function(d) { 
         return x(d.minute); })
@@ -238,7 +295,7 @@ function flow_chart(){
       d3.selectAll(".XAxisFlowChart .tick text")
       .style("filter", "url(#glow)")
       .attr("y", d =>{ 
-        return  300})
+        return  210})
       .attr("font-size","20")
       .attr("font-weight","bold");
 
