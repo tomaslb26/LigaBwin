@@ -102,7 +102,7 @@ function flow_chart(){
         xt_final.push({'minute':minute, 'home_xT': Number(home_xT), 'away_xT': Number(away_xT)})
       }
 
-      var margin = {top: 50, right: 10  , bottom: 35, left: 55}
+      var margin = {top: 50, right: 10  , bottom: 40, left: 55}
       var width = window.innerWidth - 200
       var height = 520;
       
