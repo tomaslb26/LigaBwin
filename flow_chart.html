@@ -26,33 +26,47 @@
 	<body scroll="no" style="background-color:#2a2e30;" onload="init_2()">
 
 	<nav class="navbar navbar-expand-lg" style="background-color: #2a2e30ad; border-radius: 0.25em;" id="navbar">
-			<a class="navbar-brand" href="#">
-				<img src="data/Benfica.png" height="45px" style="vertical-align: middle;" id="image_logo" alt="">
-				<select  style = "vertical-align: middle; margin-left: 3%;" id="selectTeam"></select>
-			</a>
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 				<div class="navbar-nav">
-					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="#">Team Stats </a>
-					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="#">Player Stats</a>
-				</div>
+					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="index.html">
+						<span id = "team_stats" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Team Stats </span>
+					</a>
+					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="#">
+						<span id = "player_stats" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Player Stats </span>
+					</a>
+					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="flow_chart.html">
+						<span id = "go_back" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Match Momentum Chart </span>
+					</a>
+				</div>	
 			</div>
+
 	</nav>
 
     
 	<div class="container-fluid">
-		<p id="flow_title" style="color: white; text-align:center; font-size: 200%;padding-left: 0%; margin-top: 1%; font-weight: bold;" >Threat Momentum Chart</p>
-		<div style="margin: auto; width: 45%; background: #2a2e30de; text-align: center; border:2px solid #cf261f; border-radius: .45em;">
-			<img src="data/Benfica.png" height="55px" style="padding-top: 1%; padding-bottom: 1%; vertical-align: middle; margin-left: 0%; margin-right: 7%;" id="home_team" alt="">
-			<span id="home_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >Benfica 1</span>
-			<span id="hifen_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >-</span>
-			<span id="away_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >3 Sporting</span>
-			<img src="data/Sporting.png" height="55px" style="padding-top: 1%; padding-bottom: 1%; vertical-align: middle;  margin-left: 7%;" id="away_team" alt="">
+		<div class="row" id = "row_1" style="margin-top:1%; background:  #2a2e30de; border-top:2px solid #cf251f; border-bottom: 2px solid #cf251f; display: flex; justify-content: center;" id = "row_1" style = "margin-top: 0.5%;">
+			<div style="width: 100%; text-align: center; margin-top: 1%;">
+				<span id="flow_title" style="color: white; margin: auto; font-size: 200%; font-weight: bold;" >Threat Momentum Chart</span>
+			</div>
+			<div id = "circle_1" style="position: relative; top: 50%; transform: translateY(-22%); width: 110px; height:110px; margin: auto; border-radius: 50%; border-top:3px solid #cf251f; border-bottom:3px solid #cf251f; display: flex; justify-content: center;">
+				<img src="data/Benfica.png"  style="height: 55px; display: block; margin: auto;" id="home_team" alt="">
+			</div>
+			<div style="width: fit-content; display: inline-block;">
+				<select  dir="rtl" style = " color: white; font-size: 150%; vertical-align: middle; border: none; padding-right: 0%;" id="selectHomeTeam"></select>
+				<span id="home_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >1</span>
+				<span id="hifen_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >- </span>
+				<span id="away_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >3</span>
+				<select  style = "color: white; font-size: 150%; vertical-align: middle; margin-top:0%; border: none;" id="selectAwayTeam"></select>
+			</div>	
+			<div id = "circle_2" style="position: relative; top: 50%; transform: translateY(-22%); width: 110px; height:110px; margin: auto; border-radius: 50%; border-top:3px solid #cf251f; border-bottom:3px solid #cf251f; display: flex; justify-content: center;">
+				<img src="data/Sporting.png" style="height: 55px; display: block; margin: auto;" id="away_team" alt="">
+			</div>	
 		</div>
 		<div class="row" id = "row" style = "margin-top: 0.5%;">
-            <div id = "rectangle" style="background: #2a2e30de; width: 95%; height: 130%; margin-top: 0%; margin-left: 2.5%; padding-top: 2%; padding-bottom: 2%;  border:2px solid #cf261f; border-radius: .45em;">
+            <div id = "rectangle_3" style="background: #2a2e30de; width: 95%; height: 130%; margin-top: 0%; margin-left: 2.5%; padding-top: 2%; padding-bottom: 2%;  border:2px solid #cf261f; border-radius: .45em;">
                 <div id = "flow_chart"></div>
             </div>
         </div>

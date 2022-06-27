@@ -1,7 +1,7 @@
 var dataset;
 var currentTeam = "Benfica"
 var display_name = "Benfica"
-var currentSelectedTeam = "Belenenses SAD"
+var currentSelectedTeam = "Sporting"
 var currentPassNetworkState = "Away"
 var allPasses = false
 var currentOption = "actions"
@@ -21,9 +21,9 @@ var teams = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
 'Estoril', 'Sporting'].sort()
 
 var teams_colors = [{"team": "Benfica", "color":"#cf261f"},{"team": "Famalicao", "color":"#163b66"},{"team":"Moreirense","color":"#145f25"},{"team":"Vizela","color":"#014694"},
-                    {"team":"Arouca","color":"#fff400"},{"team":"Belenenses SAD","color":"#02578d"},{"team":"Boavista","color":"black"},{"team":"Braga","color":"#dc0b15"},
+                    {"team":"Arouca","color":"#fff400"},{"team":"Belenenses SAD","color":"#02578d"},{"team":"Boavista","color":"#000000"},{"team":"Braga","color":"#dc0b15"},
                     {"team":"Maritimo","color":"#073219"},{"team":"Pacos de Ferreira","color":"#f5eb00"},{"team":"Vitoria de Guimaraes","color":"#97928B"},
-                    {"team":"Gil Vicente","color":"#ee2623"},{"team":"Porto","color":"#040c55"},{"team":"Portimonense","color":"black"},{"team":"Santa Clara","color":"#b5252e"},
+                    {"team":"Gil Vicente","color":"#ee2623"},{"team":"Porto","color":"#040c55"},{"team":"Portimonense","color":"#000000"},{"team":"Santa Clara","color":"#b5252e"},
                     {"team":"Tondela","color":"#06653d"},{"team":"Estoril","color":"#ffed00"},{"team":"Sporting","color":"#008057"}]
 
 var teamDict = {'Benfica': 299, 'Famalicao': 935, 'Moreirense' : 108, 'Vizela': 2899,
@@ -34,27 +34,48 @@ var teamDict = {'Benfica': 299, 'Famalicao': 935, 'Moreirense' : 108, 'Vizela': 
 
 function flow_chart_selects(){
   if(once_2 == false){
-    d3.select("#selectTeam")
+    d3.select("#selectHomeTeam")
     .selectAll('myOptions')
     .data(teams)
     .enter()
     .append('option')
     .text(function (d) { return d; }) // text showed in the menu
     .attr("value", function (d) { return d; })
+
+    d3.select("#selectAwayTeam")
+    .selectAll('myOptions')
+    .data(teams)
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+
+    d3.select("#selectAwayTeam").style("text-shadow","0px 0px 5px" + getColor(currentSelectedTeam)).style("filter", "url(#glow)");
+    d3.select("#selectHomeTeam").style("text-shadow","0px 0px 5px" + getColor(currentTeam)).style("filter", "url(#glow)");
   }
 
 
-  d3.select("#selectTeam").on("change", function(d) {
+  d3.select("#selectHomeTeam").on("change", function(d) {
     currentTeam= d3.select(this).property("value")
     currentTeamId = teamDict[currentTeam.replaceAll(" ","-")]
-    document.getElementById("image_logo").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
     d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
-    d3.select("#selectTeam").style("border","2px solid " + getColor(currentTeam))
+    document.getElementById("home_team").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
+    d3.select("#selectHomeTeam").style("text-shadow","0px 0px 5px" + getColor(currentTeam)).style("filter", "url(#glow)");
     init_2()
   })
 
-  d3.select("#selectTeam").property("value",currentTeam)
+  d3.select("#selectAwayTeam").on("change", function(d) {
+    currentSelectedTeam= d3.select(this).property("value")
+    d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
+    document.getElementById("away_team").src="data/" + currentSelectedTeam.replaceAll(" ","-") + ".png";
+    d3.select("#selectAwayTeam").style("text-shadow","0px 0px 5px" + getColor(currentSelectedTeam)).style("filter", "url(#glow)");
+    init_2()
+  })
 
+  d3.select("#selectHomeTeam").property("value",currentTeam)
+  d3.select("#selectAwayTeam").property("value",currentSelectedTeam)
+  d3.select("#selectAwayTeam").style("filter", "url(#glow)");
+  d3.select("#selectHomeTeam").style("filter", "url(#glow)");
   once_2 = true
 
 }
@@ -70,8 +91,8 @@ function checkOwnGoal(array_goals){
 
 function flow_chart(){
 
-  if(currentPassNetworkState == "Home") var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
-  else var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentSelectedTeam + " - " + currentTeam + ".csv"
+  var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
+
 
   d3.csv(string)
   .then((data) => {
@@ -83,39 +104,36 @@ function flow_chart(){
     d3.csv(string.replaceAll("/" + currentTeam + "/","/" + currentSelectedTeam.replaceAll(" ","-") + "/"))
     .then((data) => {
       goals_2 = data.filter(function(d){ if(d.type=="Goal" && d.teamId != currentTeamId) return d })
+      console.log(goals_2)
       var team_2_own_goals = checkOwnGoal(goals_2)
       data = data.filter(d => {if(d.teamId == teamDict[currentSelectedTeam] || d.type == "Carry") return d})
       data = d3.rollup(data, v => d3.sum(v, d => d.xT), d => d.minute);
 
       goals = goals_1.concat(goals_2)
 
-      console.log(team_1_own_goals)
 
 
-      if(currentPassNetworkState == "Home"){
-        document.getElementById('home_span').textContent = currentTeam + " " + 
-        String(goals_1.length + Math.abs(team_2_own_goals) - Math.abs(team_1_own_goals))
-        document.getElementById('away_span').textContent = String(goals_2.length - Math.abs(team_2_own_goals) + Math.abs(team_1_own_goals)) 
-        + " " + currentSelectedTeam
-        document.getElementById("home_team").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
-        document.getElementById("away_team").src="data/" + currentSelectedTeam.replaceAll(" ","-") + ".png";
-        d3.select("span#away_span").style("filter", "url(#glow)").style("text-shadow","0px 0px 5px #48EDDB");
-        d3.select("span#home_span").style("filter", "url(#glow)").style("text-shadow","0px 0px 5px " + getColor(currentTeam));
-      }
-      else{
-        document.getElementById('home_span').textContent = currentSelectedTeam + " " +
-         String(goals_2.length - Math.abs(team_2_own_goals) + Math.abs(team_1_own_goals))
-        document.getElementById('away_span').textContent = String(goals_1.length + Math.abs(team_2_own_goals) - Math.abs(team_1_own_goals)) 
-        + " " + currentTeam
-        document.getElementById("away_team").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
-        document.getElementById("home_team").src="data/" + currentSelectedTeam.replaceAll(" ","-") + ".png";
-        d3.select("span#away_span").style("filter", "url(#glow)").style("text-shadow","0px 0px 5px " + getColor(currentTeam));
-        d3.select("span#home_span").style("filter", "url(#glow)").style("text-shadow","0px 0px 5px #48EDDB")
-      
-      }
+      document.getElementById('home_span').textContent = String(goals_1.length + Math.abs(team_2_own_goals) - Math.abs(team_1_own_goals))
+      document.getElementById('away_span').textContent = String(goals_2.length - Math.abs(team_2_own_goals) + Math.abs(team_1_own_goals)) 
+      d3.select("span#away_span").style("text-shadow","0px 0px 5px" + getColor(currentSelectedTeam)).style("filter", "url(#glow)");
+      d3.select("span#home_span").style("text-shadow","0px 0px 5px " + getColor(currentTeam)).style("filter", "url(#glow)");
+      d3.select("div#circle_1").style("border-top","3px solid " + getColor(currentTeam))
+      d3.select("div#circle_1").style("border-bottom","3px solid " + getColor(currentTeam))
+      d3.select("div#circle_2").style("border-top","3px solid" + getColor(currentSelectedTeam))
+      d3.select("div#circle_2").style("border-bottom","3px solid " + getColor(currentSelectedTeam))
 
-      d3.select("p#flow_title").style("filter", "url(#glow)").style("text-shadow","0px 1px 4px " + getColor(currentTeam));
+
+
+      d3.select("span#flow_title").style("filter", "url(#glow)").style("text-shadow","0px 1px 4px " + getColor(currentTeam));
       d3.select("span#hifen_span").style("filter", "url(#glow)");
+      d3.select("div#circle_1").style("filter", "url(#glow)");
+      d3.select("div#circle_2").style("filter", "url(#glow)");
+      d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+      d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+      d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+      d3.select("div#rectangle_3").style("border","solid 2px " + getColor(currentTeam))
+      d3.select("div#row_1").style("border-top","solid 2px " + getColor(currentTeam))
+      d3.select("div#row_1").style("border-bottom","solid 2px " + getColor(currentTeam))
 
       
       data.forEach((value, key) => {
@@ -144,9 +162,23 @@ function flow_chart(){
         xt_final.push({'minute':minute, 'home_xT': Number(home_xT), 'away_xT': Number(away_xT)})
       }
 
-      var margin = {top: 50, right: 10  , bottom: 80, left: 55}
       var width = window.innerWidth - 200
-      var height = window.innerHeight/2 - 70;
+      if(window.innerWidth > 1400){
+        d3.select("div#circle_1").style("height","180px").style("width","180px")
+        d3.select("div#circle_2").style("height","180px").style("width","180px")
+        d3.select("img#home_team").style("height","90px")
+        d3.select("img#away_team").style("height","90px")
+        d3.select("span#home_span").style("font-size","250%")
+        d3.select("span#away_span").style("font-size","250%")
+        d3.select("span#hifen_span").style("font-size","250%")
+        d3.select("span#flow_title").style("font-size","300%")
+        var height = window.innerHeight/2 - 120;
+        var margin = {top: 50, right: 10  , bottom: 90, left: 55}
+      }
+      else{ 
+        var height = window.innerHeight/2 - 120;
+        var margin = {top: 50, right: 10  , bottom: 50, left: 55}
+      } 
       
       var y = d3.scaleLinear()
       .domain([-0.5,0.5])
@@ -178,7 +210,8 @@ function flow_chart(){
 
       yAxis2 = (g) => g
       .call(d3.axisRight(y).tickFormat(formatYTick).tickSizeOuter(0))
-    
+        
+      d3.select("div#flow_chart").select("svg").remove()
       const svg = d3
       .select("div#flow_chart")
       .append("svg")
@@ -204,10 +237,9 @@ function flow_chart(){
           var change = 1
           if(d.isOwnGoal == "True") change = -1
 
-          if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.5 * change)
-          else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.5 * change)
-          else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.5 * change)
-          else return y(0.5 * change) 
+          if(d.teamId == currentTeamId) return y(0.5 * change)
+          else if(d.teamId != currentTeamId) return y(-0.5 * change)
+
         })
         .attr('x1', d => x(Number(d['minute'])) + 8)
         .attr('x2', d => x(Number(d['minute'])) + 8)
@@ -225,17 +257,14 @@ function flow_chart(){
       var change = 1
       if(d.isOwnGoal == "True") change = -1
 
-      if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.5 * change + 0.03)
-      else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.5 * change + 0.03)
-      else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.5 * change + 0.03)
-      else return y(0.5 * change + 0.03)
+      if(d.teamId == currentTeamId) return y(0.5 * change + 0.03)
+      else if(d.teamId != currentTeamId) return y(-0.5 * change + 0.03)
+
     })
     .attr('height', 50)
     .attr("xlink:href",  function(d){
-      if(Number(d.teamId) == currentTeamId && currentPassNetworkState == "Home") string = "data/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
-      else if(Number(d.teamId) == currentTeamId && currentPassNetworkState == "Away") string = "data/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
-      else if(Number(d.teamId) != currentTeamId && currentPassNetworkState == "Home") string = "data/" + d.awayTeam + "/Photos/" + d.name + ".png"
-      else string = "data/" + d.homeTeam + "/Photos/" + d.name + ".png"
+      if(Number(d.teamId) == currentTeamId) string = "data/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
+      else if(Number(d.teamId) != currentTeamId) string = "data/" + currentSelectedTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
       return string
     })
     
@@ -249,10 +278,8 @@ function flow_chart(){
       var change = 1
       if(d.isOwnGoal == "True") change = -1
 
-      if(d.teamId == currentTeamId && currentPassNetworkState == "Home") return y(0.3 * change + 0.03)
-      else if(d.teamId == currentTeamId && currentPassNetworkState == "Away") return y(-0.3 * change + 0.03)
-      else if(d.teamId != currentTeamId && currentPassNetworkState == "Home") return y(-0.3 * change + 0.03)
-      else return y(0.3 * change + 0.03)
+      if(d.teamId == currentTeamId) return y(0.3 * change + 0.03)
+      else if(d.teamId != currentTeamId ) return y(-0.3 * change + 0.03)
     })
     .attr('height', 20)
     .attr("xlink:href","data/football_ball.png")
@@ -265,14 +292,8 @@ function flow_chart(){
       .data(xt_final)
       .join("rect")
       .attr("y", function(d) { 
-        if(currentPassNetworkState == "Home"){
-          if(d.home_xT > d.away_xT) return y(d.home_xT)
-          else return y(0)
-        }
-        else{
-          if(d.home_xT > d.away_xT) return y(0)
-          else return y(d.away_xT)
-        }
+        if(d.home_xT > d.away_xT) return y(d.home_xT)
+        else return y(0)
       })
       .attr("x", function(d) { 
         return x(d.minute); })
@@ -283,7 +304,7 @@ function flow_chart(){
       .attr("width", x.bandwidth())
       .style("fill", function(d) { 
         if(d.home_xT > d.away_xT) return getColor(currentTeam);
-        else return "#48EDDB";
+        else return getColor(currentSelectedTeam);
       })
       .style("stroke","black")
       .style("stroke-width",0.1)
@@ -295,7 +316,7 @@ function flow_chart(){
       d3.selectAll(".XAxisFlowChart .tick text")
       .style("filter", "url(#glow)")
       .attr("y", d =>{ 
-        return  210})
+        return  y(-0.23)})
       .attr("font-size","20")
       .attr("font-weight","bold");
 
@@ -335,6 +356,8 @@ function fill_glow(){
   d3.select("select#selectButton").style("filter", "url(#glow)")
   d3.select("select#selectHome").style("filter", "url(#glow)")
   d3.select("select#selectStat").style("filter", "url(#glow)")
+  d3.select(".btn").style("filter", "url(#glow)")
+
   d3.select("select#selectTeam").style("filter", "url(#glow)")
 }
 
@@ -753,6 +776,10 @@ function selectTeam(){
                     else if(d == "expectedGoals") return "Expected Goals"
                     else return d; }) // text showed in the menu
       .attr("value", function (d) { return d; })
+
+      d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+      d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+      d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     })
 
     d3.select("#selectTeam")
@@ -780,6 +807,9 @@ function selectTeam(){
     d3.select("#selectStat").style("border","2px solid " + getColor(currentTeam))
     d3.select("#selectHome").style("border","2px solid " + getColor(currentTeam))
     d3.select("#selectTeam").style("border","2px solid " + getColor(currentTeam))
+    d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     //d3.select("#navbar").style("border","2px solid " + getColor(currentTeam))
     d3.selectAll(".btn").style("border","2px solid " + getColor(currentTeam))
     init()
@@ -1475,6 +1505,7 @@ function actions(option){
     getArcs = [{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":1.5707963267948966,"endAngle":3.141592653589793},"x":0,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":4.7124,"endAngle":3.1416},"x":0,"y":68},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":0,"endAngle":1.5708},"x":105,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":6.283185307179586,"endAngle":4.71238898038469},"x":105,"y":68},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229,"endAngle":4.0603},"x":9,"y":34},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229+Math.PI,"endAngle":4.0603+Math.PI},"x":96,"y":34}]
 
     d3.select("div#actions").select("svg").remove();
+    d3.select("div#actions").selectAll("text").remove();
     const svg = d3.select("div#actions").append("svg")
     .attr("height", width + margin.left + margin.right)
     .attr("width", height + margin.top + margin.bottom);
