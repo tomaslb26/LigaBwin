@@ -345,6 +345,7 @@ function init(){
     d3.select("div#rectangle_1").style("width","130%").style("left","0%").style("height","100%")
     d3.select("div#rectangle_2").style("width","130%").style("left","0%").style("height","90%").style("margin-top","50%")
   }
+  else if(window.innerWidth > 800 && window.innerWidth < 1400) d3.select("div#rectangle_2").style("width","110%")
 }
 
 function fill_glow(){
@@ -1283,20 +1284,28 @@ function xThreat_bar(){
   d3.select("div#actions").selectAll("text").remove();
   setAllFalse()
 
+  var fontSize = 1
+  if(window.innerWidth > 1400) var width = window.innerWidth/3 - 185
+  else if(window.innerWidth > 1200){
+    var width = window.innerWidth/3 - 185
+    fontSize = 0.9;
+  }
+  else var width = 470
+
   d3.select("div#actions")
-  .append("text").text("Threat Generated From ").style("color","white").style("margin-left","1%").style("font-size","125%").style("vertical-align","middle")
+  .append("text").text("Threat Generated From ").style("color","white").style("margin-left","1%").style("font-size",125*fontSize + "%").style("vertical-align","middle")
   .style("filter", "url(#glow)").style("font-weight","bold").attr("xlink:href","www.google.com")
 
   d3.select("div#actions")
-  .append("text").text("Passing ").style("color",getColor(currentTeam)).style("font-size","125%").style("vertical-align","middle")
+  .append("text").text("Passing ").style("color",getColor(currentTeam)).style("font-size",125*fontSize + "%").style("vertical-align","middle")
   .style("filter", "url(#glow)").style("font-weight","bold")
 
   d3.select("div#actions")
-  .append("text").text("And ").style("color","white").style("font-size","125%").style("vertical-align","middle")
+  .append("text").text("And ").style("color","white").style("font-size",125*fontSize + "%").style("vertical-align","middle")
   .style("filter", "url(#glow)").style("font-weight","bold")
 
   d3.select("div#actions")
-  .append("text").text("Carrying").style("color","#48EDDB").style("font-size","125%").style("vertical-align","middle")
+  .append("text").text("Carrying").style("color","#48EDDB").style("font-size",125*fontSize + "%").style("vertical-align","middle")
   .style("filter", "url(#glow)").style("font-weight","bold")
 
   if(currentPassNetworkState == "Home") var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
@@ -1343,8 +1352,6 @@ function xThreat_bar(){
     //console.log(xT)
 
     var margin = {top: 10, right: 0  , bottom: 0, left: 25}
-    if(window.innerWidth > 1000) var width = window.innerWidth/3 - 185
-    else var width = 470
     var height = 420;
     
     console.log(d3.min(xT, (d) => Number(d['total'])))
@@ -1494,7 +1501,18 @@ function actions(option){
     pitchHeight = 68
     var margin = { top: 50, right: 9, bottom: 0, left: 5 }
     var width = 590
-    if(window.innerWidth > 1150) var height = window.innerWidth/3 - 60
+    var fontSize = 1
+    var windowTax = 0
+    if(window.innerWidth > 1400){
+      var height = window.innerWidth/3 - 60
+    }
+    else if(window.innerWidth > 1200){
+      var height = window.innerWidth/3 - 120
+      pitchMultiplier = 5
+      width = 530
+      fontSize = 0.85
+      windowTax = 1
+    }
     else {
       var height = 950
       var margin = { top: 120, right: 9, bottom: 0, left: 5 }
@@ -1502,7 +1520,7 @@ function actions(option){
 
     getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
     getPitchCircles = [{"cy":52.5,"cx":34,"r":9.15,"color":"none"},{"cy":11,"cx":34,"r":0.3,"color":"#000"},{"cy":94,"cx":34,"r":0.3,"color":"#000"},{"cy":52.5,"cx":34,"r":0.3,"color":"#000"}]
-    getArcs = [{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":1.5707963267948966,"endAngle":3.141592653589793},"x":0,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":4.7124,"endAngle":3.1416},"x":0,"y":68},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":0,"endAngle":1.5708},"x":105,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":6.283185307179586,"endAngle":4.71238898038469},"x":105,"y":68},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229,"endAngle":4.0603},"x":9,"y":34},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229+Math.PI,"endAngle":4.0603+Math.PI},"x":96,"y":34}]
+    getArcs = [{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":1.5707963267948966,"endAngle":3.141592653589793},"x":0,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":4.7124,"endAngle":3.1416},"x":0,"y":68},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":0,"endAngle":1.5708},"x":105,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":6.283185307179586,"endAngle":4.71238898038469},"x":105,"y":68},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229,"endAngle":4.0603},"x":9 - windowTax,"y":34},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229+Math.PI,"endAngle":4.0603+Math.PI},"x":96+windowTax,"y":34}]
 
     d3.select("div#actions").select("svg").remove();
     d3.select("div#actions").selectAll("text").remove();
@@ -1571,12 +1589,15 @@ function actions(option){
           .text(function(d) { return d; })
           .style("filter", "url(#glow)")
           .style("color","white")
+          .style("width","fit-content")
           .style("padding-left","5%")
+          .style("font-size",100*fontSize + "%")
       .append("input")
           .attr("type", "checkbox")
           .attr("id", function(d,i) { return 'a'+i; })
           .style("filter", "url(#glow)")
           .style("color","white")
+          .on("mouseover",d3.select("div#tooltip_definitions").style("opacity",0).style("visibility", "hidden").style("left",0))
           .style("margin-left","10px")
           .style("padding-left","5%")
 
