@@ -2,10 +2,13 @@ var dataset;
 var currentTeam = "Benfica"
 var display_name = "Benfica"
 var currentSelectedTeam = "Sporting"
-var currentPassNetworkState = "Away"
+var currentPassNetworkState = "Home"
 var allPasses = false
+var selectedPlayer = "Rafa"
 var currentOption = "actions"
 var allCarries = false
+var touches = true
+var xt_gen = false
 var ProgressivePasses = false
 var ProgressiveCarries = false
 var UnsuccessfulPasses = false
@@ -337,7 +340,8 @@ function init(){
   selectTeam();
   PassNetwork();
   movingAverage()
-  actions(currentOption)
+  if(currentOption == "heatmap") heatmap()
+  else actions(currentOption)
   table_bar()
   fill_glow()
   if(window.innerWidth < 800){
@@ -749,7 +753,8 @@ function selectTeam(){
     // recover the option that has been chosen
       currentPassNetworkState= d3.select(this).property("value")
       PassNetwork()
-      actions(currentOption)
+      if(currentOption == "heatmap") heatmap()
+      else actions(currentOption)
     })
   
     d3.select("#selectHome").property("value",currentPassNetworkState)
@@ -837,7 +842,8 @@ function selectTeam(){
   // recover the option that has been chosen
     currentSelectedTeam= d3.select(this).property("value")
     PassNetwork()
-    actions(currentOption)
+    if(currentOption == "heatmap") heatmap()
+    else actions(currentOption)
   })
 
   d3.select("#selectButton").property("value",currentSelectedTeam)
@@ -883,6 +889,18 @@ function newSelects(){
     // recover the option that has been chosen
     defensiveActions = !defensiveActions;
     actions()
+  })
+
+  d3.select("#c0").on("change", function(d) {
+    // recover the option that has been chosen
+    xt_gen = !xt_gen
+    heatmap()
+  })
+
+  d3.select("#c1").on("change", function(d) {
+    // recover the option that has been chosen
+    touches = !touches
+    heatmap()
   })
 }
 
@@ -1130,6 +1148,7 @@ function setAllFalse(){
   UnsuccessfulPasses = false
   d3.select("div#rectangle_2").selectAll("input").remove()
   d3.select("div#rectangle_2").selectAll("label").remove( )
+  d3.select("div#actions").selectAll("select").remove()
 }
 
 function plot_goal(event,d){
@@ -1279,175 +1298,284 @@ function plot_goal(event,d){
 
 }
 
-function xThreat_bar(){
-  d3.select("div#actions").select("svg").remove();
-  d3.select("div#actions").selectAll("text").remove();
+function heatmap(){
+  currentOption = "heatmap"
   setAllFalse()
-
-  var fontSize = 1
-  if(window.innerWidth > 1400) var width = window.innerWidth/3 - 185
-  else if(window.innerWidth > 1200){
-    var width = window.innerWidth/3 - 185
-    fontSize = 0.9;
-  }
-  else var width = 470
-
-  d3.select("div#actions")
-  .append("text").text("Threat Generated From ").style("color","white").style("margin-left","1%").style("font-size",125*fontSize + "%").style("vertical-align","middle")
-  .style("filter", "url(#glow)").style("font-weight","bold").attr("xlink:href","www.google.com")
-
-  d3.select("div#actions")
-  .append("text").text("Passing ").style("color",getColor(currentTeam)).style("font-size",125*fontSize + "%").style("vertical-align","middle")
-  .style("filter", "url(#glow)").style("font-weight","bold")
-
-  d3.select("div#actions")
-  .append("text").text("And ").style("color","white").style("font-size",125*fontSize + "%").style("vertical-align","middle")
-  .style("filter", "url(#glow)").style("font-weight","bold")
-
-  d3.select("div#actions")
-  .append("text").text("Carrying").style("color","#48EDDB").style("font-size",125*fontSize + "%").style("vertical-align","middle")
-  .style("filter", "url(#glow)").style("font-weight","bold")
 
   if(currentPassNetworkState == "Home") var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
   else var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentSelectedTeam + " - " + currentTeam + ".csv"
 
-  function clean_sort(array,data_set,data_set_1){
-    data_set.forEach((value, key) => {
-      array.push({'player':key, 'pass': value})
-    })
-
-    data_set_1.forEach((value, key) => {
-      for(i=0; i < array.length; i++){
-        if(key == array[i].player){ 
-          array[i]['carry'] = value
-          array[i]['total'] = value + array[i]['pass']
-        }
-      }
-    })
-
-    array.sort(function(a,b) {
-      return b.total - a.total
-    });
-
-    return array
-  }
-
   d3.csv(string)
   .then((data) => {
-    var dataset = data;
+    dataset = data;
 
-    passes = dataset.filter(function(d){
-      if(d.teamId == currentTeamId && d.type == "Pass") return d
-    })
-    carries = dataset.filter(function(d){
-      if(d.type == "Carry") return d
-    })    
+    lineColor = "#757272"
+    lineWidth = 1.8
+    pitchColor = "#eee"
+    var pitchMultiplier = 5.5
+    pitchWidth = 105
+    pitchHeight = 68
+    var margin = { top: 50, right: 9, bottom: 0, left: 5 }
+    var width = 590
+    var fontSize = 1
+    var windowTax = 0
+    if(window.innerWidth > 1400){
+      var height = window.innerWidth/3 - 60
+    }
+    else if(window.innerWidth > 1200){
+      var height = window.innerWidth/3 - 100
+      pitchMultiplier = 5
+      width = 530
+      fontSize = 0.85
+      windowTax = 1
+    }
+    else {
+      var height = 950
+      var margin = { top: 120, right: 9, bottom: 0, left: 5 }
+    }
+
+    getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
+    getPitchCircles = [{"cy":52.5,"cx":34,"r":9.15,"color":"none"},{"cy":11,"cx":34,"r":0.3,"color":"#000"},{"cy":94,"cx":34,"r":0.3,"color":"#000"},{"cy":52.5,"cx":34,"r":0.3,"color":"#000"}]
+    getArcs = [{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":1.5707963267948966,"endAngle":3.141592653589793},"x":0,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":4.7124,"endAngle":3.1416},"x":0,"y":68},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":0,"endAngle":1.5708},"x":105,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":6.283185307179586,"endAngle":4.71238898038469},"x":105,"y":68},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229,"endAngle":4.0603},"x":9 - windowTax,"y":34},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229+Math.PI,"endAngle":4.0603+Math.PI},"x":96+windowTax,"y":34}]
+
+    d3.select("div#actions").select("svg").remove();
+    d3.select("div#actions").selectAll("text").remove();
+    const svg = d3.select("div#actions").append("svg")
+    .attr("height", width + margin.left + margin.right)
+    .attr("width", height + margin.top + margin.bottom);
+
+    const pitch = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.right})`)
     
-    xt_passes = d3.rollup(passes, v => d3.sum(v, d => d.xT), d => d.name);
-    xt_carries = d3.rollup(carries, v => d3.sum(v, d => d.xT), d => d.name);
+    pitch.append('rect')
+        .attr('y', -margin.left)
+        .attr('x', -margin.top)
+        .attr('height', width + margin.left + margin.right)
+        .attr('width', height + margin.top + margin.bottom)
+        .style('fill', pitchColor)
+        .style("opacity","0")
 
-    xT = []
-    xT = clean_sort(xT,xt_passes,xt_carries)
-
-    //console.log(xT)
-
-    var margin = {top: 10, right: 0  , bottom: 0, left: 25}
-    var height = 420;
-    
-    console.log(d3.min(xT, (d) => Number(d['total'])))
-    var y = d3.scaleLinear()
-    .domain([Math.min(d3.min(xT, (d) => Number(d['total'])),d3.min(xT, (d) => Number(d['carry'])),d3.min(xT, (d) => Number(d['pass']))) - 0.15,d3.max(xT, (d) => Number(d['total'])) + 0.15])
-    .range([ height, 0 ]);
-  
-    var x = d3.scaleBand()
-    .domain(xT.map(d => d.player))
-    .range([0, width])
-    .padding([0.1])
-  
-    xAxis = (g) => g
-    .call(d3
-        .axisBottom(x)
-        .tickSizeOuter(0))
-        
-  
-    yAxis = (g) => g
-    .call(d3.axisLeft(y))
-  
-    const svg = d3
-    .select("div#actions")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
-
-
-
-    svg.append("g").attr("class","XAxisScatter").call(xAxis);
-    svg.append("g").attr("class","YAxisScatter").call(yAxis);
-
-    create_glow(svg)
-
-    console.log(xT)
-
-    svg.append("g")
-    .selectAll("rect")
-    .data(xT)
-    .join("rect")
-    .attr("y", function(d) { return y(Math.max(0, d.pass)); })
-    .attr("x", function(d, i) { 
-      //console.log(d.player)
-      return x(d.player); })
-    .attr("height", function(d) { return Math.abs(y(d.pass) - y(0)); })
-    .attr("width", x.bandwidth())
-    .style("fill",getColor(currentTeam))
-    .style("filter", "url(#glow)")
-    .style("stroke","white")
-    .style("stroke-width",0.5);
-
-    svg.append("g")
-    .selectAll("rect")
-    .data(xT)
-    .join("rect")
-    .attr("y", function(d) { 
-      if(d.carry <= 0 && d.pass >= 0) return y(0)
-      else if(d.carry >= 0 && d.pass >= 0) return y(d.carry + d.pass + 0.002)
-      else if(d.carry >= 0 && d.pass <= 0) return y(d.carry + 0.002)
-      else if(d.carry <= 0 && d.pass <= 0) return y(0 + d.pass)
-      else return y(d.carry)
+      setAllFalse()
+      names = []
+      dataset.filter(function(d){
+        if(d.teamId == currentTeamId || d.type == "Carry") names.push(d.name)
       })
-    .attr("x", function(d, i) { 
-      return x(d.player) - 0.1; })
-    .attr("height", function(d) { 
-      //if(d.carry < 0 && d.pass < 0) return Math.abs(y(d.carry) - y(d.pass)); 
-      return Math.abs(y(d.carry) - y(0)); })
-    .attr("width", x.bandwidth())
-    .style("fill","#48EDDB")
-    .style("fill-opacity",1)
-    //.style("filter", "url(#glow)")
-    .style("stroke","white")
-    .style("stroke-width",0.5);
 
-
-    svg.selectAll("XAxisScatter .tick")
-    .data(xT).enter()
-    .append("image")
-    .attr("id","display_over_scatter")
-    .attr("x", d => {
-      return x(d.player);
-    })
-    .attr("y", function(d) { 
-      if(d.carry <= 0 && d.pass >= 0) return y(d.pass) - 28
-      else if(d.carry >= 0 && d.pass >= 0) return y(d.carry + d.pass + 0.002) - 28
-      else if(d.carry >= 0 && d.pass <= 0) return y(d.carry + 0.002) - 28
-      else if(d.carry <= 0 && d.pass <= 0) return y(0) - 28
-    })
-    .attr('height', 30)
-    .attr('width',x.bandwidth())
-    .attr("xlink:href",d => "data/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.player + ".png")
     
-    svg.selectAll("YAxisScatter").style("filter", "url(#glow)")
+    if(touches){
+      dataset = dataset.filter(function(d){
+        if(d.name == selectedPlayer) return d
+      })
+    }
+    else if(xt_gen){
+      dataset = dataset.filter(function(d){
+        if(d.name == selectedPlayer && ((d.type == "Pass" && d.outcomeType == "Successful") | d.type == "Carry")) return d
+      })
+    }
+    else{
+      dataset = dataset.filter(function(d){
+        if(d.teamId == currentTeamId | d.type == "Carry") return d
+      })
+    }
+
+  
+    for(i = 0; i < dataset.length; i++){
+      dataset[i]['bin_width'] = Number(String(dataset[i]['y']/(68/50)).split(".")[0])
+      dataset[i]['bin_height'] = Number(String(dataset[i]['x']/(105/50)).split(".")[0])
+    }
+
+    //dataset = d3.rollup(dataset, v => d3.sum(v, d => d.xT), d => d.bin_width,d => d.bin_height);
+    dataset = d3.rollup(dataset, v => v.length, d => d.bin_width,d => d.bin_height);
+
+
+
+
+
+      clean_data = []
+      dataset.forEach((value, key) => {
+        var bin_width = key
+        value.forEach((value,key) => {
+          var bin_height = key
+          if(value < 0) value = 0
+          clean_data.push({'bin_width':bin_width, 'bin_height':bin_height, 'xT': value})
+        })
+      })
+
+
+
+      
+    var myColor = d3.scaleLinear().domain([0,d3.max(clean_data, d => d.xT)])
+    .interpolate(d3.interpolateRgb)
+    .range([d3.rgb("#2a2e30"), d3.rgb(getColor(currentTeam))])
+
+
+      //PITCH WIDTH IN RECTS == 44 * 25 = 1100
+      //PITCH HEIGTH IN RECTS
+
+    possible_combinations = d3.map(clean_data,d => [d.bin_width,d.bin_height,d.xT])
+      
+    for(i = 0; i < 50; i += 1){
+      for(j = 0; j < 50; j += 1){
+        var flag = false
+        color = myColor(0)
+
+        for(k=0; k < possible_combinations.length; k++){
+          if(possible_combinations[k][0] == 49 - j && possible_combinations[k][1] == 49 - i){
+            flag = true
+            color = myColor(possible_combinations[k][2])
+          }
+        }
+
+        //if(flag == true) continue
+        
+        pitch.append("rect")
+        .attr('y', d => i*(105/50) * pitchMultiplier)
+        .attr('x', d => j*(68/50) * pitchMultiplier)
+        .attr("height", (105/50) * pitchMultiplier)
+        .attr("width", (68/50) * pitchMultiplier)
+        .attr("id","heatmap")
+        .style("stroke-width",0)
+        //.style("filter", "url(#glow)")
+        .style("fill",color)
+      }
+    }
+
+    pitch.append("rect")
+    .attr("y",10*pitchMultiplier)
+    .attr("x",72*pitchMultiplier)
+    .attr("width", 20)
+    .attr("height", 300)
+    .style("stroke","white")
+    .style("stroke-width",0.1)
+    .style("filter", "url(#glow)")
+    .style("fill", "url(#linear-gradient)");
+
+    pitch.append("text")
+    .attr("y",13*pitchMultiplier)
+    .attr("x",(73-windowTax/4)*pitchMultiplier)
+    .text("+").style("filter", "url(#glow)").style("font-weight","bold").style("font-size","100%").style("fill","white")
+
+    pitch.append("text")
+    .attr("y",63*pitchMultiplier)
+    .attr("x",(73.4-windowTax/4)*pitchMultiplier)
+    .text("-").style("fill","white").style("filter", "url(#glow)").style("font-weight","bold").style("font-size","100%")
+
+    
+    const pitchLineData = getPitchLines;
+    pitch.selectAll('.pitchLines')
+        .data(pitchLineData)
+      .enter().append('line')
+        .attr('y1', d => d['x1'] * pitchMultiplier)
+        .attr('y2', d => d['x2'] * pitchMultiplier)
+        .attr('x1', d => d['y1'] * pitchMultiplier)
+        .attr('x2', d => d['y2'] * pitchMultiplier)
+        .style('stroke-width', lineWidth)
+        .style('stroke', lineColor)
+        .style("stroke-dasharray", ("10,3"));
+    
+    const pitchCircleData = getPitchCircles;
+    pitch.selectAll('.pitchCircles')
+        .data(pitchCircleData)
+      .enter().append('circle')
+        .attr('cy', d => d['cy'] * pitchMultiplier)
+        .attr('cx', d => d['cx'] * pitchMultiplier)
+        .attr('r', d => d['r'] * pitchMultiplier)
+        .style('stroke-width', lineWidth)
+        .style('stroke', lineColor)
+        .style('fill', d => d['color'])
+        .style("stroke-dasharray", ("10,3"));
+    
+    const pitchArcData = getArcs;
+    const arc = d3.arc();
+    pitch.selectAll('.pitchCorners')
+        .data(pitchArcData)
+      .enter().append('path')
+        .attr('d', d => arc(d['arc']))
+        .attr('transform', d => `translate(${pitchMultiplier * d.y},${pitchMultiplier * d.x})`)
+        .style('fill', "none")
+        .style('stroke', lineColor)
+        .style("stroke-dasharray", ("10,3"));
+
+
+    var defs = svg.append("defs");
+
+    //Append a linearGradient element to the defs and give it a unique id
+    var linearGradient = defs.append("linearGradient")
+        .attr("id", "linear-gradient");
+
+    linearGradient
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "0%")
+    .attr("y2", "100%");
+
+    //Set the color for the start (0%)
+    linearGradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", getColor(currentTeam)); //light blue
+
+    //Set the color for the end (100%)
+    linearGradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#2a2e30"); //dark blue
+
+    create_glow(pitch)
+    createTriangle(pitch,"triangle2",0.1)
+    createTriangle(pitch,"triangle3",0.8)
+
+    d3.select("div#actions")
+    .append("text").text("Player:").style("color","white").style("margin-left","1%").style("padding-top","30%").style("font-size","100%").style("vertical-align","middle")
+    .style("filter", "url(#glow)").style("font-weight","bold")
+
+    d3.select("div#actions").append("select")
+    .attr("id", "selectPlayer").style("margin-left","1%").style("filter", "url(#glow)");
+
+    names = [...new Set(names)]
+
+    d3.select("#selectPlayer")
+    .selectAll('myOptions')
+    .data(names)
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+
+    d3.select("#selectPlayer").on("change", function(d) {
+      // recover the option that has been chosen
+      selectedPlayer = d3.select(this).property("value")
+      if(currentOption == "heatmap") heatmap()
+      else actions(currentOption)
+    })
+    
+    d3.select("#selectPlayer").property("value",selectedPlayer)
+
+    d3.select("div#rectangle_2").selectAll("input")
+    .data(["xT Generation","Touches"])
+    .enter()
+    .append('label')
+        .attr('for',function(d,i){ return 'a'+i; })
+        .text(function(d) { return d; })
+        .style("filter", "url(#glow)")
+        .style("color","white")
+        .style("width","fit-content")
+        .style("margin-left","6%")
+        .style("margin-top","2%")
+        .style("font-weight","bold")
+        .style("font-size","100%")
+    .append("input")
+        .attr("type", "checkbox")
+        .attr("id", function(d,i) { return 'c'+i; })
+        .style("checked",true)
+        .style("filter", "url(#glow)")
+        .style("color","white")
+        .style("margin-left","10px")
+        .style("padding-left","5%")
+
+    document.getElementById("c1").checked = touches;
+    document.getElementById("c0").checked = xt_gen;
+
+  
+    newSelects()
 
   })
 }
@@ -1480,11 +1608,6 @@ function actions(option){
   });
 
   currentOption = option
-
-  if(option == 'xthreat'){
-    xThreat_bar()
-    return;
-  }
 
   if(currentPassNetworkState == "Home") var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
   else var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentSelectedTeam + " - " + currentTeam + ".csv"
