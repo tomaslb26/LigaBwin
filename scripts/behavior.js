@@ -178,10 +178,25 @@ function flow_chart(){
         var height = window.innerHeight/2 - 120;
         var margin = {top: 50, right: 10  , bottom: 90, left: 55}
       }
-      else{ 
+      else if(window.innerWidth > 1200){ 
         var height = window.innerHeight/2 - 120;
         var margin = {top: 50, right: 10  , bottom: 50, left: 55}
-      } 
+      }
+      else{
+        d3.select("div#circle_1").style("height","50px").style("width","50px")
+        d3.select("div#circle_2").style("height","50px").style("width","50px")
+        d3.select("img#home_team").style("height","25px")
+        d3.select("img#away_team").style("height","25px")
+        d3.select("span#home_span").style("font-size","50%")
+        d3.select("span#away_span").style("font-size","50%")
+        d3.select("span#hifen_span").style("font-size","50%")
+        d3.select("span#flow_title").style("font-size","100%")
+        d3.select("#selectHomeTeam").style("font-size","40%")
+        d3.select("#selectAwayTeam").style("font-size","40%")
+        var height = window.innerHeight/2;
+        var margin = {top: 50, right: 20  , bottom: 90, left: 55}
+        var width = window.innerWidth - 120
+      }
       
       var y = d3.scaleLinear()
       .domain([-0.5,0.5])
