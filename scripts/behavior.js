@@ -14,32 +14,72 @@ var ProgressiveCarries = false
 var UnsuccessfulPasses = false
 var defensiveActions = false
 var currentTeamId = 299;
+var currentSeason = "21-22"
 var once = false;
 var once_2 = false;
 var selectedStat = "OppHalfDefActions"
-var teams = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
+var teams2122 = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
 'Arouca', 'Belenenses SAD', 'Boavista', 'Braga',
 'Maritimo', 'Pacos de Ferreira', 'Vitoria de Guimaraes', 'Gil Vicente',
 'Porto', 'Portimonense', 'Santa Clara', 'Tondela',
 'Estoril', 'Sporting'].sort()
 
+var teams2223 = ['Benfica', 'Famalicao', 'Casa Pia', 'Vizela',
+'Arouca', 'Rio Ave', 'Boavista', 'Braga',
+'Maritimo', 'Pacos de Ferreira', 'Vitoria de Guimaraes', 'Gil Vicente',
+'Porto', 'Portimonense', 'Santa Clara', 'Chaves',
+'Estoril', 'Sporting'].sort()
+
 var teams_colors = [{"team": "Benfica", "color":"#cf261f"},{"team": "Famalicao", "color":"#163b66"},{"team":"Moreirense","color":"#145f25"},{"team":"Vizela","color":"#014694"},
-                    {"team":"Arouca","color":"#fff400"},{"team":"Belenenses SAD","color":"#02578d"},{"team":"Boavista","color":"#000000"},{"team":"Braga","color":"#dc0b15"},
+                    {"team":"Arouca","color":"#fff400"},{"team":"Belenenses SAD","color":"#02578d"},{"team":"Boavista","color":"#000000"},{"team":"Casa Pia","color":"#000000"},{"team":"Braga","color":"#dc0b15"},
                     {"team":"Maritimo","color":"#073219"},{"team":"Pacos de Ferreira","color":"#f5eb00"},{"team":"Vitoria de Guimaraes","color":"#97928B"},
                     {"team":"Gil Vicente","color":"#ee2623"},{"team":"Porto","color":"#040c55"},{"team":"Portimonense","color":"#000000"},{"team":"Santa Clara","color":"#b5252e"},
-                    {"team":"Tondela","color":"#06653d"},{"team":"Estoril","color":"#ffed00"},{"team":"Sporting","color":"#008057"}]
+                    {"team":"Tondela","color":"#06653d"},{"team":"Estoril","color":"#ffed00"},{"team":"Sporting","color":"#008057"},{"team":"Chaves","color":"#114288"},{"team":"Rio Ave","color":"#009036"}]
 
-var teamDict = {'Benfica': 299, 'Famalicao': 935, 'Moreirense' : 108, 'Vizela': 2899,
+var teamDict2122 = {'Benfica': 299, 'Famalicao': 935, 'Moreirense' : 108, 'Vizela': 2899,
             'Arouca': 5948, 'Belenenses-SAD': 292, 'Boavista': 122, 'Braga': 288,
             'Maritimo': 264, 'Pacos-de-Ferreira': 786, 'Vitoria-de-Guimaraes': 107, 'Gil-Vicente': 290,
             'Porto': 297, 'Portimonense': 1463, 'Santa-Clara': 251, 'Tondela': 8071,
             'Estoril': 2188, 'Sporting': 296}
 
+var teamDict2223 = {'Benfica': 299, 'Famalicao': 935, 'Vizela': 2899,
+            'Arouca': 5948, 'Boavista': 122, 'Braga': 288,
+            'Maritimo': 264, 'Pacos-de-Ferreira': 786, 'Vitoria-de-Guimaraes': 107, 'Gil-Vicente': 290,
+            'Porto': 297, 'Portimonense': 1463, 'Santa-Clara': 251,
+            'Estoril': 2188, 'Sporting': 296, 'Rio-Ave': 121, 'Casa-Pia':9509, 'Chaves':2008}
+
+var currentTeamDict = teamDict2122
+var currentTeams = teams2122
+
 function flow_chart_selects(){
   if(once_2 == false){
+    d3.select("#selectSeason2").on("change", function(d) {
+      // recover the option that has been chosen
+      currentSeason = d3.select(this).property("value");
+
+      if(currentSeason == "21-22"){
+        currentTeamDict = teamDict2122
+        currentTeams = teams2122
+      }
+      else{
+        currentTeamDict = teamDict2223
+        currentTeams = teams2223
+      }
+
+      init_2()
+    })
+
+    d3.select("#selectSeason2")
+    .selectAll('myOptions')
+    .data(['21-22','22-23'])
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+
     d3.select("#selectHomeTeam")
     .selectAll('myOptions')
-    .data(teams)
+    .data(currentTeams)
     .enter()
     .append('option')
     .text(function (d) { return d; }) // text showed in the menu
@@ -47,7 +87,7 @@ function flow_chart_selects(){
 
     d3.select("#selectAwayTeam")
     .selectAll('myOptions')
-    .data(teams)
+    .data(currentTeams)
     .enter()
     .append('option')
     .text(function (d) { return d; }) // text showed in the menu
@@ -60,17 +100,17 @@ function flow_chart_selects(){
 
   d3.select("#selectHomeTeam").on("change", function(d) {
     currentTeam= d3.select(this).property("value")
-    currentTeamId = teamDict[currentTeam.replaceAll(" ","-")]
-    d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
-    document.getElementById("home_team").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
+    currentTeamId = currentTeamDict[currentTeam.replaceAll(" ","-")]
+    d3.select("div#background_div").style("background","url(../data/" + currentSeason + "/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
+    document.getElementById("home_team").src="data/" + currentSeason + "/" + currentTeam.replaceAll(" ","-") + ".png";
     d3.select("#selectHomeTeam").style("text-shadow","0px 0px 5px" + getColor(currentTeam)).style("filter", "url(#glow)");
     init_2()
   })
 
   d3.select("#selectAwayTeam").on("change", function(d) {
     currentSelectedTeam= d3.select(this).property("value")
-    d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
-    document.getElementById("away_team").src="data/" + currentSelectedTeam.replaceAll(" ","-") + ".png";
+    d3.select("div#background_div").style("background","url(../data/" + currentSeason + "/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
+    document.getElementById("away_team").src="data/"  + currentSeason + "/" + currentSelectedTeam.replaceAll(" ","-") + ".png";
     d3.select("#selectAwayTeam").style("text-shadow","0px 0px 5px" + getColor(currentSelectedTeam)).style("filter", "url(#glow)");
     init_2()
   })
@@ -79,6 +119,8 @@ function flow_chart_selects(){
   d3.select("#selectAwayTeam").property("value",currentSelectedTeam)
   d3.select("#selectAwayTeam").style("filter", "url(#glow)");
   d3.select("#selectHomeTeam").style("filter", "url(#glow)");
+  d3.select("#selectSeason2").style("filter", "url(#glow)");
+  d3.select("#season").style("filter", "url(#glow)");
   once_2 = true
 
 }
@@ -94,7 +136,7 @@ function checkOwnGoal(array_goals){
 
 function flow_chart(){
 
-  var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
+  var string = "data/" + currentSeason + "/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
 
 
   d3.csv(string)
@@ -104,12 +146,11 @@ function flow_chart(){
     var xt_2 = [];
     goals_1 = data.filter(function(d){ if(d.type=="Goal" && d.teamId == currentTeamId) return d })
     var team_1_own_goals = checkOwnGoal(goals_1)
-    d3.csv(string.replaceAll("/" + currentTeam + "/","/" + currentSelectedTeam.replaceAll(" ","-") + "/"))
+    d3.csv("data/" + currentSeason + "/" + currentSelectedTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv")
     .then((data) => {
       goals_2 = data.filter(function(d){ if(d.type=="Goal" && d.teamId != currentTeamId) return d })
-      console.log(goals_2)
       var team_2_own_goals = checkOwnGoal(goals_2)
-      data = data.filter(d => {if(d.teamId == teamDict[currentSelectedTeam] || d.type == "Carry") return d})
+      data = data.filter(d => {if(d.teamId == currentTeamDict[currentSelectedTeam] || d.type == "Carry") return d})
       data = d3.rollup(data, v => d3.sum(v, d => d.xT), d => d.minute);
 
       goals = goals_1.concat(goals_2)
@@ -216,8 +257,6 @@ function flow_chart(){
         if(d < 0) return (-d)
         else return d
       }
-
-      console.log(goals)
     
       xAxis = (g) => g
       .call(d3
@@ -265,7 +304,6 @@ function flow_chart(){
         .style('stroke-opacity',0.5)
         .style('stroke', "white")
         .style("stroke-dasharray", ("10,3"));
-
       
     svg.selectAll("XAxisScatter .tick")
     .data(goals).enter()
@@ -281,8 +319,8 @@ function flow_chart(){
     })
     .attr('height', 50)
     .attr("xlink:href",  function(d){
-      if(Number(d.teamId) == currentTeamId) string = "data/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
-      else if(Number(d.teamId) != currentTeamId) string = "data/" + currentSelectedTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
+      if(Number(d.teamId) == currentTeamId) string = "data/" + currentSeason + "/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
+      else if(Number(d.teamId) != currentTeamId) string = "data/" + currentSeason + "/" + currentSelectedTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
       return string
     })
     
@@ -375,6 +413,7 @@ function fill_glow(){
   d3.select("span#Game").style("filter", "url(#glow)")
   d3.select("select#selectButton").style("filter", "url(#glow)")
   d3.select("select#selectHome").style("filter", "url(#glow)")
+  d3.select("select#selectSeason").style("filter", "url(#glow)")
   d3.select("select#selectStat").style("filter", "url(#glow)")
   d3.select(".btn").style("filter", "url(#glow)")
 
@@ -456,7 +495,7 @@ function movingAverage(){
   .style("border","2px solid " + getColor(currentTeam))
   .style("opacity", 0);
 
-  d3.csv("data/allShotsLigaBwin2122.csv")
+  d3.csv("data/" + currentSeason + "/" + "allShotsLigaBwin" + currentSeason.replace("-","") + ".csv")
   .then((data) => {
 
 
@@ -636,7 +675,7 @@ function movingAverage(){
     .on("mouseleave",handleMouseLeave)
     .on("click",handleMouseClick)
     .attr('height', 16)
-    .attr("xlink:href", "data/" + currentTeam.replaceAll(" ","-") + ".png")
+    .attr("xlink:href", "data/" + currentSeason + "/" + currentTeam.replaceAll(" ","-") + ".png")
 
     /*svg.selectAll('.lineCircles')
     .data(final_opp_data)
@@ -666,7 +705,7 @@ function movingAverage(){
     .on("click",handleMouseClick)
     .attr('height', 16)
     .attr("xlink:href", d =>{
-      return "data/" + getAwayTeamName(d).replaceAll(" ","-") + ".png"})
+      return "data/" + currentSeason + "/" + getAwayTeamName(d).replaceAll(" ","-") + ".png"})
 
     xAxis = (g) =>
     g.attr("transform", `translate(0,${height - margin.bottom+40})`)
@@ -756,6 +795,30 @@ function selectTeam(){
       table_bar();
     })
 
+    d3.select("#selectSeason").on("change", function(d) {
+      // recover the option that has been chosen
+      currentSeason = d3.select(this).property("value");
+
+      if(currentSeason == "21-22"){
+        currentTeamDict = teamDict2122
+        currentTeams = teams2122
+      }
+      else{
+        currentTeamDict = teamDict2223
+        currentTeams = teams2223
+      }
+
+      init()
+    })
+
+    d3.select("#selectSeason")
+    .selectAll('myOptions')
+    .data(['21-22','22-23'])
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+
     d3.select("#selectHome")
     .selectAll('myOptions')
     .data(['Home','Away'])
@@ -773,10 +836,11 @@ function selectTeam(){
     })
   
     d3.select("#selectHome").property("value",currentPassNetworkState)
+    d3.select("#selectSeason").property("value",currentSeason)
 
   
     var data_calc;
-    d3.csv("data/calculations.csv").then((data) => {
+    d3.csv("data/" + currentSeason + "/calculations.csv").then((data) => {
       data_calc = data;
   
       array = Object.keys(data_calc[0])
@@ -803,24 +867,26 @@ function selectTeam(){
       d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     })
 
-    d3.select("#selectTeam")
-    .selectAll('myOptions')
-    .data(teams)
-    .enter()
-    .append('option')
-    .text(function (d) { return d; }) // text showed in the menu
-    .attr("value", function (d) { return d; })
   }
+
+  d3.selectAll("#selectTeam").selectAll('option').remove()
+
+  d3.select("#selectTeam")
+  .selectAll('myOptions')
+  .data(currentTeams)
+  .enter()
+  .append('option')
+  .text(function (d) { return d; }) // text showed in the menu
+  .attr("value", function (d) { return d; })
 
 
   d3.select("#selectTeam").on("change", function(d) {
     // recover the option that has been chosen
     currentTeam= d3.select(this).property("value")
-    console.log(currentTeam)
     //d3.select("#selectTeam").style("color",getColor(currentTeam))
-    currentTeamId = teamDict[currentTeam.replaceAll(" ","-")]
-    document.getElementById("image_logo").src="data/" + currentTeam.replaceAll(" ","-") + ".png";
-    d3.select("div#background_div").style("background","url(../data/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
+    currentTeamId = currentTeamDict[currentTeam.replaceAll(" ","-")]
+    document.getElementById("image_logo").src="data/" + currentSeason + "/" + currentTeam.replaceAll(" ","-") + ".png";
+    d3.select("div#background_div").style("background","url(../data/" + currentSeason + "/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
     d3.select("div#rectangle").style("border","2px solid " + getColor(currentTeam))
     d3.select("div#rectangle_1").style("border","2px solid " + getColor(currentTeam))
     d3.select("div#rectangle_2").style("border","2px solid " + getColor(currentTeam))
@@ -831,12 +897,11 @@ function selectTeam(){
     d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
-    //d3.select("#navbar").style("border","2px solid " + getColor(currentTeam))
     d3.selectAll(".btn").style("border","2px solid " + getColor(currentTeam))
     init()
   })
 
-  new_teams = teams.filter(item => item !== currentTeam)
+  new_teams = currentTeams.filter(item => item !== currentTeam)
 
   if (currentSelectedTeam == currentTeam) currentSelectedTeam = new_teams[6]
 
@@ -929,8 +994,8 @@ function PassNetwork(){
   .style("border","2px solid " + getColor(currentTeam))
   .style("opacity", 0);
 
-  if(currentPassNetworkState == "Home") var string = "data/PassNetworks/" + currentTeam.replace(/\s+/g, '-') + "/PassNetwork" + currentTeam.replace(/\s+/g, '-') + currentSelectedTeam.replace(/\s+/g, '-') + ".csv"
-  else var string = "data/PassNetworks/" + currentTeam.replace(/\s+/g, '-') + "/PassNetwork" + currentSelectedTeam.replace(/\s+/g, '-') + currentTeam.replace(/\s+/g, '-') + ".csv"
+  if(currentPassNetworkState == "Home") var string = "data/" + currentSeason + "/PassNetworks/" + currentTeam.replace(/\s+/g, '-') + "/PassNetwork" + currentTeam.replace(/\s+/g, '-') + currentSelectedTeam.replace(/\s+/g, '-') + ".csv"
+  else var string = "data/" + currentSeason + "/PassNetworks/" + currentTeam.replace(/\s+/g, '-') + "/PassNetwork" + currentSelectedTeam.replace(/\s+/g, '-') + currentTeam.replace(/\s+/g, '-') + ".csv"
 
   d3.csv(string)
   .then((data) => {
@@ -1063,7 +1128,7 @@ function PassNetwork(){
       var matrix = this.getScreenCTM()
       .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
 
-      var string = "<img src=" + "'data/" + currentTeam + "/Photos/" + String(d.name) + ".png' style='width:80px; height: 80px; padding-left:0%; display: inline-block;'/>";
+      var string = "<img src=" + "'data/" + currentSeason + "/" + currentTeam + "/Photos/" + String(d.name) + ".png' style='width:80px; height: 80px; padding-left:0%; display: inline-block;'/>";
       if(d.name.includes(" ")) var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.name.split(" ")[0] + "<br>" +
         d.name.split(" ")[1] + "<p/>";
       else var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>\n" + d.name + "<pre/>";
@@ -1230,11 +1295,9 @@ function plot_goal(event,d){
     .data([d])
     .enter().append("circle")
     .attr("cx", d => {
-      console.log(d['goalCrossedY'] - 30)
       return ((7.5-(Number(d['goalCrossedY'])-30))*pitchMultiplier)
     })
     .attr("cy", d => { 
-      console.log(Math.abs(2.5 - d['goalCrossedZ']))
       return (2.5 - d['goalCrossedZ']) * pitchMultiplier })
     .attr('r', 5)
     .style('stroke-width', 0.5)
@@ -1317,8 +1380,8 @@ function heatmap(){
   currentOption = "heatmap"
   setAllFalse()
 
-  if(currentPassNetworkState == "Home") var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
-  else var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentSelectedTeam + " - " + currentTeam + ".csv"
+  if(currentPassNetworkState == "Home") var string = "data/" + currentSeason + "/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
+  else var string = "data/" + currentSeason + "/" + currentTeam.replace(/\s+/g, '-') + "/" + currentSelectedTeam + " - " + currentTeam + ".csv"
 
   d3.csv(string)
   .then((data) => {
@@ -1624,8 +1687,8 @@ function actions(option){
 
   currentOption = option
 
-  if(currentPassNetworkState == "Home") var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
-  else var string = "data/" + currentTeam.replace(/\s+/g, '-') + "/" + currentSelectedTeam + " - " + currentTeam + ".csv"
+  if(currentPassNetworkState == "Home") var string = "data/" + currentSeason + "/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
+  else var string = "data/" + currentSeason + "/" + currentTeam.replace(/\s+/g, '-') + "/" + currentSelectedTeam + " - " + currentTeam + ".csv"
 
   d3.csv(string)
   .then((data) => {
@@ -1745,7 +1808,7 @@ function actions(option){
     else if(option=="shots"){
       setAllFalse()
 
-      d3.csv("data/allShotsLigaBwin2122.csv").then((data) => {
+      d3.csv("data/" + currentSeason + "/" + "allShotsLigaBwin" + currentSeason.replace("-","") + ".csv").then((data) => {
         data = data.filter(function(d){
           if((currentPassNetworkState == "Home" && d.homeTeam == currentTeam && d.awayTeam == currentSelectedTeam && d.name == currentTeam) ||
           (currentPassNetworkState == "Away" && d.awayTeam == currentTeam && d.homeTeam == currentSelectedTeam && d.name == currentTeam)) return d
@@ -2190,7 +2253,7 @@ function table_bar(option){
 
   function roundToTwo(num) { return +(Math. round(num + "e+1") + "e-1"); }
 
-  d3.csv("data/calculations.csv").then((data) => {
+  d3.csv("data/" + currentSeason + "/calculations.csv").then((data) => {
     var data_selected = data;
 
     data_selected.sort(function(a, b){
@@ -2302,7 +2365,7 @@ function table_bar(option){
     .attr("y", d => y(d.team.replaceAll('-',' ')) - 46)
     .attr('width', 18)
     .attr('height', 22)
-    .attr("xlink:href",d => "data/" + d.team.replaceAll(" ","-") + ".png")
+    .attr("xlink:href",d => "data/" + currentSeason + "/" + d.team.replaceAll(" ","-") + ".png")
 
 
      svg.selectAll("YAxisBar .tick")

@@ -26,6 +26,10 @@
 	<body scroll="no" style="background-color:#2a2e30;" onload="init_2()">
 
 	<nav class="navbar navbar-expand-lg" style="background-color: #2a2e30ad; border-radius: 0.25em;" id="navbar">
+		<a class="navbar-brand" href="#">
+			<span id = "season" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;" > Season: </span>
+			<select  style = "vertical-align: middle; margin-left: 3%;" id="selectSeason2"></select>
+		</a>
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
@@ -52,7 +56,7 @@
 				<span id="flow_title" style="color: white; margin: auto; font-size: 200%; font-weight: bold;" >Match Momentum Chart</span>
 			</div>
 			<div id = "circle_1" style="position: relative; top: 50%; transform: translateY(-22%); width: 110px; height:110px; margin: auto; border-radius: 50%; border-top:3px solid #cf251f; border-bottom:3px solid #cf251f; display: flex; justify-content: center;">
-				<img src="data/Benfica.png"  style="height: 55px; display: block; margin: auto;" id="home_team" alt="">
+				<img src="data/21-22/Benfica.png"  style="height: 55px; display: block; margin: auto;" id="home_team" alt="">
 			</div>
 			<div style="width: fit-content; display: inline-block;">
 				<select  dir="rtl" style = " color: white; font-size: 150%; vertical-align: middle; border: none; padding-right: 0%;" id="selectHomeTeam"></select>
@@ -62,7 +66,7 @@
 				<select  style = "color: white; font-size: 150%; vertical-align: middle; margin-top:0%; border: none;" id="selectAwayTeam"></select>
 			</div>	
 			<div id = "circle_2" style="position: relative; top: 50%; transform: translateY(-22%); width: 110px; height:110px; margin: auto; border-radius: 50%; border-top:3px solid #cf251f; border-bottom:3px solid #cf251f; display: flex; justify-content: center;">
-				<img src="data/Sporting.png" style="height: 55px; display: block; margin: auto;" id="away_team" alt="">
+				<img src="data/21-22/Sporting.png" style="height: 55px; display: block; margin: auto;" id="away_team" alt="">
 			</div>	
 		</div>
 		<div class="row" id = "row" style = "margin-top: 0.5%;">
