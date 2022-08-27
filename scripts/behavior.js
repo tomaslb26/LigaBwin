@@ -319,8 +319,8 @@ function flow_chart(){
     })
     .attr('height', 50)
     .attr("xlink:href",  function(d){
-      if(Number(d.teamId) == currentTeamId) string = "data/" + currentSeason + "/" + currentTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
-      else if(Number(d.teamId) != currentTeamId) string = "data/" + currentSeason + "/" + currentSelectedTeam.replaceAll(" ","-") + "/Photos/" + d.name + ".png"
+      if(Number(d.teamId) == currentTeamId) string = "data/Photos/" + currentTeam + "/" + d.name + ".png"
+      else if(Number(d.teamId) != currentTeamId) string = "data/Photos/" + currentSelectedTeam + "/" + d.name + ".png"
       return string
     })
     
@@ -1128,7 +1128,7 @@ function PassNetwork(){
       var matrix = this.getScreenCTM()
       .translate(+ this.getAttribute("cx"), + this.getAttribute("cy"));
 
-      var string = "<img src=" + "'data/" + currentSeason + "/" + currentTeam + "/Photos/" + String(d.name) + ".png' style='width:80px; height: 80px; padding-left:0%; display: inline-block;'/>";
+      var string = "<img src=" + "'data/Photos/" + currentTeam.replaceAll(" ","-") + "/" + String(d.name) + ".png' style='width:80px; height: 80px; padding-left:0%; display: inline-block;'/>";
       if(d.name.includes(" ")) var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>" + d.name.split(" ")[0] + "<br>" +
         d.name.split(" ")[1] + "<p/>";
       else var string2 = "<p style='display: inline-block; font-size:60%; font-weight:bold; padding-left:2%'>\n" + d.name + "<pre/>";
