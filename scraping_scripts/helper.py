@@ -8,7 +8,7 @@ import pandas as pd
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.opera import OperaDriverManager
 from webdriver_manager.chrome import ChromeDriverManager
-from calcs import fix_types, get_fotmob_stats, get_xt, clean_df, get_statistics
+from calcs import fix_types, get_fotmob_stats, get_xt, clean_df, get_statistics, plot_pass_network
 
 
 def get_opera_driver():
@@ -16,7 +16,6 @@ def get_opera_driver():
     opera_profile = r"/home/tomas/.config/opera"
     options.add_argument("user-data-dir=" + opera_profile)
     options._binary_location = r"/usr/lib/x86_64-linux-gnu/opera/opera"
-    # driver = webdriver.Opera(executable_path=OperaDriverManager().install(), options=options)
     driver = webdriver.Opera(executable_path="/home/tomas/operadriver_linux64/operadriver", options=options)
     return driver
 
@@ -55,7 +54,6 @@ def get_whoscored(team_dict, games_list):
                         links += [link.get("href")]
                     if links[len(links) - 1] != link.get("href"):
                         links += [link.get("href")]
-            print(links)
             driver.quit()
 
         for link in links:
@@ -81,22 +79,22 @@ def get_fotmob(games_list):
     i = 34
     links = []
     while i > 0:
-        buttons[2].click()
         soup = BeautifulSoup(driver.page_source, "html.parser")
         for link in soup.find_all("a"):
             arrOfString = link.get("href").split("match/")
             if len(arrOfString) != 1:
                 links += [link.get("href")]
         i -= 1
+        buttons[2].click()
 
     driver.quit()
     links = list(dict.fromkeys(links))
 
     for link in links:
-        print(link)
         if link in games_list["fotmob"]:
             continue
         else:
+            print(link)
             games_list["fotmob"] += [link]
             error = get_data_fotmob(link)
             if error == "error":
@@ -147,13 +145,13 @@ def get_data_fotmob(link):
         continue
 
     driver.quit()
-
-    get_fotmob_stats(result)
-
+    
     try:
         data = result["props"]["pageProps"]["initialState"]["matchFacts"]["data"]
     except:
         return "error"
+
+    if(get_fotmob_stats(result) == "error"): return "error"
 
     teams = data["general"]
     round = data["general"]["matchRound"]
@@ -215,6 +213,9 @@ def get_data(link, teamId, team):
     x = get_xt(x)
 
     get_statistics(x, teamId, team)
+    
+    df = plot_pass_network(x, teamId)
+    df.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin22-23PassNetworks/",team,"PassNetwork" + title.replace(" - ", "") + ".csv"), index = False)
 
     driver.quit()
 

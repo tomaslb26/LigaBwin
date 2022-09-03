@@ -63,7 +63,7 @@ def changePositions(df):
     return ret_df
 
 
-def plotPassNetworks(events, teamId):
+def plot_pass_network(events, teamId):
 
     df = events[
         [
@@ -100,7 +100,10 @@ def plotPassNetworks(events, teamId):
     subs = subs["minute"]
     subs = pd.Series(subs).unique()
     firstSub = subs[0]
-    secondSub = subs[1]
+    try:
+        secondSub = subs[1]
+    except:
+        secondSub = ''
     # thirdSub = subs[2]
 
     if firstSub < 22:
@@ -609,7 +612,7 @@ def get_statistics(df, team_id, team):
             key_passes=("key_passes", "sum"),
             Goals=("Goals", "sum"),
             Assists=("Assists", "sum"),
-            Shots=("Total shots", "sum"),
+            Shots=("Shots", "sum"),
             xG=("xG", "sum"),
             xGOT=("xGOT", "sum"),
             xA=("xA", "sum"),
@@ -625,7 +628,11 @@ def get_statistics(df, team_id, team):
 
 
 def get_fotmob_stats(result):
-    data = result["props"]["pageProps"]["initialState"]["matchFacts"]["data"]["content"]["lineup"]["lineup"]
+    
+    try:
+        data = result["props"]["pageProps"]["initialState"]["matchFacts"]["data"]["content"]["lineup"]["lineup"]
+    except:
+        return "error"
 
     final_df = pd.DataFrame()
 
@@ -706,6 +713,7 @@ def get_fotmob_stats(result):
             "Expected goals on target (xGOT)": "xGOT",
             "Expected assists (xA)": "xA",
             "Chances created": "ChancesCreated",
+            "Total shots": "Shots"
         }
     )
 
@@ -750,7 +758,7 @@ def get_fotmob_stats(result):
             key_passes=("key_passes", "sum"),
             Goals=("Goals", "sum"),
             Assists=("Assists", "sum"),
-            Shots=("Total shots", "sum"),
+            Shots=("Shots", "sum"),
             xG=("xG", "sum"),
             xGOT=("xGOT", "sum"),
             xA=("xA", "sum"),

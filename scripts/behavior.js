@@ -1,7 +1,7 @@
 var dataset;
 var currentTeam = "Benfica"
 var display_name = "Benfica"
-var currentSelectedTeam = "Sporting"
+var currentSelectedTeam = "Arouca"
 var currentPassNetworkState = "Home"
 var allPasses = false
 var selectedPlayer = "Rafa"
@@ -14,7 +14,7 @@ var ProgressiveCarries = false
 var UnsuccessfulPasses = false
 var defensiveActions = false
 var currentTeamId = 299;
-var currentSeason = "21-22"
+var currentSeason = "22-23"
 var once = false;
 var once_2 = false;
 var selectedStat = "OppHalfDefActions"
@@ -48,8 +48,8 @@ var teamDict2223 = {'Benfica': 299, 'Famalicao': 935, 'Vizela': 2899,
             'Porto': 297, 'Portimonense': 1463, 'Santa-Clara': 251,
             'Estoril': 2188, 'Sporting': 296, 'Rio-Ave': 121, 'Casa-Pia':9509, 'Chaves':2008}
 
-var currentTeamDict = teamDict2122
-var currentTeams = teams2122
+var currentTeamDict = teamDict2223
+var currentTeams = teams2223
 
 function flow_chart_selects(){
   if(once_2 == false){
@@ -77,25 +77,30 @@ function flow_chart_selects(){
     .text(function (d) { return d; }) // text showed in the menu
     .attr("value", function (d) { return d; })
 
-    d3.select("#selectHomeTeam")
-    .selectAll('myOptions')
-    .data(currentTeams)
-    .enter()
-    .append('option')
-    .text(function (d) { return d; }) // text showed in the menu
-    .attr("value", function (d) { return d; })
-
-    d3.select("#selectAwayTeam")
-    .selectAll('myOptions')
-    .data(currentTeams)
-    .enter()
-    .append('option')
-    .text(function (d) { return d; }) // text showed in the menu
-    .attr("value", function (d) { return d; })
+    d3.select("#selectSeason2").property("value",currentSeason)
 
     d3.select("#selectAwayTeam").style("text-shadow","0px 0px 5px" + getColor(currentSelectedTeam)).style("filter", "url(#glow)");
     d3.select("#selectHomeTeam").style("text-shadow","0px 0px 5px" + getColor(currentTeam)).style("filter", "url(#glow)");
   }
+
+  d3.selectAll("#selectHomeTeam").selectAll('option').remove()
+  d3.selectAll("#selectAwayTeam").selectAll('option').remove()
+
+  d3.select("#selectHomeTeam")
+  .selectAll('myOptions')
+  .data(currentTeams)
+  .enter()
+  .append('option')
+  .text(function (d) { return d; }) // text showed in the menu
+  .attr("value", function (d) { return d; })
+
+  d3.select("#selectAwayTeam")
+  .selectAll('myOptions')
+  .data(currentTeams)
+  .enter()
+  .append('option')
+  .text(function (d) { return d; }) // text showed in the menu
+  .attr("value", function (d) { return d; })
 
 
   d3.select("#selectHomeTeam").on("change", function(d) {
@@ -838,36 +843,55 @@ function selectTeam(){
     d3.select("#selectHome").property("value",currentPassNetworkState)
     d3.select("#selectSeason").property("value",currentSeason)
 
-  
-    var data_calc;
-    d3.csv("data/" + currentSeason + "/calculations.csv").then((data) => {
-      data_calc = data;
-  
-      array = Object.keys(data_calc[0])
-      var array = array.filter(function(value, index, arr){ 
-        if(value != "team" && value != "teamId") return value;
-      });
-
-      selectedStat = array[0]
-  
-      d3.select("#selectStat")
-      .selectAll('myOptions')
-      .data(array)
-      .enter()
-      .append('option')
-      .text(function (d) { 
-                    if(d == "OppHalfDefActions") return "Def. Actions in the Opp. Half"
-                    else if(d == "OwnHalfDefActions") return "Def. Actions in Own half"
-                    else if(d == "expectedGoals") return "Expected Goals"
-                    else return d; }) // text showed in the menu
-      .attr("value", function (d) { return d; })
-
-      d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
-      d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
-      d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
-    })
+    d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
 
   }
+
+  d3.selectAll("#selectStat").selectAll('option').remove()
+
+  var data_calc;
+  d3.csv("data/" + currentSeason + "/calcs.csv").then((data) => {
+    data_calc = data;
+
+    array = Object.keys(data_calc[0])
+    var array = array.filter(function(value, index, arr){ 
+      if(value != "shirtNo" && value != "playerId" && value != "team" 
+      && value != "name" && value != "minutes" && value != "total_passes" 
+      && value != "suc_passes" && value != "fotmob_player_id" && value != "fotmob_name"
+      && value != "suc_take_ons" && value != "take_ons" ) return value;
+    });
+
+    selectedStat = array[0]
+    array.push("Pass Percentage")
+    array.push("Take-On Percentage")
+    
+
+    d3.select("#selectStat")
+    .selectAll('myOptions')
+    .data(array)
+    .enter()
+    .append('option')
+    .text(function (d) { 
+                  if(d == "prog_passes") return "Prog. Passes Per 90'"
+                  else if(d == "prog_carries") return "Prog. Carries Per 90'"
+                  else if(d == "defensive_actions") return "Def. Actions Per 90'"
+                  else if(d == "xt") return "xT per 90'"
+                  else if(d == "final_third_entries") return "Final Third Entries per 90'"
+                  else if(d == "final_third_passes") return "Final Third Passes per 90'"
+                  else if(d == "penalty_box_passes") return "Penalty Box Passes per 90'"
+                  else if(d == "penalty_box_entries") return "Penalty Box Carries per 90'"
+                  else if(d == "key_passes") return "Key Passes per 90'"
+                  else if(d == "Shots") return "Shots per 90'"
+                  else if(d == "xG") return "xG per 90'"
+                  else if(d == "xA") return "xA per 90'"
+                  else if(d == "xGOT") return "xGOT per 90'"
+                  else if(d == "ChancesCreated") return "Chances Created per 90'"
+                  else return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; })
+
+  })
 
   d3.selectAll("#selectTeam").selectAll('option').remove()
 
@@ -2251,32 +2275,46 @@ function getColor(item){
 
 function table_bar(option){
 
-  function roundToTwo(num) { return +(Math. round(num + "e+1") + "e-1"); }
+  function roundToTwo(num) { return +(Math. round(num + "e+2") + "e-2"); }
 
-  d3.csv("data/" + currentSeason + "/calculations.csv").then((data) => {
+  d3.csv("data/" + currentSeason + "/calcs.csv").then((data) => {
     var data_selected = data;
 
-    data_selected.sort(function(a, b){
-      var keyA = a[selectedStat],
-          keyB = b[selectedStat];
+    console.log(currentTeam)
+
+    data_selected = data_selected.filter(function(d){
+      if(d.team == currentTeam.replaceAll(" ","-") && d.minutes > 135) return d
+    })
+
+  if(selectedStat == "Goals" || selectedStat == "Assists")  data_selected= data_selected.map(o => new Object({name: o.name, stat: (o[selectedStat])}))
+  else if(selectedStat == "Pass Percentage") data_selected= data_selected.map(o => new Object({name: o.name, stat: (o["suc_passes"]/o["total_passes"]) * 100}))
+  else if(selectedStat == "Take-On Percentage") data_selected= data_selected.map(o => new Object({name: o.name, stat: (o["suc_take_ons"]/o["take_ons"]) * 100}))
+  else data_selected= data_selected.map(o => new Object({name: o.name, stat: (o[selectedStat]*90)/o.minutes}))
+
+    data_selected = data_selected.sort(function(a, b){
+      var keyA = Number(a["stat"]),
+          keyB = Number(b["stat"]);
       if(keyA < keyB) return 1;
       if(keyA > keyB) return -1;
       return 0;
     })
 
+    data_selected = data_selected.slice(0, 13)
+    console.log(data_selected)
+
     d3.select("div#table").select("svg").remove();
 
-    var margin = {top: 12, right: 0, bottom: 0, left: 0}
+    var margin = {top: 0, right: 0, bottom: 0, left: 0}
     if(window.innerWidth > 1000) var width = window.innerWidth/3 - 40
     else var width = 470
     var height = 420;
   
     y = d3.scaleBand()
-    .domain(data_selected.map(d => d.team.replaceAll('-',' ')))
+    .domain(data_selected.map(d => d.name))
     .rangeRound([margin.top, height - margin.bottom]).padding(1.7)
   
     x = d3.scaleLinear()
-    .domain([d3.min(data_selected, (d) => Number(d[selectedStat])) - d3.min(data_selected, (d) => Number(d[selectedStat]))*0.1, d3.max(data_selected, (d) => Number(d[selectedStat]))])
+    .domain([0, d3.max(data_selected, (d) => Number(d["stat"]))])
     .rangeRound([margin.left,width - margin.right])
   
     xAxis = (g) => g
@@ -2305,6 +2343,8 @@ function table_bar(option){
       d3.select(this).style("cursor", "pointer")
       mouseaux(svg,"rect",d,"over")
 
+      console.log(d.name)
+
       svg.selectAll("text#display_over").style("opacity",e => {if(e.team != d.team) return 0.1})
 
       svg.selectAll("image#logos_1").style("opacity",e => {if(e.team != d.team) return 0.2})
@@ -2327,45 +2367,29 @@ function table_bar(option){
     .selectAll("rect")
     .data(data_selected)
     .join("rect")
-    .attr("x", 28)
-    .attr("y", d => y(d.team.replaceAll('-',' ')) -40)
+    .attr("x", 42)
+    .attr("y", d => y(d.name) - 35)
     .attr("rx", 5)
-    .on("mouseover",handleMouseOver)
-    .on("mouseleave",handleMouseLeave)
-    .attr("height", 10)
-    .style("stroke-width", function(d){
-      if(d.team == currentTeam.replaceAll(" ", "-")) return 3
-      else return 0.2
-    })
+    //.on("mouseover",handleMouseOver)
+    //.on("mouseleave",handleMouseLeave)
+    .attr("height", 15)
     .style("filter", "url(#glow)")
-    .style("stroke-dasharray",  function(d){
-      if(d.team != currentTeam.replaceAll(" ", "-")) return ("10,3")
-    })
     .style("stroke",function(d){
       return "white"
     }) 
-    .style("fill",d => getColor(d.team))
-    .attr("width", d => x(Number(d[selectedStat]))*0.7)
-    
-    /*d3.selectAll(".YAxisBar .tick text")
-    .attr("id","label_bar") // selects the text within all groups of ticks
-    .attr("x",width)
-        .style("filter", "url(#glow)")
-        .style("font-size",   function(d){
-          if(d == currentTeam) return "15px"
-          else return "8px"
-        })
-        */
+    .style("fill",d => getColor(currentTeam))
+    .attr("width", function(d){
+      return x(d["stat"]) * 0.7})
+     
     svg.selectAll('image')
     .data(data_selected)
     .enter()
     .append("image")
     .attr("id","logos_1")
     .attr("x", 5)
-    .attr("y", d => y(d.team.replaceAll('-',' ')) - 46)
-    .attr('width', 18)
-    .attr('height', 22)
-    .attr("xlink:href",d => "data/" + currentSeason + "/" + d.team.replaceAll(" ","-") + ".png")
+    .attr("y", d => y(d.name) - 45)
+    .attr('height', 30)
+    .attr("xlink:href",d => "data/Photos/" + currentTeam.replaceAll(" ", "-") + "/" + d.name + ".png")
 
 
      svg.selectAll("YAxisBar .tick")
@@ -2373,15 +2397,15 @@ function table_bar(option){
     .append("text")
     .attr("id","display_over")
     .attr("x", d => {
-      return x(Number(d[selectedStat]))*0.7 - 20 + 70
+      return x(Number(d["stat"]))*0.7 - 20 + 90
     })
-    .attr("y",  d => y(d.team.replaceAll('-',' ')) - 30)
+    .attr("y",  d => y(d.name) - 22)
     .attr("text-anchor", "middle")  
     .style("font-size", "14px") 
     .style("font-weight","bold")
     .style("filter", "url(#glow)")
     .style("fill","white")
-    .text(d => roundToTwo(Number(d[selectedStat])));
-
+    .text(d => roundToTwo(Number(d["stat"])));
+    
   })
 }
