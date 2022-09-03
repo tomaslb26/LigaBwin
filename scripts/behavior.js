@@ -559,7 +559,7 @@ function movingAverage(){
     .y(function(d){ return yScale(d.value) })
 
     setupScales = function(data){
-      xScale.domain(d3.extent(final_team_data, function(d) { return Number(d.round); }))
+      xScale.domain([0,34])
       yScale.domain([0, Math.max(d3.max(final_team_data, function(d){return d.value}),d3.max(final_opp_data, function(d){return d.value}))])
     }
 
@@ -652,23 +652,6 @@ function movingAverage(){
       svg.selectAll("image#logos").style("opacity",e => {if(e.round != d.round) return 1})
     }
 
-    /*svg.selectAll('.lineCircles')
-    .data(final_team_data)
-    .enter().append('circle')
-    .attr("id","node")
-    .attr('cx', d => xScale(d.round))
-    .attr('cy', d => yScale(d.value))
-    .attr('r', 4)
-    .style('stroke-width', 0.5)
-    .on("mouseover",handleMouseOver)
-    .on("mouseleave",handleMouseLeave)
-    .on("click",handleMouseClick)
-    .style('stroke', "black")
-    .style('fill', "#e83030")
-    .style("filter", "url(#glow)")
-    .style("fill-opacity",0.8)*/
-
-    
     svg.selectAll('image')
     .data(final_team_data)
     .enter()
@@ -681,22 +664,6 @@ function movingAverage(){
     .on("click",handleMouseClick)
     .attr('height', 16)
     .attr("xlink:href", "data/" + currentSeason + "/" + currentTeam.replaceAll(" ","-") + ".png")
-
-    /*svg.selectAll('.lineCircles')
-    .data(final_opp_data)
-    .enter().append('circle')
-    .attr("id","node")
-    .attr('cx', d => xScale(d.round))
-    .attr('cy', d => yScale(d.value))
-    .attr('r', 4)
-    .on("mouseover",handleMouseOver)
-    .on("mouseleave",handleMouseLeave)
-    .on("click",handleMouseClick)
-    .style('stroke-width', 0.5)
-    .style('stroke', "black")
-    .style('fill', "#48EDDB")
-    .style("filter", "url(#glow)")
-    .style("fill-opacity",0.8)*/
 
     svg.selectAll('image_2')
     .data(final_opp_data)
@@ -2341,26 +2308,29 @@ function table_bar(option){
 
     function handleMouseOver(event,d){
       d3.select(this).style("cursor", "pointer")
+      
       mouseaux(svg,"rect",d,"over")
 
-      console.log(d.name)
+      svg.selectAll("text#display_over").style("opacity",e => {if(e.name != d.name) return 0.1})
+      svg.selectAll("text#display_over").text(function(e){
+        if(e.name == d.name){
+          return roundToTwo(d.stat) + " - " + d.name
+        }
+        else return roundToTwo(e.stat)
+      });
 
-      svg.selectAll("text#display_over").style("opacity",e => {if(e.team != d.team) return 0.1})
+      svg.selectAll("image#logos_1").style("opacity",e => {if(e.name != d.name) return 0.1})
 
-      svg.selectAll("image#logos_1").style("opacity",e => {if(e.team != d.team) return 0.2})
-
-      svg.selectAll("rect").style("height",function(e){
-        if(e.team == d.team) return 15
-      })
     }
 
     function handleMouseLeave(event,d){
       mouseaux(svg,"rect",d,"leave")
-      svg.selectAll("text#display_over").style("opacity",e => {if(e.team != d.team.replaceAll("-"," ")) return 1})
-      svg.selectAll("image#logos_1").style("opacity",e => {if(e.team != d.team) return 1})
-      svg.selectAll("rect").style("height",function(e){
-        if(e.team == d.team) return 10
-      })
+      svg.selectAll("text#display_over").style("opacity",e => {if(e.name != d.name) return 1})
+      svg.selectAll("image#logos_1").style("opacity",e => {if(e.name != d.name) return 1})
+      svg.selectAll("text#display_over").style("x",function(e){
+                                              return x(Number(e["stat"]))*0.7 - 20 + 70}).
+                                              text(function(e){
+                                              return roundToTwo(e.stat)});
     }
 
     svg.append("g")
@@ -2370,8 +2340,8 @@ function table_bar(option){
     .attr("x", 42)
     .attr("y", d => y(d.name) - 35)
     .attr("rx", 5)
-    //.on("mouseover",handleMouseOver)
-    //.on("mouseleave",handleMouseLeave)
+    .on("mouseover",handleMouseOver)
+    .on("mouseleave",handleMouseLeave)
     .attr("height", 15)
     .style("filter", "url(#glow)")
     .style("stroke",function(d){
