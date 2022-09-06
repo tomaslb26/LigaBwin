@@ -106,9 +106,20 @@ function flow_chart_selects(){
   d3.select("#selectHomeTeam").on("change", function(d) {
     currentTeam= d3.select(this).property("value")
     currentTeamId = currentTeamDict[currentTeam.replaceAll(" ","-")]
+    d3.select("div#rectangle_3").style("border","solid 2px " + getColor(currentTeam))
     d3.select("div#background_div").style("background","url(../data/" + currentSeason + "/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
     document.getElementById("home_team").src="data/" + currentSeason + "/" + currentTeam.replaceAll(" ","-") + ".png";
     d3.select("#selectHomeTeam").style("text-shadow","0px 0px 5px" + getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#global").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("div#row_1").style("border-top","solid 2px " + getColor(currentTeam))
+    d3.select("select#selectSeason2").style("border","solid 2px " + getColor(currentTeam))
+    d3.select("div#row_1").style("border-bottom","solid 2px " + getColor(currentTeam))
+    d3.select("div#circle_1").style("border-top","3px solid " + getColor(currentTeam))
+    d3.select("div#circle_1").style("border-bottom","3px solid " + getColor(currentTeam))
+    d3.select("span#home_span").style("text-shadow","0px 0px 5px " + getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("span#flow_title").style("filter", "url(#glow)").style("text-shadow","0px 1px 4px " + getColor(currentTeam));
     init_2()
   })
 
@@ -117,6 +128,9 @@ function flow_chart_selects(){
     d3.select("div#background_div").style("background","url(../data/" + currentSeason + "/estadio_" + currentTeam.replaceAll(" ","-") + ".jpg)").style("opacity", 0.2)
     document.getElementById("away_team").src="data/"  + currentSeason + "/" + currentSelectedTeam.replaceAll(" ","-") + ".png";
     d3.select("#selectAwayTeam").style("text-shadow","0px 0px 5px" + getColor(currentSelectedTeam)).style("filter", "url(#glow)");
+    d3.select("span#away_span").style("text-shadow","0px 0px 5px" + getColor(currentSelectedTeam)).style("filter", "url(#glow)");
+    d3.select("div#circle_2").style("border-top","3px solid" + getColor(currentSelectedTeam))
+    d3.select("div#circle_2").style("border-bottom","3px solid " + getColor(currentSelectedTeam))
     init_2()
   })
 
@@ -125,7 +139,16 @@ function flow_chart_selects(){
   d3.select("#selectAwayTeam").style("filter", "url(#glow)");
   d3.select("#selectHomeTeam").style("filter", "url(#glow)");
   d3.select("#selectSeason2").style("filter", "url(#glow)");
+  d3.select("span#flow_title").style("filter", "url(#glow)")
   d3.select("#season").style("filter", "url(#glow)");
+  d3.select("span#hifen_span").style("filter", "url(#glow)");
+  d3.select("span#home_span").style("filter", "url(#glow)");
+  d3.select("span#away_span").style("filter", "url(#glow)");
+  d3.select("div#circle_1").style("filter", "url(#glow)");
+  d3.select("div#circle_2").style("filter", "url(#glow)");
+  d3.select("#global").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+  d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+  d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
   once_2 = true
 
 }
@@ -164,26 +187,6 @@ function flow_chart(){
 
       document.getElementById('home_span').textContent = String(goals_1.length + Math.abs(team_2_own_goals) - Math.abs(team_1_own_goals))
       document.getElementById('away_span').textContent = String(goals_2.length - Math.abs(team_2_own_goals) + Math.abs(team_1_own_goals)) 
-      d3.select("span#away_span").style("text-shadow","0px 0px 5px" + getColor(currentSelectedTeam)).style("filter", "url(#glow)");
-      d3.select("span#home_span").style("text-shadow","0px 0px 5px " + getColor(currentTeam)).style("filter", "url(#glow)");
-      d3.select("div#circle_1").style("border-top","3px solid " + getColor(currentTeam))
-      d3.select("div#circle_1").style("border-bottom","3px solid " + getColor(currentTeam))
-      d3.select("div#circle_2").style("border-top","3px solid" + getColor(currentSelectedTeam))
-      d3.select("div#circle_2").style("border-bottom","3px solid " + getColor(currentSelectedTeam))
-
-
-
-      d3.select("span#flow_title").style("filter", "url(#glow)").style("text-shadow","0px 1px 4px " + getColor(currentTeam));
-      d3.select("span#hifen_span").style("filter", "url(#glow)");
-      d3.select("div#circle_1").style("filter", "url(#glow)");
-      d3.select("div#circle_2").style("filter", "url(#glow)");
-      d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
-      d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
-      d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
-      d3.select("div#rectangle_3").style("border","solid 2px " + getColor(currentTeam))
-      d3.select("div#row_1").style("border-top","solid 2px " + getColor(currentTeam))
-      d3.select("div#row_1").style("border-bottom","solid 2px " + getColor(currentTeam))
-
       
       data.forEach((value, key) => {
         xt_2.push({'minute':Number(key), 'xT': value})
@@ -810,7 +813,7 @@ function selectTeam(){
     d3.select("#selectHome").property("value",currentPassNetworkState)
     d3.select("#selectSeason").property("value",currentSeason)
 
-    d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#global").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
 
@@ -884,8 +887,9 @@ function selectTeam(){
     d3.select("#selectButton").style("border","2px solid " + getColor(currentTeam))
     d3.select("#selectStat").style("border","2px solid " + getColor(currentTeam))
     d3.select("#selectHome").style("border","2px solid " + getColor(currentTeam))
+    d3.select("#selectSeason").style("border","2px solid " + getColor(currentTeam))
     d3.select("#selectTeam").style("border","2px solid " + getColor(currentTeam))
-    d3.select("#team_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
+    d3.select("#global").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     d3.select("#player_stats").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     d3.select("#go_back").style("text-decoration-color",getColor(currentTeam)).style("filter", "url(#glow)");
     d3.selectAll(".btn").style("border","2px solid " + getColor(currentTeam))
@@ -2035,8 +2039,8 @@ function actions(option){
       tooltip2.style("opacity",0).style("visibility", "hidden")
     }
 
-    d3.select("div#rectangle_2").selectAll("label").on("mouseover",handleMouseOver2)
-    .on("mouseleave",handleMouseLeave2)
+    //d3.select("div#rectangle_2").selectAll("label").on("mouseover",handleMouseOver2)
+    //.on("mouseleave",handleMouseLeave2)
 
     function handleMouseClick(event,d){
       var matrix = this.getScreenCTM()

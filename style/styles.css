@@ -16,6 +16,17 @@
   z-index: -1;   
 }
 
+#background_div_global{
+  content: "";
+  opacity: 0.2;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;   
+}
+
 #passingNetwork{
   margin-top: 3.5%;
   font-weight: bold;
@@ -33,12 +44,18 @@
   padding-left: 1em;
 }
 
+.navbar-toggler{
+  width: 47px;
+  height: 34px;
+  background-color: #e2ebd92a;
+  border: 2px solid #cf261f;
+}
+
+
 select {
   /* Reset Select */
   border:2px solid #cf261f;
   /* Personalize */
-  flex: 1;
-  padding: 0 1em;
   color: white;
   background-color: rgba(255,255,255,0);
   background-image: none;
@@ -46,7 +63,6 @@ select {
   border-radius: .25em;
   overflow: hidden;
   font-weight: bold;
-  
 }
 
 select option{
@@ -226,4 +242,20 @@ div.tooltip3 {
   right: 10px;
   border: 2px solid #cf261f;
   border-radius: 10px;
+}
+
+.YAxisBarMisc line{
+  stroke: white;
+  stroke-width: 1px;
+}
+
+.YAxisBarMisc path{
+  stroke: white;
+  stroke-width: 1px;
+}
+
+.YAxisBarMisc text{
+  color: white;
+  font-size: 140%;
+  font-weight: bold;
 }

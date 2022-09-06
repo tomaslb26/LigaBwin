@@ -3,6 +3,7 @@ import json
 from json import JSONDecoder
 from bs4 import BeautifulSoup
 import re
+from unidecode import unidecode
 import os
 import pandas as pd
 from selenium.webdriver.chrome.options import Options
@@ -215,8 +216,36 @@ def get_data(link, teamId, team):
     get_statistics(x, teamId, team)
     
     df = plot_pass_network(x, teamId)
-    df.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin22-23PassNetworks/",team,"PassNetwork" + title.replace(" - ", "") + ".csv"), index = False)
+    df.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin22-23PassNetworks/",team,"PassNetwork" + title.replace(" - ", "").replace(" ","-") + ".csv"), index = False)
 
     driver.quit()
 
     return x, title
+
+def name_conversion(team):
+    team = team.replace(" CP", "").replace(" AC", "").replace(" FC", "").replace("FC ","")
+    team = unidecode(team)
+    if(team == "Pacos"): team = "Pacos de Ferreira"
+    elif(team == "Vitoria"): team = "Vitoria de Guimaraes"
+    return team
+
+def get_fbref():
+    df = pd.read_html('https://fbref.com/en/comps/32/Primeira-Liga-Stats')
+    
+    classification = df[0][['Rk','Squad','MP','W','D','L','GF','GA','GD','Pts',"Last 5",'Attendance']]
+    classification.columns = ["Position", "Team", "Games", "Wins", "Draws", "Losses", "Goals", "Goals Against", "Goal Difference", "Points","Last 5", "Attendance"]
+    classification["Team"] = classification["Team"].apply(name_conversion)
+    
+    classification.to_csv("/home/tomas/Desktop/test/classification.csv", index = False)
+    
+    stats = df[2].iloc[: , :4]
+    stats.columns = ["Team", "Players Used", "Average Age", "Possession"]
+    
+    misc = df[10].iloc[: , :12]
+    misc.columns = ["Team", "Drop", "Drop_2", "Yellow Card", "Red Card", "Second Yellow", "Fouls", "Fouls Against", "Offside", "Crosses", "Interceptions", "Tackles won"]
+    misc.drop(["Drop", "Drop_2"], axis = 1, inplace = True)
+    
+    misc = misc.join(stats.set_index("Team"), on = "Team")
+    misc["Team"] = misc["Team"].apply(name_conversion)
+    
+    misc.to_csv("/home/tomas/Desktop/test/misc.csv", index = False)
