@@ -10,7 +10,7 @@
 		<meta name="author" content="https://www.linkedin.com/in/tom%C3%A1s-sequeira-882279221/">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<title>Liga Bwin 21/22</title>
+		<title>Liga Bwin</title>
 
 		<!-- Import libraries. -->
 		<script language="JavaScript" type="text/javascript" src="libs/d3.min.js"></script>
@@ -36,13 +36,13 @@
 			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 				<div class="navbar-nav">
 					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="index.html">
+						<span id = "global" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Global </span>
+					</a>
+					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="team_stats.html">
 						<span id = "team_stats" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Team Stats </span>
 					</a>
 					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="#">
 						<span id = "player_stats" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Player Stats </span>
-					</a>
-					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="flow_chart.html">
-						<span id = "go_back" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Match Momentum Chart </span>
 					</a>
 				</div>	
 			</div>
@@ -53,20 +53,20 @@
 	<div class="container-fluid">
 		<div class="row" id = "row_1" style="margin-top:1%; background:  #2a2e30de; border-top:2px solid #cf251f; border-bottom: 2px solid #cf251f; display: flex; justify-content: center;" id = "row_1" style = "margin-top: 0.5%;">
 			<div style="width: 100%; text-align: center; margin-top: 1%;">
-				<span id="flow_title" style="color: white; margin: auto; font-size: 200%; font-weight: bold;" >Match Momentum Chart</span>
+				<span id="flow_title" style="text-shadow:0px 1px 4px #cf251f; color: white; margin: auto; font-size: 200%; font-weight: bold;" >Match Momentum Chart</span>
 			</div>
 			<div id = "circle_1" style="position: relative; top: 50%; transform: translateY(-22%); width: 110px; height:110px; margin: auto; border-radius: 50%; border-top:3px solid #cf251f; border-bottom:3px solid #cf251f; display: flex; justify-content: center;">
 				<img src="data/21-22/Benfica.png"  style="height: 55px; display: block; margin: auto;" id="home_team" alt="">
 			</div>
 			<div style="width: fit-content; display: inline-block;">
 				<select  dir="rtl" style = " color: white; font-size: 150%; vertical-align: middle; border: none; padding-right: 0%;" id="selectHomeTeam"></select>
-				<span id="home_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >1</span>
+				<span id="home_span" style="text-shadow:0px 1px 5px #cf251f; color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >1</span>
 				<span id="hifen_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >- </span>
-				<span id="away_span" style="color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >3</span>
+				<span id="away_span" style="text-shadow:0px 1px 5px #fff400; color: white; font-size: 150%;margin-top:1.5%; font-weight: bold; vertical-align: middle;" >3</span>
 				<select  style = "color: white; font-size: 150%; vertical-align: middle; margin-top:0%; border: none;" id="selectAwayTeam"></select>
 			</div>	
-			<div id = "circle_2" style="position: relative; top: 50%; transform: translateY(-22%); width: 110px; height:110px; margin: auto; border-radius: 50%; border-top:3px solid #cf251f; border-bottom:3px solid #cf251f; display: flex; justify-content: center;">
-				<img src="data/21-22/Sporting.png" style="height: 55px; display: block; margin: auto;" id="away_team" alt="">
+			<div id = "circle_2" style="position: relative; top: 50%; transform: translateY(-22%); width: 110px; height:110px; margin: auto; border-radius: 50%; border-top:3px solid #fff400; border-bottom:3px solid #fff400; display: flex; justify-content: center;">
+				<img src="data/21-22/Arouca.png" style="height: 55px; display: block; margin: auto;" id="away_team" alt="">
 			</div>	
 		</div>
 		<div class="row" id = "row" style = "margin-top: 0.5%;">
