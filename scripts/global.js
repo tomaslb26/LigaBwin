@@ -206,6 +206,7 @@ function append_text(svg,x,y,text,color){
 
 function create_classification_table(){
 
+
     d3.csv("/data/" + currentSeason + "/classification.csv").then((data) => {
         var margin = {
             top: 20,
@@ -213,15 +214,37 @@ function create_classification_table(){
             bottom: 20,
             left: 20
             }
-          
-        var width = 730
-        var height = 750
+        
     
+
+        if(window.innerWidth > 1400){
+            var width = 760
+            var height = 750
+            windowTax = 0
+            image_loc = 95
+            lines = [80, 145, 185, 225, 265, 305, 345, 390, 435, 515]
+            row_locs = [32, 160, 200, 240, 280, 315, 360, 400, 465, 615]
+            strings = {"Position" : 10, "Team": 90, "MP": 152, "W": 197, "D": 238, "L": 280, "G": 320, "GA": 355, "GD": 400, "Points": 450, "Average Attendance": 560}
+          }
+          else if(window.innerWidth > 1200){
+            image_loc = 55
+            lines = [40, 100, 140, 180, 220, 260, 300, 340, 380, 420]
+            strings = {"P": 18, "Team": 50, "MP": 107, "W": 152, "D": 195, "L": 235, "G": 275, "GA": 308, "GD": 348, "Pts": 388, "Avg Attend": 424}
+            row_locs = [10, 115, 155, 197, 235, 272, 310, 350, 390, 446]
+            var height = 750
+            var width = 510
+            fontSize = 0.85
+            windowTax = 40
+        }
+          else {
+            var height = 950
+            var margin = { top: 120, right: 9, bottom: 0, left: 5 }
+        }
+        
         d3.select("div#classification").select("svg").remove();
         const svg = d3
         .select("div#classification")
         .append("svg")
-        //.attr("style", "outline: thin solid red;") 
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
 
@@ -229,12 +252,12 @@ function create_classification_table(){
 
         for(i = 1; i < 19; i++){
             
-            append_rect(svg,5,10  + i*(height/19),height/19,760,"red",data[i-1]["Team"], 0.8)
+            append_rect(svg,5,10  + i*(height/19),height/19,width,"red",data[i-1]["Team"], 0.8)
             
             svg
             .append("image")
             .attr("id","logos_1")
-            .attr("x", 95)
+            .attr("x", image_loc)
             .attr("y", 55 + 39.5*(i-1))
             .attr('height', 30)
             .attr('width',30)
@@ -242,32 +265,31 @@ function create_classification_table(){
 
             color = "white"
             
-            append_text(svg,32,75 + 39.5*(i-1), data[i-1]["Position"] + "º", color)
-            append_text(svg,160,75 + 39.5*(i-1), data[i-1]["Games"], color)
-            append_text(svg,200,75 + 39.5*(i-1), data[i-1]["Wins"], color)
-            append_text(svg,240,75 + 39.5*(i-1), data[i-1]["Draws"], color)
-            append_text(svg,280,75 + 39.5*(i-1), data[i-1]["Losses"], color)
-            append_text(svg,315,75 + 39.5*(i-1), data[i-1]["Goals"], color)
-            append_text(svg,360,75 + 39.5*(i-1), data[i-1]["Goals Against"], color)
-            append_text(svg,400,75 + 39.5*(i-1), data[i-1]["Goal Difference"], color)
-            append_text(svg,465,75 + 39.5*(i-1), data[i-1]["Points"], color)
-            append_text(svg,615,75 + 39.5*(i-1), data[i-1]["Attendance"], color)
+            append_text(svg,row_locs[0],75 + 39.5*(i-1), data[i-1]["Position"] + "º", color)
+            append_text(svg,row_locs[1],75 + 39.5*(i-1), data[i-1]["Games"], color)
+            append_text(svg,row_locs[2],75 + 39.5*(i-1), data[i-1]["Wins"], color)
+            append_text(svg,row_locs[3],75 + 39.5*(i-1), data[i-1]["Draws"], color)
+            append_text(svg,row_locs[4],75 + 39.5*(i-1), data[i-1]["Losses"], color)
+            append_text(svg,row_locs[5],75 + 39.5*(i-1), data[i-1]["Goals"], color)
+            append_text(svg,row_locs[6],75 + 39.5*(i-1), data[i-1]["Goals Against"], color)
+            append_text(svg,row_locs[7],75 + 39.5*(i-1), data[i-1]["Goal Difference"], color)
+            append_text(svg,row_locs[8],75 + 39.5*(i-1), data[i-1]["Points"], color)
+            append_text(svg,row_locs[9],75 + 39.5*(i-1), data[i-1]["Attendance"], color)
 
         }
 
-        append_rect(svg,5,10 ,height/19,760,"#ffb700", null, 1, "white")
+        append_rect(svg,5,10 ,height/19,width,"#ffb700", null, 1, "white")
 
-        append_line(svg, 80, 80, 10, height + 10)
-        append_line(svg, 145, 145, 10, height + 10)
-        append_line(svg, 185, 185, 10, height + 10)
-        append_line(svg, 225, 225, 10, height + 10)
-        append_line(svg, 265, 265, 10, height + 10)
-        append_line(svg, 305, 305, 10, height + 10)
-        append_line(svg, 345, 345, 10, height + 10)
-        append_line(svg, 390, 390, 10, height + 10)
-        append_line(svg, 435, 435, 10, height + 10)
-        append_line(svg, 515, 515, 10, height + 10)
+        for(i = 0; i < lines.length; i++){
+            append_line(svg,lines[i], lines[i], 10, height + 10)
 
+        }
+
+        for(var key in strings){
+            append_text(svg,strings[key],35,key,"white")
+        }
+
+        /*
         append_text(svg,10,35,"Position","white")
         append_text(svg,90,35,"Team","white")
         append_text(svg,152,35,"MP","white")
@@ -279,6 +301,7 @@ function create_classification_table(){
         append_text(svg,400,35,"GD","white")
         append_text(svg,450,35,"Points","white")
         append_text(svg,560,35,"Average Attendance","white")
+        */
   
 
     })
@@ -305,8 +328,24 @@ function create_misc_table(){
             left: 35
         }
           
-        var width = 720
-        var height = 700
+        if(window.innerWidth > 1400){
+            var width = 760
+            var height = 750
+            logosize = 30
+            windowTax = 3
+          }
+          else if(window.innerWidth > 1200){
+            var height = 750
+            var width = 510
+            logosize = 25
+            windowTax = 0
+        }
+          else {
+            var height = 450
+            var width = 280
+            logosize = 15
+            windowTax = -2
+        }
       
         var x = d3.scaleBand()
         .range([ margin.left , width ])
@@ -360,9 +399,9 @@ function create_misc_table(){
         .append("image")
         .attr("id","logos_1")
         .attr("y", height - 40)
-        .attr("x", d => x(d.name) + 3)
-        .attr('height', 30)
-        .attr('width',30)
+        .attr("x", d => x(d.name) + windowTax)
+        .attr('height', logosize)
+        .attr('width',logosize)
         .attr("xlink:href",d => "data/" + currentSeason + "/" + d.name.replaceAll(" ", "-") + ".png")
     })
 }
