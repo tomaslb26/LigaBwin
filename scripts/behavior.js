@@ -1942,9 +1942,13 @@ function actions(option){
   
       function handleMouseLeave(event,d){
         d3.select(this).style("cursor", "pointer")
-        mouseaux(pitch,"circle#def",d,"leave")
         mouseaux(d3.select("div#chart"),"circle#nodes",d,"leave","name")
 
+        pitch.selectAll("circle#def")
+        .style("fill-opacity",function(e){
+          if(e.outcomeType == "Unsuccessful") return 0.1
+          else if(e["name"] != d["name"]) return 1
+        })
       }
 
       setAllFalse()
