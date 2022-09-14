@@ -2254,7 +2254,7 @@ function table_bar(option){
     console.log(currentTeam)
 
     data_selected = data_selected.filter(function(d){
-      if(d.team == currentTeam.replaceAll(" ","-") && d.minutes > 135) return d
+      if(d.team == currentTeam.replaceAll(" ","-") && d.minutes > 220) return d
     })
 
   if(selectedStat == "Goals" || selectedStat == "Assists")  data_selected= data_selected.map(o => new Object({name: o.name, stat: (o[selectedStat])}))

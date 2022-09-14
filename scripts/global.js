@@ -191,7 +191,7 @@ function append_line(svg,x1,x2,y1,y2){
     
 }
 
-function append_text(svg,x,y,text,color){
+function append_text(svg,x,y,text,color, fontSize){
     svg
     .append("text")
     .attr("x", x)             
@@ -200,7 +200,7 @@ function append_text(svg,x,y,text,color){
     .style("filter", "url(#glow)")
     .style("fill",color)
     .style("font-weight","bold")
-    .style("font-size","100%")
+    .style("font-size",String(fontSize * 100) + "%")
     .text(text);
 }
 
@@ -219,11 +219,17 @@ function create_classification_table(){
 
         if(window.innerWidth > 1400){
             var width = 760
-            var height = 750
+            var height = 720
             windowTax = 0
             image_loc = 95
+            fontSize = 1
             lines = [80, 145, 185, 225, 265, 305, 345, 390, 435, 515]
             row_locs = [32, 160, 200, 240, 280, 315, 360, 400, 465, 615]
+            row_start_y = 75
+            image_start_y = 52
+            image_size = 30
+            shift = 38
+            header = 35
             strings = {"Position" : 10, "Team": 90, "MP": 152, "W": 197, "D": 238, "L": 280, "G": 320, "GA": 355, "GD": 400, "Points": 450, "Average Attendance": 560}
           }
           else if(window.innerWidth > 1200){
@@ -231,14 +237,30 @@ function create_classification_table(){
             lines = [40, 100, 140, 180, 220, 260, 300, 340, 380, 420]
             strings = {"P": 18, "Team": 50, "MP": 107, "W": 152, "D": 195, "L": 235, "G": 275, "GA": 308, "GD": 348, "Pts": 388, "Avg Attend": 424}
             row_locs = [10, 115, 155, 197, 235, 272, 310, 350, 390, 446]
-            var height = 750
+            var height = 480
             var width = 510
-            fontSize = 0.85
-            windowTax = 40
+            row_start_y = 55
+            image_start_y = 39
+            shift = 25
+            fontSize = 0.9
+            header = 30
+            image_size = 20
         }
-          else {
-            var height = 950
-            var margin = { top: 120, right: 9, bottom: 0, left: 5 }
+        else if(window.innerWidth < 800) {
+            var height = 550
+            var width = 270
+            image_loc = 40
+            lines = [30, 70, 95, 115, 135, 155, 175, 200, 225]
+            strings = {"P": 15, "Team": 35, "MP": 75, "W": 100, "D": 120, "L": 140, "G": 160, "GA": 180, "GD": 205, "Pts": 240}
+            row_locs = [8, 80, 102, 122, 142, 158, 180, 205, 240]
+            fontSize = 0.1
+            windowTax = 20
+            row_start_y = 55
+            image_start_y = 43
+            shift = 29
+            fontSize = 0.7
+            header = 30
+            image_size = 20
         }
         
         d3.select("div#classification").select("svg").remove();
@@ -258,23 +280,24 @@ function create_classification_table(){
             .append("image")
             .attr("id","logos_1")
             .attr("x", image_loc)
-            .attr("y", 55 + 39.5*(i-1))
-            .attr('height', 30)
-            .attr('width',30)
+            .attr("y", image_start_y + shift*(i-1))
+            .attr('height', image_size)
+            .attr('width',image_size)
             .attr("xlink:href",d => "data/" + currentSeason + "/" + data[i-1]["Team"].replaceAll(" ", "-") + ".png")
 
             color = "white"
             
-            append_text(svg,row_locs[0],75 + 39.5*(i-1), data[i-1]["Position"] + "º", color)
-            append_text(svg,row_locs[1],75 + 39.5*(i-1), data[i-1]["Games"], color)
-            append_text(svg,row_locs[2],75 + 39.5*(i-1), data[i-1]["Wins"], color)
-            append_text(svg,row_locs[3],75 + 39.5*(i-1), data[i-1]["Draws"], color)
-            append_text(svg,row_locs[4],75 + 39.5*(i-1), data[i-1]["Losses"], color)
-            append_text(svg,row_locs[5],75 + 39.5*(i-1), data[i-1]["Goals"], color)
-            append_text(svg,row_locs[6],75 + 39.5*(i-1), data[i-1]["Goals Against"], color)
-            append_text(svg,row_locs[7],75 + 39.5*(i-1), data[i-1]["Goal Difference"], color)
-            append_text(svg,row_locs[8],75 + 39.5*(i-1), data[i-1]["Points"], color)
-            append_text(svg,row_locs[9],75 + 39.5*(i-1), data[i-1]["Attendance"], color)
+            append_text(svg,row_locs[0],row_start_y + shift*(i-1), data[i-1]["Position"] + "º", color, fontSize)
+            append_text(svg,row_locs[1],row_start_y + shift*(i-1), data[i-1]["Games"], color, fontSize)
+            append_text(svg,row_locs[2],row_start_y + shift*(i-1), data[i-1]["Wins"], color, fontSize)
+            append_text(svg,row_locs[3],row_start_y + shift*(i-1), data[i-1]["Draws"], color, fontSize)
+            append_text(svg,row_locs[4],row_start_y + shift*(i-1), data[i-1]["Losses"], color, fontSize)
+            append_text(svg,row_locs[5],row_start_y + shift*(i-1), data[i-1]["Goals"], color, fontSize)
+            append_text(svg,row_locs[6],row_start_y + shift*(i-1), data[i-1]["Goals Against"], color, fontSize)
+            append_text(svg,row_locs[7],row_start_y + shift*(i-1), data[i-1]["Goal Difference"], color, fontSize)
+            append_text(svg,row_locs[8],row_start_y + shift*(i-1), data[i-1]["Points"], color, fontSize)
+            if(row_locs.length == 10)
+                append_text(svg,row_locs[9],row_start_y + shift*(i-1), data[i-1]["Attendance"], color, fontSize)
 
         }
 
@@ -286,23 +309,8 @@ function create_classification_table(){
         }
 
         for(var key in strings){
-            append_text(svg,strings[key],35,key,"white")
+            append_text(svg,strings[key],header,key,"white", fontSize)
         }
-
-        /*
-        append_text(svg,10,35,"Position","white")
-        append_text(svg,90,35,"Team","white")
-        append_text(svg,152,35,"MP","white")
-        append_text(svg,197,35,"W","white")
-        append_text(svg,238,35,"D","white")
-        append_text(svg,280,35,"L","white")
-        append_text(svg,320,35,"G","white")
-        append_text(svg,355,35,"GA","white")
-        append_text(svg,400,35,"GD","white")
-        append_text(svg,450,35,"Points","white")
-        append_text(svg,560,35,"Average Attendance","white")
-        */
-  
 
     })
 }
@@ -330,12 +338,12 @@ function create_misc_table(){
           
         if(window.innerWidth > 1400){
             var width = 760
-            var height = 750
+            var height = 720
             logosize = 30
             windowTax = 3
           }
           else if(window.innerWidth > 1200){
-            var height = 750
+            var height = 450
             var width = 510
             logosize = 25
             windowTax = 0
