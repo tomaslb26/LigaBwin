@@ -851,7 +851,7 @@ function selectTeam(){
                   else if(d == "final_third_entries") return "Final Third Entries per 90'"
                   else if(d == "final_third_passes") return "Final Third Passes per 90'"
                   else if(d == "penalty_box_passes") return "Penalty Box Passes per 90'"
-                  else if(d == "penalty_box_entries") return "Penalty Box Carries per 90'"
+                  else if(d == "penalty_box_entries") return "Penalty Box Entries per 90'"
                   else if(d == "key_passes") return "Key Passes per 90'"
                   else if(d == "Shots") return "Shots per 90'"
                   else if(d == "xG") return "xG per 90'"
