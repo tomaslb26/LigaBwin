@@ -1,10 +1,21 @@
 selectedTeam = "Benfica"
 selectedPlayer = "Gilberto"
-selectedPlayerId = null
+selectedPlayerId = 119542
 selectedSeason = "22-23"
 selectedMode = "percentile"
 minutes_treshold = 220
 once = false
+all_passes = false
+all_carries = false
+prog_passes = false
+unsuc_passes = false
+var prog_carries = false
+var all_touches = false
+var ball_recoveries = false
+var blocked_passes = false
+var interceptions = false
+var clearances = false
+var tackles = false
 
 var teams2122 = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
 'Arouca', 'Belenenses SAD', 'Boavista', 'Braga',
@@ -46,8 +57,132 @@ var currentTeams = teams2223
 function init(){
     init_selects()
     get_player_id()
+    plot()
     stats()
+    create_checkboxes()
     fill_glow()
+}
+
+function create_checkboxes(){
+
+  d3.select("div#first_checks").selectAll("input")
+  .data(["All Passes", "Progressive Passes", "Unsuccessful Passes", "All Carries", "Progressive Carries", "All Touches"])
+  .enter()
+  .append('label')
+      .attr('for',function(d,i){ return 'a'+i; })
+      .text(function(d) { return d; })
+      .style("filter", "url(#glow)")
+      .style("color","white")
+      .style("width","fit-content")
+      .style("padding-left","1.5%")
+      .style("font-size", "100%")
+  .append("input")
+      .attr("type", "checkbox")
+      .attr("id", function(d,i) { return 'a'+i; })
+      .style("filter", "url(#glow)")
+      .style("color","white")
+      .style("outline", function(d){
+        console.log(d)
+        if(d == "Progressive Passes") return "1.5px solid " + teams_colors[selectedTeam]
+        else if(d == "Progressive Carries") return "1.5px solid #48EDDB"
+      })
+      .style("margin-left","10px")
+      .style("padding-left","1%")
+
+  d3.select("div#second_checks").selectAll("input")
+  .data(["Ball Recoveries", "Blocked Passes", "Interceptions", "Clearances", "Tackles"])
+  .enter()
+  .append('label')
+      .attr('for',function(d,i){ return 'b'+i; })
+      .text(function(d) { return d; })
+      .style("filter", "url(#glow)")
+      .style("color","white")
+      .style("width","fit-content")
+      .style("padding-left","1.5%")
+      .style("font-size", "100%")
+  .append("input")
+      .attr("type", "checkbox")
+      .attr("id", function(d,i) { return 'b'+i; })
+      .style("filter", "url(#glow)")
+      .style("color","white")
+      .style("outline", function(d){
+        console.log(d)
+        if(d == "Ball Recoveries") return "1.5px solid #42DC60"
+        else if(d == "Interceptions") return "1.5px solid red"
+        else if(d == "Blocked Passes") return "1.5px solid #42DCD5"
+        else if(d == "Clearances") return "1.5px solid #D047D6"
+        else if(d == "Tackles") return "1.5px solid #E38A18"
+      })
+      .style("margin-left","10px")
+      .style("padding-left","1%")
+
+  d3.select("#a0").on("change", function(d) {
+    // recover the option that has been chosen
+    all_passes = !all_passes;
+    plot()
+  })
+
+  d3.select("#a1").on("change", function(d) {
+    // recover the option that has been chosen
+    prog_passes = !prog_passes;
+    plot()
+  })
+
+  d3.select("#a2").on("change", function(d) {
+    // recover the option that has been chosen
+    unsuc_passes = !unsuc_passes;
+    plot()
+  })
+
+  d3.select("#a3").on("change", function(d) {
+    // recover the option that has been chosen
+    all_carries = !all_carries;
+    plot()
+  })
+
+  d3.select("#a4").on("change", function(d) {
+    // recover the option that has been chosen
+    prog_carries = !prog_carries;
+    plot()
+  })
+
+  d3.select("#a5").on("change", function(d) {
+    // recover the option that has been chosen
+    all_touches = !all_touches;
+    plot()
+  })
+
+
+  d3.select("#b0").on("change", function(d) {
+    // recover the option that has been chosen
+    ball_recoveries = !ball_recoveries;
+    plot()
+  })
+
+  d3.select("#b1").on("change", function(d) {
+    // recover the option that has been chosen
+    blocked_passes = !blocked_passes;
+    plot()
+  })
+
+  d3.select("#b2").on("change", function(d) {
+    // recover the option that has been chosen
+    interceptions = !interceptions;
+    plot()
+  })
+
+  d3.select("#b3").on("change", function(d) {
+    // recover the option that has been chosen
+    clearances = !clearances;
+    plot()
+  })
+
+  d3.select("#b4").on("change", function(d) {
+    // recover the option that has been chosen
+    tackles = !tackles;
+    plot()
+  })
+
 }
 
 function create_glow(svg){
@@ -93,6 +228,11 @@ function fill_glow(){
   d3.select("#creation_title").style("filter", "url(#glow)");
   d3.select("#carry_title").style("filter", "url(#glow)");
   d3.select("#shooting_title").style("filter", "url(#glow)");
+  d3.select("#defending_title").style("filter", "url(#glow)");
+  d3.select("#minutes").style("filter", "url(#glow)");
+  d3.select("#goals").style("filter", "url(#glow)");
+  d3.select("#assists").style("filter", "url(#glow)");
+  d3.select("prog_passes_label").style("filter", "url(#glow)");
 }
 
 function get_player_id(){
@@ -178,7 +318,7 @@ function init_selects(){
       d3.select("#selectTeam").property("value",selectedTeam)
 
       d3.csv("data/" + selectedSeason + "/calcs.csv").then((data) => {
-        data = data.map(function(d) { if(d.team == selectedTeam.replaceAll(" ", "-")) return d.name; }).filter(item => item !== undefined).filter(item => item !== "")
+        data = data.map(function(d) { if(d.team == selectedTeam.replaceAll(" ", "-")) return d.name; }).filter(item => item !== undefined).filter(item => item !== "").sort()
 
         console.log(data)
         d3.select("#selectPlayer")
@@ -201,19 +341,38 @@ function stats(){
   carry_stats()
   shooting_stats()
   defending_stats()
+  basic_stats()
+}
+
+function basic_stats(){
+
+  d3.csv("data/" + selectedSeason + "/calcs.csv").then((dataset) => {
+    dataset = dataset.map(o => new Object({name: o.name, playerId: Number(o.playerId), minutes: Number(o.minutes), goals: Number(o.Goals), assists: Number(o.Assists)}))
+    console.log(dataset)
+    console.log(selectedPlayerId)
+    player = dataset.filter(item => item["playerId"] === selectedPlayerId)[0]
+    console.log(player)
+
+    document.getElementById('minutes').textContent = "Minutes " + player["minutes"]
+    document.getElementById('goals').textContent = "Goals " + player["goals"]
+    document.getElementById('assists').textContent = "Assists " + player["assists"]
+  })
+
 }
 
 function get_percentile(data, stat){
 
-  data = data.filter(item => item["minutes"] > minutes_treshold)
+  data_temp = structuredClone(data)
 
-  data = data.map(o => new Object({name: o.name, playerId: Number(o.playerId), minutes: Number(o.minutes), stat: (o[stat]*90)/o.minutes}))
+  data_temp = data_temp.filter(item => item["minutes"] > minutes_treshold)
 
-  player = data.filter(item => item["playerId"] === selectedPlayerId)[0]
+  data_temp = data_temp.map(o => new Object({name: o.name, playerId: Number(o.playerId), minutes: Number(o.minutes), stat: Number((o[stat]*90)/o.minutes)}))
 
-  below = data.filter(item => item["stat"] < player["stat"])
+  player = data_temp.filter(item => item["playerId"] === selectedPlayerId)[0]
 
-  percentile = ((below.length/data.length) * 100)
+  below = data_temp.filter(item => item.stat < player.stat)
+
+  percentile = ((below.length/data_temp.length) * 100)
 
   if(percentile.toFixed(0) == 100) percentile = 99
   else if(percentile.toFixed(0) == 0) percentile = 1
@@ -258,6 +417,7 @@ function creation_stats(){
     chances_created = get_percentile(data, "ChancesCreated")
     xT = get_percentile(data, "xt")
 
+
     var margin = {
       top: 20,
       right: 20,
@@ -268,21 +428,43 @@ function creation_stats(){
     if(window.innerWidth > 1400){
       var width = 460 + margin.left + margin.right
       var height = 70 + margin.top + margin.bottom
+
+      header_coords = [55, 150, 258, 428]
+      text_coords = [20, 145, 275, 395]
+      font_size = 0.9
+      stats_font_size = 4.5
+
+      y_coords = 85
     }
     else if(window.innerWidth > 1200){
-      var height = 480 + margin.top + margin.bottom
-      var width = 510 + margin.left + margin.right
+      var height = 30 + margin.top + margin.bottom
+      var width = 285 + margin.left + margin.right
+
+      header_coords = [35, 97, 165, 275]
+      text_coords = [18, 100, 180, 260]
+
+      font_size = 0.6
+      stats_font_size = 2.5  
+
+      y_coords = 60
     }
     else {
-      var height = 550 + margin.top + margin.bottom
-      var width = 270 + margin.left + margin.right
+      var height = 70 + margin.top + margin.bottom
+      var width = 235 + margin.left + margin.right
+
+      header_coords = [30, 83, 142, 235]
+      text_coords = [10, 80, 150, 217]
+
+      font_size = 0.5
+      stats_font_size = 2.5
+
+      y_coords = 85
   }
 
   d3.select("div#creation").select("svg").remove();
   const svg = d3
   .select("div#creation")
   .append("svg")
-  //.attr("style", "outline: thin solid red;")
   .attr("width", width)
   .attr("height", height)
 
@@ -300,36 +482,40 @@ function creation_stats(){
   append_rect(svg,width*2/4,0,height,width/4,teams_colors[selectedTeam],chances_created[0]*0.01)
   append_rect(svg,width*3/4,0,height,width/4,teams_colors[selectedTeam],xT[0]*0.01)
 
-  append_text(svg, 55, 20, "xA", "white", 0.9)
-  append_text(svg, 150, 20, "Key Passes", "white", 0.9)
-  append_text(svg, 258, 20, "Chances Created", "white", 0.9)
-  append_text(svg, 428, 20, "xT", "white", 0.9)
+  append_text(svg, header_coords[0], 20, "xA", "white", font_size)
+  append_text(svg, header_coords[1], 20, "Key Passes", "white", font_size)
+  append_text(svg, header_coords[2], 20, "Chances Created", "white", font_size)
+  append_text(svg, header_coords[3], 20, "xT", "white", font_size)
 
   if(selectedMode == "percentile"){
-    append_text(svg,20,85, String(xA[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,145,85, String(key_passes[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,275,85, String(chances_created[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,395,85, String(xT[0].toFixed(0)), "white", 4.5, "bold")
+    append_text(svg,text_coords[0],y_coords, String(xA[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1],y_coords, String(key_passes[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2],y_coords, String(chances_created[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[3],y_coords, String(xT[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,15,85, String(xA[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,140,85, String(key_passes[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,270,85, String(chances_created[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,390,85, String(xT[1].toFixed(1)), "white", 4.5, "bold")
+    append_text(svg,text_coords[0] - 5,y_coords, String(xA[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1] - 5,y_coords, String(key_passes[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2] - 5,y_coords, String(chances_created[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[3] - 5,y_coords, String(xT[1].toFixed(1)), "white", stats_font_size, "bold")
   }
 
   
   
   
-  })
+  }).catch(e => {
+    creation_stats()
+  });
 }
 
 function passing_stats(){
   d3.csv("data/" + selectedSeason + "/calcs.csv").then((data) => {
 
+
     prog_passing = get_percentile(data, "prog_passes")
     final_third_passes = get_percentile(data, "final_third_passes")
     penalty_box_passes = get_percentile(data, "penalty_box_passes")
+
 
     var margin = {
       top: 20,
@@ -341,14 +527,34 @@ function passing_stats(){
     if(window.innerWidth > 1400){
       var width = 460 + margin.left + margin.right
       var height = 70 + margin.top + margin.bottom
+
+      header_coords = [15,185,347]
+      text_coords = [45, 210, 375]
+      font_size = 1
+      stats_font_size = 4.5
+      y_coords = 85
     }
     else if(window.innerWidth > 1200){
-      var height = 480 + margin.top + margin.bottom
-      var width = 510 + margin.left + margin.right
+      var height = 30 + margin.top + margin.bottom
+      var width = 285 + margin.left + margin.right
+
+      header_coords = [5, 120, 225]
+      text_coords = [30, 140, 245]
+
+      font_size = 0.7
+      stats_font_size = 2.5    
+      y_coords = 60
     }
     else {
-      var height = 550 + margin.top + margin.bottom
-      var width = 270 + margin.left + margin.right
+      var height = 70 + margin.top + margin.bottom
+      var width = 235 + margin.left + margin.right
+
+      header_coords = [10, 105, 195]
+      text_coords = [23, 115, 205]
+
+      font_size = 0.5
+      stats_font_size = 2.5
+      y_coords = 85
   }
 
   d3.select("div#passing").select("svg").remove();
@@ -369,33 +575,37 @@ function passing_stats(){
   append_rect(svg,width/3,0,height,width/3,teams_colors[selectedTeam],final_third_passes[0]*0.01)
   append_rect(svg,width*2/3,0,height,width/3,teams_colors[selectedTeam],penalty_box_passes[0]*0.01)
 
-  append_text(svg, 15, 20, "Progressive Passes", "white", 1)
-  append_text(svg, 185, 20, "Final Third Passes", "white", 1)
-  append_text(svg, 347, 20, "Penalty Box Passes", "white", 1)
+  append_text(svg, header_coords[0], 20, "Progressive Passes", "white", font_size)
+  append_text(svg, header_coords[1], 20, "Final Third Passes", "white", font_size)
+  append_text(svg, header_coords[2], 20, "Penalty Box Passes", "white", font_size)
 
   if(selectedMode == "percentile"){
-    append_text(svg,45,85, String(prog_passing[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,210,85, String(final_third_passes[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,375,85, String(penalty_box_passes[0].toFixed(0)), "white", 4.5, "bold")
+    append_text(svg,text_coords[0],y_coords, String(prog_passing[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1],y_coords, String(final_third_passes[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2],y_coords, String(penalty_box_passes[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,15,85, String(prog_passing[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,180,85, String(final_third_passes[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,365,85, String(penalty_box_passes[1].toFixed(1)), "white", 4.5, "bold") 
+    append_text(svg,text_coords[0] - 15,y_coords, String(prog_passing[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1] - 15,y_coords, String(final_third_passes[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2] - 15,y_coords, String(penalty_box_passes[1].toFixed(1)), "white", stats_font_size, "bold") 
   }
 
   
   
   
-  })
+  }).catch(e => {
+    passing_stats()
+  });
 }
 
 function carry_stats(){
   d3.csv("data/" + selectedSeason + "/calcs.csv").then((data) => {
 
-    prog_carries = get_percentile(data, "prog_carries")
+
+    var prog_carries = get_percentile(data, "prog_carries")
     final_third_entries = get_percentile(data, "final_third_entries")
     penalty_box_entries = get_percentile(data, "penalty_box_entries")
+
 
     var margin = {
       top: 20,
@@ -403,18 +613,38 @@ function carry_stats(){
       bottom: 20,
       left: 20
     }
-    
+
     if(window.innerWidth > 1400){
       var width = 460 + margin.left + margin.right
       var height = 70 + margin.top + margin.bottom
+
+      header_coords = [15,185,347]
+      text_coords = [45, 210, 375]
+      font_size = 1
+      stats_font_size = 4.5
+      y_coords = 85
     }
     else if(window.innerWidth > 1200){
-      var height = 480 + margin.top + margin.bottom
-      var width = 510 + margin.left + margin.right
+      var height = 30 + margin.top + margin.bottom
+      var width = 285 + margin.left + margin.right
+
+      header_coords = [5, 120, 225]
+      text_coords = [30, 140, 245]
+
+      font_size = 0.7
+      stats_font_size = 2.5    
+      y_coords = 60
     }
     else {
-      var height = 550 + margin.top + margin.bottom
-      var width = 270 + margin.left + margin.right
+      var height = 70 + margin.top + margin.bottom
+      var width = 235 + margin.left + margin.right
+
+      header_coords = [10, 105, 195]
+      text_coords = [23, 115, 205]
+
+      font_size = 0.5
+      stats_font_size = 2.5
+      y_coords = 85
   }
 
   d3.select("div#carry").select("svg").remove();
@@ -435,33 +665,37 @@ function carry_stats(){
   append_rect(svg,width/3,0,height,width/3,teams_colors[selectedTeam],final_third_entries[0]*0.01)
   append_rect(svg,width*2/3,0,height,width/3,teams_colors[selectedTeam],penalty_box_entries[0]*0.01)
 
-  append_text(svg, 15, 20, "Progressive Carries", "white", 1)
-  append_text(svg, 185, 20, "Final Third Entries", "white", 1)
-  append_text(svg, 347, 20, "Penalty Box Entries", "white", 1)
+  append_text(svg, header_coords[0], 20, "Progressive Carries", "white", font_size)
+  append_text(svg, header_coords[1], 20, "Final Third Entries", "white", font_size)
+  append_text(svg, header_coords[2], 20, "Penalty Box Entries", "white", font_size)
 
   if(selectedMode == "percentile"){
-    append_text(svg,45,85, String(prog_carries[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,210,85, String(final_third_entries[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,375,85, String(penalty_box_entries[0].toFixed(0)), "white", 4.5, "bold")
+    append_text(svg,text_coords[0],y_coords, String(prog_carries[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1],y_coords, String(final_third_entries[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2],y_coords, String(penalty_box_entries[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,15,85, String(prog_carries[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,200,85, String(final_third_entries[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,365,85, String(penalty_box_entries[1].toFixed(1)), "white", 4.5, "bold")
+    append_text(svg,text_coords[0] - 25,y_coords, String(prog_carries[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1] - 15,y_coords, String(final_third_entries[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2] - 15,y_coords, String(penalty_box_entries[1].toFixed(1)), "white", stats_font_size, "bold") 
   }
 
   
   
   
-  })
+  }).catch(e => {
+    carry_stats()
+  });
 }
 
 function shooting_stats(){
-  d3.csv("data/" + selectedSeason + "/calcs.csv").then((data) => {
+  d3.csv("data/" + selectedSeason + "/calcs.csv").then((data_shooting) => {
 
-    xG = get_percentile(data, "xG")
-    xGOT = get_percentile(data, "xGOT")
-    shots = get_percentile(data, "Shots")
+
+    xG = get_percentile(data_shooting, "xG")
+    xGOT = get_percentile(data_shooting, "xGOT")
+    shots = get_percentile(data_shooting, "Shots")
+
 
     var margin = {
       top: 20,
@@ -473,14 +707,34 @@ function shooting_stats(){
     if(window.innerWidth > 1400){
       var width = 460 + margin.left + margin.right
       var height = 70 + margin.top + margin.bottom
+
+      header_coords = [80 ,235,395]
+      text_coords = [45, 210, 375]
+      font_size = 1
+      stats_font_size = 4.5
+      y_coords = 85
     }
     else if(window.innerWidth > 1200){
-      var height = 480 + margin.top + margin.bottom
-      var width = 510 + margin.left + margin.right
+      var height = 30 + margin.top + margin.bottom
+      var width = 285 + margin.left + margin.right
+
+      header_coords = [47, 150, 255]
+      text_coords = [30, 140, 245]
+
+      font_size = 0.7
+      stats_font_size = 2.5    
+      y_coords = 60
     }
     else {
-      var height = 550 + margin.top + margin.bottom
-      var width = 270 + margin.left + margin.right
+      var height = 70 + margin.top + margin.bottom
+      var width = 235 + margin.left + margin.right
+
+      header_coords = [10, 105, 195]
+      text_coords = [23, 115, 205]
+
+      font_size = 0.5
+      stats_font_size = 2.5
+      y_coords = 85
   }
 
   d3.select("div#shooting").select("svg").remove();
@@ -502,31 +756,34 @@ function shooting_stats(){
 
 
   if(selectedMode == "percentile"){
-    append_text(svg,45,85, String(xG[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,210,85, String(xGOT[0].toFixed(0)), "white", 4.5, "bold")
-    append_text(svg,375,85, String(shots[0].toFixed(0)), "white", 4.5, "bold")
+    append_text(svg,text_coords[0],y_coords, String(xG[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1],y_coords, String(xGOT[0].toFixed(0)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2],y_coords, String(shots[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,35,85, String(xG[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,200,85, String(xGOT[1].toFixed(1)), "white", 4.5, "bold")
-    append_text(svg,365,85, String(shots[1].toFixed(1)), "white", 4.5, "bold")
+    append_text(svg,text_coords[0] - 5,y_coords, String(xG[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1] - 5,y_coords, String(xGOT[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2] - 5,y_coords, String(shots[1].toFixed(1)), "white", stats_font_size, "bold")
   }
 
-  append_text(svg, 75, 20, "xG", "white", 1)
-  append_text(svg, 225, 20, "xGOT", "white", 1)
-  append_text(svg, 395, 20, "Shots", "white", 1)
+  append_text(svg, header_coords[0], 20, "xG", "white", font_size)
+  append_text(svg, header_coords[1], 20, "xGOT", "white", font_size)
+  append_text(svg, header_coords[2], 20, "Shots", "white", font_size)
 
 
   
   
   
-  })
+  }).catch(e => {
+    shooting_stats()
+  });
 }
 
 function defending_stats(){
-  d3.csv("data/" + selectedSeason + "/calcs.csv").then((data) => {
+  d3.csv("data/" + selectedSeason + "/calcs.csv").then((data_defending) => {
 
-    def_actions = get_percentile(data, "defensive_actions")
+    def_actions = get_percentile(data_defending, "defensive_actions")
+
 
     var margin = {
       top: 20,
@@ -538,15 +795,37 @@ function defending_stats(){
     if(window.innerWidth > 1400){
       var width = 460 + margin.left + margin.right
       var height = 70 + margin.top + margin.bottom
+
+      header_coords = 185
+      text_coords = 210
+      font_size = 1
+      stats_font_size = 4.5
+      
+      y_coords = 85
     }
     else if(window.innerWidth > 1200){
-      var height = 480 + margin.top + margin.bottom
-      var width = 510 + margin.left + margin.right
+      var height = 30 + margin.top + margin.bottom
+      var width = 285 + margin.left + margin.right
+
+      header_coords = 115
+      text_coords = 135
+
+      font_size = 0.7
+      stats_font_size = 2.5    
+      y_coords = 60
     }
     else {
-      var height = 550 + margin.top + margin.bottom
-      var width = 270 + margin.left + margin.right
-  }
+      var height = 70 + margin.top + margin.bottom
+      var width = 235 + margin.left + margin.right
+
+      header_coords = 105
+      text_coords = 115
+
+      font_size = 0.5
+      stats_font_size = 2.5
+
+      y_coords = 85
+    }
 
   d3.select("div#defending").select("svg").remove();
   const svg = d3
@@ -563,18 +842,298 @@ function defending_stats(){
   append_rect(svg,0,0,height,width,teams_colors[selectedTeam],def_actions[0]*0.01)
 
   if(selectedMode == "percentile"){
-    append_text(svg,210,85, String(def_actions[0].toFixed(0)), "white", 4.5, "bold")
+    append_text(svg,text_coords,y_coords, String(def_actions[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,180,85, String(def_actions[1].toFixed(1)), "white", 4.5, "bold")
+    append_text(svg,text_coords - 20,y_coords, String(def_actions[1].toFixed(1)), "white", stats_font_size, "bold")
   }
 
 
-  append_text(svg, 185, 20, "Defensive Actions", "white", 1)
+  append_text(svg, header_coords, 20, "Defensive Actions", "white", font_size)
 
 
   
   
   
+  }).catch(e => {
+    defending_stats()
+  });
+}
+
+function createTriangle(svg,id,opacity){
+  svg.append("svg:defs").append("svg:marker")
+  .attr("id", id)
+  .attr("refX", 11)
+  .attr("refY", 6)
+  .attr("markerWidth", 10)
+  .attr("markerHeight", 10)
+  .attr("markerUnits","userSpaceOnUse")
+  .attr("orient", "auto")
+  .append("svg:path")
+  .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
+  .style("fill", "white")
+  .style("fill-opacity",opacity);
+}
+
+function get_data(dataset, type, outcome, progressive){
+
+  temp = structuredClone(dataset)
+
+
+  temp = temp.filter(item => Number(item["playerId"]) === selectedPlayerId)
+
+  if(Array.isArray(type)){
+    temp = temp.filter(item => type.includes(item["type"]))
+  }
+  else{
+    temp = temp.filter(item => item["type"] === type)
+  }
+
+  if(outcome != null) temp = temp.filter(item => item["outcomeType"] === outcome)
+
+  if(progressive != null) temp = temp.filter(item => item["progressive"] === progressive)
+
+  return temp
+
+}
+
+function plot_lines(svg,data){
+  svg.selectAll('.progressiveLines')
+  .data(data)
+  .enter().append("line")
+  .attr("id","progressive")
+  .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
+  .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+  .attr("y2",d => (68-Number(d.endY)) * pitchMultiplier)  
+  .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
+  .style("filter", "url(#glow)")
+  .attr("stroke","white") 
+  .attr("stroke-width",lineWidth)  
+}
+
+function plot_circles(svg,data,color){
+  svg.selectAll('.progressiveCircles')
+  .data(data)
+  .enter().append('circle')
+  .attr("id","progressive")
+  .attr('cx', d => Number(d.endX) * pitchMultiplier)
+  .attr('cy', d => (68-d.endY) * pitchMultiplier)
+  .attr('r', 7)
+  .style('stroke-width', lineWidth)
+  .style("filter", "url(#glow)")
+  .style('stroke', color)
+  .style('fill', "#2a2e30")
+  .style("fill-opacity",1) 
+}
+
+function plot_def_actions(svg,data,color){
+  svg.selectAll('.progressiveCircles')
+  .data(data)
+  .enter().append('circle')
+  .attr("id","progressive")
+  .attr('cx', d => Number(d.x) * pitchMultiplier)
+  .attr('cy', d => (68-d.y) * pitchMultiplier)
+  .attr('r', 5)
+  .style("filter", "url(#glow)")
+  .style('fill', color)
+  .style("fill-opacity",function(d){
+    if(d.outcomeType == "Successful") return 0.7
+    else return 0.2
   })
+}
+
+function plot(){
+  lineColor = "#757272"
+  lineWidth = 1.8
+  pitchColor = "#eee"
+  pitchMultiplier = 8.5
+  pitchWidth = 68
+  pitchHeight = 105
+  var margin = { top: 10, right: 9, bottom: 0, left: 20 }
+
+
+  var width = 920
+  var height = 570
+
+  getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":0,"x2":-1.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
+  getPitchCircles = [{"cy":34,"cx":52.5,"r":9.15,"color":"none"},{"cy":34,"cx":11,"r":0.3,"color":"#000"},{"cy":34,"cx":94,"r":0.3,"color":"#000"},{"cy":34,"cx":52.5,"r":0.3,"color":"#000"}]
+  getArcs = [{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":1.5707963267948966,"endAngle":3.141592653589793},"x":0,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":4.7124,"endAngle":3.1416},"x":0,"y":105},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":0,"endAngle":1.5708},"x":68,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":6.283185307179586,"endAngle":4.71238898038469},"x":68,"y":105},{"arc":{"innerRadius":73.2,"outerRadius":74.2, "startAngle": 0.652123807105081, "endAngle": 2.489468846484712},"x":34,"y":11.5},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle": -0.652123807105081, "endAngle": -2.489468846484712},"x":34,"y":94}]
+
+  d3.select("div#plot").select("svg").remove();
+  const svg = d3.select("div#plot").append("svg")
+  .attr("height", height + margin.left + margin.right)
+  .attr("width", width + margin.top + margin.bottom)
+  //.attr("style", "outline: thin solid red;") ;
+
+  const pitch = svg.append('g')
+    .attr('transform', `translate(${margin.left},${margin.right})`)
+  
+  pitch.append('rect')
+      .attr('x', -margin.left)
+      .attr('y', -margin.top)
+      .attr('height', height + margin.left + margin.right)
+      .attr('width', width + margin.top + margin.bottom)
+      .style('fill', pitchColor)
+      .style("opacity","0")
+  
+  const pitchLineData = getPitchLines;
+  pitch.selectAll('.pitchLines')
+      .data(pitchLineData)
+    .enter().append('line')
+      .attr('x1', d => d['x1'] * pitchMultiplier)
+      .attr('x2', d => d['x2'] * pitchMultiplier)
+      .attr('y1', d => d['y1'] * pitchMultiplier)
+      .attr('y2', d => d['y2'] * pitchMultiplier)
+      .style('stroke-width', lineWidth)
+      .style('stroke', lineColor)
+      .style("stroke-dasharray", ("10,3"));
+  
+  const pitchCircleData = getPitchCircles;
+  pitch.selectAll('.pitchCircles')
+      .data(pitchCircleData)
+    .enter().append('circle')
+      .attr('cx', d => d['cx'] * pitchMultiplier)
+      .attr('cy', d => d['cy'] * pitchMultiplier)
+      .attr('r', d => d['r'] * pitchMultiplier)
+      .style('stroke-width', lineWidth)
+      .style('stroke', lineColor)
+      .style('fill', d => d['color'])
+      .style("stroke-dasharray", ("10,3"));
+  
+  const pitchArcData = getArcs;
+  const arc = d3.arc();
+  pitch.selectAll('.pitchCorners')
+      .data(pitchArcData)
+    .enter().append('path')
+      .attr('d', d => arc(d['arc']))
+      .attr('transform', d => `translate(${pitchMultiplier * d.y},${pitchMultiplier * d.x})`)
+      .style('fill', "none")
+      .style('stroke', lineColor)
+      .style("stroke-dasharray", ("10,3"));
+
+  createTriangle(pitch,"triangle3",0.8)
+  createTriangle(pitch,"triangle2",0.3)
+
+  d3.csv("data/" + selectedSeason + "/" + selectedTeam.replaceAll(" ", "-") + "/events_" + selectedTeam.replaceAll(" ", "-") + ".csv").then((events) => {
+    if(all_passes){
+      if(prog_passes) passes = get_data(events,"Pass","Successful","False")
+      else passes = get_data(events,"Pass","Successful",null)
+
+      pitch.selectAll('.progressiveLines')
+      .data(passes)
+      .enter().append("line")
+      .attr("id","progressive")
+      .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+      .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
+      .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
+      .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+      .style("filter", "url(#glow)")
+      .attr("stroke","white") 
+      .style("stroke-opacity",0.8)
+      .attr("stroke-width",lineWidth)   
+      .attr("marker-end", "url(#triangle3)"); 
+      
+    }
+
+    if(prog_passes){
+      passes = get_data(events,"Pass","Successful","True")
+      plot_lines(pitch,passes)
+      plot_circles(pitch,passes,teams_colors[selectedTeam])
+    }
+
+    if(unsuc_passes){
+      passes = get_data(events,"Pass","Unsuccessful",null)
+      pitch.selectAll('.progressiveLines')
+      .data(passes)
+      .enter().append("line")
+      .attr("id","progressive")
+      .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+      .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
+      .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
+      .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+      .style("filter", "url(#glow)")
+      .attr("stroke","white") 
+      .style("stroke-opacity",0.1)
+      .attr("stroke-width",lineWidth)   
+      .attr("marker-end", "url(#triangle2)");  
+    }
+
+    if(all_carries){
+      if(prog_carries) carries = get_data(events,"Carry",null,"False")
+      else carries = get_data(events,"Carry",null,null)
+
+      pitch.selectAll('.progressiveLines')
+      .data(carries)
+      .enter().append("line")
+      .attr("id","progressive")
+      .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+      .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
+      .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
+      .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+      .style("filter", "url(#glow)")
+      .attr("stroke","white") 
+      .style("stroke-opacity",0.8)
+      .attr("stroke-width",lineWidth)   
+      .attr("marker-end", "url(#triangle3)"); 
+      
+    }
+
+    if(prog_carries){
+      carries = get_data(events,"Carry",null,"True")
+      plot_lines(pitch,carries)
+      plot_circles(pitch,carries,"#48EDDB")
+    }
+
+    if(all_touches){
+      touches = get_data(events,["Carry","Pass","Aerial","BallTouch","BallRecovery","Interception","Tackle","BlockedPass","Clearance","MissedShots","ShotOnPost","Goal","SavedShot","TakeOn"],null,null)
+      
+      svg.selectAll('.progressiveCircles')
+      .data(touches)
+      .enter().append('circle')
+      .attr("id","progressive")
+      .attr('cx', d => Number(d.x) * pitchMultiplier)
+      .attr('cy', d => (68-d.y) * pitchMultiplier)
+      .attr('r', 5)
+      .style('stroke-width', 1)
+      .style("filter", "url(#glow)")
+      .style('stroke', teams_colors[selectedTeam])
+      .style('fill', "white")
+      .style("fill-opacity",function(d){
+        if(d.outcomeType == "Successful") return 0.7
+        else return 0.2
+      })
+      .style("stroke-opacity",function(d){
+        if(d.outcomeType == "Successful") return 0.7
+        else return 0.2
+      })  
+
+    }
+
+    if(ball_recoveries){
+      touches = get_data(events,"BallRecovery",null,null)
+      plot_def_actions(pitch,touches,"#42DC60")
+    }
+
+    if(blocked_passes){
+      touches = get_data(events,"BlockedPass",null,null)
+      plot_def_actions(pitch,touches,"#42DCD5")
+    }
+
+    if(interceptions){
+      touches = get_data(events,"Interception",null,null)
+      plot_def_actions(pitch,touches,"red")
+    }
+
+    if(clearances){
+      touches = get_data(events,"Clearance",null,null)
+      plot_def_actions(pitch,touches,"#D047D6")
+    }
+
+    if(tackles){
+      touches = get_data(events,"Tackle",null,null)
+      plot_def_actions(pitch,touches,"#E38A18")
+    }
+
+  })
+
 }

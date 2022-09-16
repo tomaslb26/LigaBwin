@@ -29,18 +29,17 @@
 			<a class="navbar-brand" href="#">
 				<img src="data/21-22/Benfica.png" height="45px" style="vertical-align: middle;" id="image_logo" alt="">
 				<select  style = "vertical-align: middle; margin-left: 3%;" id="selectTeam"></select>
-                <span id = "player" style="color: white; font-size: 120%; margin-left: 1%; font-weight: bold;" > Player: </span>
-				<select  style = "vertical-align: middle; margin-left: 0%;" id="selectPlayer"></select>
-                <span id = "season" style="color: white; font-size: 120%; margin-left: 1%; font-weight: bold;" > Season: </span>
-                <select  style = "vertical-align: middle; margin-left: 0%;" id="selectSeason"></select>
 			</a>
 			<button class="navbar-toggler" type="button"  data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <span id = "player" style="color: white; font-size: 120%; margin-left: 0%; font-weight: bold;" > Player: </span>
+				<select  style = "vertical-align: middle; margin-left: 1%;" id="selectPlayer"></select>
+                <select  style = "vertical-align: middle; margin-left: 1%;" id="selectSeason"></select>
 				<div class="navbar-nav">
 					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="index.html">
-						<span id = "global" style="color: white; font-size: 120%; margin-left: 15%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Global </span>
+						<span id = "global" style="color: white; font-size: 120%; margin-left: 10%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Global </span>
 					</a>
 					<a class="nav-item nav-link" style="color:rgb(255, 255, 255);" href="team_stats.html">
 						<span id = "player_stats" style="color: white; font-size: 120%; margin-right: 0%; font-weight: bold;text-decoration: underline; text-decoration-color: red; " > Team Stats </span>
@@ -81,6 +80,19 @@
 							<span id = "defending_title" style="margin-left: 4.5%; color: white; font-size: 140%; margin-right: 0%; font-weight: bold;" > Defending </span>
 							<div id = "defending" style = "margin-left: 4.5%; margin-top: 1%;"></div>
 						</div>
+					</div>
+				</div>
+				<div class="col-sm-12 col-xl-8 col-xxl-8">
+					<div id = "rectangle_1" class = "text-center" style="background: #2a2e30de; width: 90%; height: 100%; margin-top: 1.5%; border:2px solid #cf261f; border-radius: .45em;">
+						<div id = "stats" style = "float:center; display: flex; border: 2px solid #cf261f; margin:0 auto; width: fit-content; padding: 1%; margin-top: 1%;">
+							<span id = "minutes" style="display:inline; margin-left: 0%; color: white; font-size: 110%; margin-top: 0%; font-weight: bold;" > Minutes</span>
+							<span id = "goals" style="display:inline; margin-left: 2%; color: white; font-size: 110%; margin-top: 0%; font-weight: bold;" > Goals</span>
+							<span id = "assists" style="display:inline; margin-left: 2%; color: white; font-size: 110%; margin-top: 0%; font-weight: bold;" > Assists</span>
+						</div>
+						
+						<div id = "plot" style="margin-top: 1%"></div>
+						<div class="form-check form-check-inline" id = "first_checks" style="width: 100%;"></div>
+						<div class="form-check form-check-inline" id = "second_checks" style="width: 100%;"></div>
 					</div>
 				</div>
 			</div>
