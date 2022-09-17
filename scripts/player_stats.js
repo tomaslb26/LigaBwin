@@ -82,7 +82,6 @@ function create_checkboxes(){
       .style("filter", "url(#glow)")
       .style("color","white")
       .style("outline", function(d){
-        console.log(d)
         if(d == "Progressive Passes") return "1.5px solid " + teams_colors[selectedTeam]
         else if(d == "Progressive Carries") return "1.5px solid #48EDDB"
       })
@@ -92,6 +91,19 @@ function create_checkboxes(){
   d3.select("div#second_checks").selectAll("input")
   .data(["Ball Recoveries", "Blocked Passes", "Interceptions", "Clearances", "Tackles"])
   .enter()
+  .append('circle')
+    .attr('id','circle')
+    .style('background', function(d){
+      if(d == "Ball Recoveries") return "#42DC60"
+      else if(d == "Interceptions") return "red"
+      else if(d == "Blocked Passes") return "#42DCD5"
+      else if(d == "Clearances") return "#D047D6"
+      else if(d == "Tackles") return "#E38A18"
+    })
+    .style("height","12px")
+    .style("width","12px")
+    .style("filter", "url(#glow)")
+    .style("padding-right","1.5%")
   .append('label')
       .attr('for',function(d,i){ return 'b'+i; })
       .text(function(d) { return d; })
@@ -105,14 +117,13 @@ function create_checkboxes(){
       .attr("id", function(d,i) { return 'b'+i; })
       .style("filter", "url(#glow)")
       .style("color","white")
-      .style("outline", function(d){
-        console.log(d)
+      /*.style("outline", function(d){
         if(d == "Ball Recoveries") return "1.5px solid #42DC60"
         else if(d == "Interceptions") return "1.5px solid red"
         else if(d == "Blocked Passes") return "1.5px solid #42DCD5"
         else if(d == "Clearances") return "1.5px solid #D047D6"
         else if(d == "Tackles") return "1.5px solid #E38A18"
-      })
+      })*/
       .style("margin-left","10px")
       .style("padding-left","1%")
 
@@ -297,6 +308,7 @@ function init_selects(){
         d3.select("#selectPlayer").on("change", function(d) {
             // recover the option that has been chosen
               selectedPlayer = d3.select(this).property("value")
+              console.log(selectedPlayer)
               init()
         })
       
@@ -320,7 +332,6 @@ function init_selects(){
       d3.csv("data/" + selectedSeason + "/calcs.csv").then((data) => {
         data = data.map(function(d) { if(d.team == selectedTeam.replaceAll(" ", "-")) return d.name; }).filter(item => item !== undefined).filter(item => item !== "").sort()
 
-        console.log(data)
         d3.select("#selectPlayer")
         .selectAll('myOptions')
         .data(data)
@@ -348,8 +359,6 @@ function basic_stats(){
 
   d3.csv("data/" + selectedSeason + "/calcs.csv").then((dataset) => {
     dataset = dataset.map(o => new Object({name: o.name, playerId: Number(o.playerId), minutes: Number(o.minutes), goals: Number(o.Goals), assists: Number(o.Assists)}))
-    console.log(dataset)
-    console.log(selectedPlayerId)
     player = dataset.filter(item => item["playerId"] === selectedPlayerId)[0]
     console.log(player)
 
@@ -435,6 +444,8 @@ function creation_stats(){
       stats_font_size = 4.5
 
       y_coords = 85
+
+      window_tax = 11
     }
     else if(window.innerWidth > 1200){
       var height = 30 + margin.top + margin.bottom
@@ -447,6 +458,8 @@ function creation_stats(){
       stats_font_size = 2.5  
 
       y_coords = 60
+
+      window_tax = 6
     }
     else {
       var height = 70 + margin.top + margin.bottom
@@ -459,6 +472,8 @@ function creation_stats(){
       stats_font_size = 2.5
 
       y_coords = 85
+
+      window_tax = 6
   }
 
   d3.select("div#creation").select("svg").remove();
@@ -494,10 +509,10 @@ function creation_stats(){
     append_text(svg,text_coords[3],y_coords, String(xT[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,text_coords[0] - 5,y_coords, String(xA[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[1] - 5,y_coords, String(key_passes[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[2] - 5,y_coords, String(chances_created[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[3] - 5,y_coords, String(xT[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[0] - window_tax,y_coords, String(xA[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1] - window_tax,y_coords, String(key_passes[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2] - window_tax,y_coords, String(chances_created[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[3] - window_tax,y_coords, String(xT[1].toFixed(1)), "white", stats_font_size, "bold")
   }
 
   
@@ -533,6 +548,8 @@ function passing_stats(){
       font_size = 1
       stats_font_size = 4.5
       y_coords = 85
+
+      window_tax = 25
     }
     else if(window.innerWidth > 1200){
       var height = 30 + margin.top + margin.bottom
@@ -544,6 +561,8 @@ function passing_stats(){
       font_size = 0.7
       stats_font_size = 2.5    
       y_coords = 60
+
+      window_tax = 17
     }
     else {
       var height = 70 + margin.top + margin.bottom
@@ -555,6 +574,8 @@ function passing_stats(){
       font_size = 0.5
       stats_font_size = 2.5
       y_coords = 85
+
+      window_tax = 17
   }
 
   d3.select("div#passing").select("svg").remove();
@@ -585,9 +606,9 @@ function passing_stats(){
     append_text(svg,text_coords[2],y_coords, String(penalty_box_passes[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,text_coords[0] - 15,y_coords, String(prog_passing[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[1] - 15,y_coords, String(final_third_passes[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[2] - 15,y_coords, String(penalty_box_passes[1].toFixed(1)), "white", stats_font_size, "bold") 
+    append_text(svg,text_coords[0] - window_tax,y_coords, String(prog_passing[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1] - window_tax,y_coords, String(final_third_passes[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2] - window_tax,y_coords, String(penalty_box_passes[1].toFixed(1)), "white", stats_font_size, "bold") 
   }
 
   
@@ -623,6 +644,8 @@ function carry_stats(){
       font_size = 1
       stats_font_size = 4.5
       y_coords = 85
+
+      window_tax = 25
     }
     else if(window.innerWidth > 1200){
       var height = 30 + margin.top + margin.bottom
@@ -634,6 +657,8 @@ function carry_stats(){
       font_size = 0.7
       stats_font_size = 2.5    
       y_coords = 60
+
+      window_tax = 17
     }
     else {
       var height = 70 + margin.top + margin.bottom
@@ -645,6 +670,8 @@ function carry_stats(){
       font_size = 0.5
       stats_font_size = 2.5
       y_coords = 85
+
+      window_tax = 17
   }
 
   d3.select("div#carry").select("svg").remove();
@@ -675,9 +702,9 @@ function carry_stats(){
     append_text(svg,text_coords[2],y_coords, String(penalty_box_entries[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,text_coords[0] - 25,y_coords, String(prog_carries[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[1] - 15,y_coords, String(final_third_entries[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[2] - 15,y_coords, String(penalty_box_entries[1].toFixed(1)), "white", stats_font_size, "bold") 
+    append_text(svg,text_coords[0] - window_tax,y_coords, String(prog_carries[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1] - window_tax,y_coords, String(final_third_entries[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2] - window_tax,y_coords, String(penalty_box_entries[1].toFixed(1)), "white", stats_font_size, "bold") 
   }
 
   
@@ -713,6 +740,8 @@ function shooting_stats(){
       font_size = 1
       stats_font_size = 4.5
       y_coords = 85
+
+      window_tax = 25
     }
     else if(window.innerWidth > 1200){
       var height = 30 + margin.top + margin.bottom
@@ -724,6 +753,8 @@ function shooting_stats(){
       font_size = 0.7
       stats_font_size = 2.5    
       y_coords = 60
+
+      window_tax = 17
     }
     else {
       var height = 70 + margin.top + margin.bottom
@@ -735,6 +766,8 @@ function shooting_stats(){
       font_size = 0.5
       stats_font_size = 2.5
       y_coords = 85
+
+      window_tax = 17
   }
 
   d3.select("div#shooting").select("svg").remove();
@@ -761,9 +794,9 @@ function shooting_stats(){
     append_text(svg,text_coords[2],y_coords, String(shots[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,text_coords[0] - 5,y_coords, String(xG[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[1] - 5,y_coords, String(xGOT[1].toFixed(1)), "white", stats_font_size, "bold")
-    append_text(svg,text_coords[2] - 5,y_coords, String(shots[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[0] - window_tax,y_coords, String(xG[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[1] - window_tax,y_coords, String(xGOT[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords[2] - window_tax,y_coords, String(shots[1].toFixed(1)), "white", stats_font_size, "bold")
   }
 
   append_text(svg, header_coords[0], 20, "xG", "white", font_size)
@@ -802,6 +835,8 @@ function defending_stats(){
       stats_font_size = 4.5
       
       y_coords = 85
+
+      window_tax = 25
     }
     else if(window.innerWidth > 1200){
       var height = 30 + margin.top + margin.bottom
@@ -813,6 +848,8 @@ function defending_stats(){
       font_size = 0.7
       stats_font_size = 2.5    
       y_coords = 60
+
+      window_tax = 17
     }
     else {
       var height = 70 + margin.top + margin.bottom
@@ -825,6 +862,8 @@ function defending_stats(){
       stats_font_size = 2.5
 
       y_coords = 85
+
+      window_tax = 17
     }
 
   d3.select("div#defending").select("svg").remove();
@@ -845,7 +884,7 @@ function defending_stats(){
     append_text(svg,text_coords,y_coords, String(def_actions[0].toFixed(0)), "white", stats_font_size, "bold")
   }
   else{
-    append_text(svg,text_coords - 20,y_coords, String(def_actions[1].toFixed(1)), "white", stats_font_size, "bold")
+    append_text(svg,text_coords - window_tax,y_coords, String(def_actions[1].toFixed(1)), "white", stats_font_size, "bold")
   }
 
 
@@ -986,7 +1025,7 @@ function plot(){
       .attr('y2', d => d['y2'] * pitchMultiplier)
       .style('stroke-width', lineWidth)
       .style('stroke', lineColor)
-      .style("stroke-dasharray", ("10,3"));
+      .style("stroke-dasharray", ("0,0"));
   
   const pitchCircleData = getPitchCircles;
   pitch.selectAll('.pitchCircles')
@@ -998,7 +1037,7 @@ function plot(){
       .style('stroke-width', lineWidth)
       .style('stroke', lineColor)
       .style('fill', d => d['color'])
-      .style("stroke-dasharray", ("10,3"));
+      .style("stroke-dasharray", ("0,0"));
   
   const pitchArcData = getArcs;
   const arc = d3.arc();
@@ -1009,7 +1048,7 @@ function plot(){
       .attr('transform', d => `translate(${pitchMultiplier * d.y},${pitchMultiplier * d.x})`)
       .style('fill', "none")
       .style('stroke', lineColor)
-      .style("stroke-dasharray", ("10,3"));
+      .style("stroke-dasharray", ("0,0"));
 
   createTriangle(pitch,"triangle3",0.8)
   createTriangle(pitch,"triangle2",0.3)
