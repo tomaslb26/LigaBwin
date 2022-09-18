@@ -1,6 +1,7 @@
 selectedTeam = "Benfica"
 selectedPlayer = "Gilberto"
 selectedPlayerId = 119542
+selected_fotmob_player_id = 387499
 selectedSeason = "22-23"
 selectedMode = "percentile"
 minutes_treshold = 220
@@ -16,6 +17,11 @@ var blocked_passes = false
 var interceptions = false
 var clearances = false
 var tackles = false
+var goals = false
+var posts = false
+var attempt_saved = false
+var misses = false
+var selected_plot_mode = "actions"
 
 var teams2122 = ['Benfica', 'Famalicao', 'Moreirense', 'Vizela',
 'Arouca', 'Belenenses SAD', 'Boavista', 'Braga',
@@ -61,71 +67,117 @@ function init(){
     stats()
     create_checkboxes()
     fill_glow()
+    create_tooltip()
+}
+
+function create_tooltip(){
+  d3.select("body").append("div").attr("id","tooltip_shots")
+  .attr("class", "tooltip3")
+  .style("border","2px solid " + teams_colors[selectedTeam]).style("opacity",0).style("visibility", "hidden");
+
+  d3.select("body").on("click",function(){
+    d3.select("div#tooltip_shots").style("opacity",0).style("visibility", "hidden");
+  });
 }
 
 function create_checkboxes(){
 
-  d3.select("div#first_checks").selectAll("input")
-  .data(["All Passes", "Progressive Passes", "Unsuccessful Passes", "All Carries", "Progressive Carries", "All Touches"])
-  .enter()
-  .append('label')
-      .attr('for',function(d,i){ return 'a'+i; })
-      .text(function(d) { return d; })
-      .style("filter", "url(#glow)")
-      .style("color","white")
-      .style("width","fit-content")
-      .style("padding-left","1.5%")
-      .style("font-size", "100%")
-  .append("input")
-      .attr("type", "checkbox")
-      .attr("id", function(d,i) { return 'a'+i; })
-      .style("filter", "url(#glow)")
-      .style("color","white")
-      .style("outline", function(d){
-        if(d == "Progressive Passes") return "1.5px solid " + teams_colors[selectedTeam]
-        else if(d == "Progressive Carries") return "1.5px solid #48EDDB"
-      })
-      .style("margin-left","10px")
-      .style("padding-left","1%")
+  d3.select("div#first_checks").selectAll("input").remove()
+  d3.select("div#first_checks").selectAll("label").remove()
+  d3.select("div#first_checks").selectAll("circle").remove()
+  d3.select("div#second_checks").selectAll("input").remove()
+  d3.select("div#second_checks").selectAll("label").remove()
+  d3.select("div#second_checks").selectAll("circle").remove()
 
-  d3.select("div#second_checks").selectAll("input")
-  .data(["Ball Recoveries", "Blocked Passes", "Interceptions", "Clearances", "Tackles"])
-  .enter()
-  .append('circle')
-    .attr('id','circle')
-    .style('background', function(d){
-      if(d == "Ball Recoveries") return "#42DC60"
-      else if(d == "Interceptions") return "red"
-      else if(d == "Blocked Passes") return "#42DCD5"
-      else if(d == "Clearances") return "#D047D6"
-      else if(d == "Tackles") return "#E38A18"
-    })
-    .style("height","12px")
-    .style("width","12px")
-    .style("filter", "url(#glow)")
-    .style("padding-right","1.5%")
-  .append('label')
-      .attr('for',function(d,i){ return 'b'+i; })
-      .text(function(d) { return d; })
+  if(selected_plot_mode == "actions"){
+    d3.select("div#first_checks").selectAll("input")
+    .data(["All Passes", "Progressive Passes", "Unsuccessful Passes", "All Carries", "Progressive Carries", "All Touches"])
+    .enter()
+    .append('label')
+        .attr('for',function(d,i){ return 'a'+i; })
+        .text(function(d) { return d; })
+        .style("filter", "url(#glow)")
+        .style("color","white")
+        .style("width","fit-content")
+        .style("padding-left","1.5%")
+        .style("font-size", "100%")
+    .append("input")
+        .attr("type", "checkbox")
+        .attr("id", function(d,i) { return 'a'+i; })
+        .style("filter", "url(#glow)")
+        .style("color","white")
+        .style("outline", function(d){
+          if(d == "Progressive Passes") return "1.5px solid " + teams_colors[selectedTeam]
+          else if(d == "Progressive Carries") return "1.5px solid #48EDDB"
+        })
+        .style("margin-left","10px")
+        .style("padding-left","1%")
+
+    d3.select("div#second_checks").selectAll("input")
+    .data(["Ball Recoveries", "Blocked Passes", "Interceptions", "Clearances", "Tackles"])
+    .enter()
+    .append('circle')
+      .attr('id','circle')
+      .style('background', function(d){
+        if(d == "Ball Recoveries") return "#42DC60"
+        else if(d == "Interceptions") return "red"
+        else if(d == "Blocked Passes") return "#42DCD5"
+        else if(d == "Clearances") return "#D047D6"
+        else if(d == "Tackles") return "#E38A18"
+      })
+      .style("height","12px")
+      .style("width","12px")
       .style("filter", "url(#glow)")
-      .style("color","white")
-      .style("width","fit-content")
-      .style("padding-left","1.5%")
-      .style("font-size", "100%")
-  .append("input")
-      .attr("type", "checkbox")
-      .attr("id", function(d,i) { return 'b'+i; })
-      .style("filter", "url(#glow)")
-      .style("color","white")
-      /*.style("outline", function(d){
-        if(d == "Ball Recoveries") return "1.5px solid #42DC60"
-        else if(d == "Interceptions") return "1.5px solid red"
-        else if(d == "Blocked Passes") return "1.5px solid #42DCD5"
-        else if(d == "Clearances") return "1.5px solid #D047D6"
-        else if(d == "Tackles") return "1.5px solid #E38A18"
-      })*/
-      .style("margin-left","10px")
-      .style("padding-left","1%")
+      .style("padding-right","1.5%")
+    .append('label')
+        .attr('for',function(d,i){ return 'b'+i; })
+        .text(function(d) { return d; })
+        .style("filter", "url(#glow)")
+        .style("color","white")
+        .style("width","fit-content")
+        .style("padding-left","1.5%")
+        .style("font-size", "100%")
+    .append("input")
+        .attr("type", "checkbox")
+        .attr("id", function(d,i) { return 'b'+i; })
+        .style("filter", "url(#glow)")
+        .style("color","white")
+        .style("margin-left","10px")
+        .style("padding-left","1%")
+    }
+    else{
+      d3.select("div#first_checks").selectAll("input")
+      .data(["Goal", "Attempt Saved", "Miss", "Post"])
+      .enter()
+      .append('circle')
+        .attr('id','circle')
+        .style('background', function(d){
+          if(d == "Goal") return "#55DD31"
+          else if(d == "Attempt Saved") return "#DD9131"
+          else if(d == "Miss") return "#DD3131"
+          else if(d == "Post") return "#31B1DD"
+        })
+        .style("height","12px")
+        .style("width","12px")
+        .style("filter", "url(#glow)")
+        .style("padding-right","1.5%")
+      .append('label')
+          .attr('for',function(d,i){ return 'c'+i; })
+          .text(function(d) { return d; })
+          .style("filter", "url(#glow)")
+          .style("color","white")
+          .style("width","fit-content")
+          .style("padding-left","1.5%")
+          .style("font-size", "100%")
+      .append("input")
+          .attr("type", "checkbox")
+          .attr("id", function(d,i) { return 'c'+i; })
+          .style("filter", "url(#glow)")
+          .style("color","white")
+          .style("margin-left","10px")
+          .style("padding-left","1%")
+    }
+
 
   d3.select("#a0").on("change", function(d) {
     // recover the option that has been chosen
@@ -194,6 +246,31 @@ function create_checkboxes(){
     plot()
   })
 
+
+  d3.select("#c0").on("change", function(d) {
+    // recover the option that has been chosen
+    goals = !goals;
+    plot()
+  })
+
+  d3.select("#c1").on("change", function(d) {
+    // recover the option that has been chosen
+    attempt_saved = !attempt_saved;
+    plot()
+  })
+
+  d3.select("#c2").on("change", function(d) {
+    // recover the option that has been chosen
+    misses = !misses;
+    plot()
+  })
+
+  d3.select("#c3").on("change", function(d) {
+    // recover the option that has been chosen
+    posts = !posts;
+    plot()
+  })
+
 }
 
 function create_glow(svg){
@@ -243,7 +320,8 @@ function fill_glow(){
   d3.select("#minutes").style("filter", "url(#glow)");
   d3.select("#goals").style("filter", "url(#glow)");
   d3.select("#assists").style("filter", "url(#glow)");
-  d3.select("prog_passes_label").style("filter", "url(#glow)");
+  d3.select("#Actions").style("filter", "url(#glow)");
+  d3.select("#Shots").style("filter", "url(#glow)");
 }
 
 function get_player_id(){
@@ -251,7 +329,9 @@ function get_player_id(){
 
     for(i = 0; i < data.length; i++){
       if(data[i]["name"] == selectedPlayer){  
+        console.log(data[i])
         selectedPlayerId = Number(data[i]["playerId"])
+        selected_fotmob_player_id = Number(data[i]["fotmob_player_id"])
         break
       }
     }
@@ -261,6 +341,11 @@ function get_player_id(){
 function change_mode(string){
   selectedMode = string;
   stats()
+}
+
+function change_plot_mode(string){
+  selected_plot_mode = string
+  init()
 }
 
 function init_selects(){
@@ -300,16 +385,29 @@ function init_selects(){
           d3.select("#selectTeam").style("border","2px solid " + teams_colors[selectedTeam])
           d3.select("#selectPlayer").style("border","2px solid " + teams_colors[selectedTeam])
           d3.select("#rectangle").style("border","2px solid " + teams_colors[selectedTeam])
+          d3.select("#rectangle_1").style("border","2px solid " + teams_colors[selectedTeam])
+          d3.select("#Actions").style("border","2px solid " + teams_colors[selectedTeam])
+          d3.select("#Shots").style("border","2px solid " + teams_colors[selectedTeam])
+          d3.select("#stats").style("border","2px solid " + teams_colors[selectedTeam])
+          d3.select("#a1").style("outline","1.5px solid " + teams_colors[selectedTeam])
           d3.select("#percentile").style("border","2px solid " + teams_colors[selectedTeam])
           d3.select("#per_90").style("border","2px solid " + teams_colors[selectedTeam])
-          init()
+          d3.select("#global").style("text-decoration-color",teams_colors[selectedTeam]).style("filter", "url(#glow)");
+          d3.select("#player_stats").style("text-decoration-color",teams_colors[selectedTeam]).style("filter", "url(#glow)");
+          d3.select("#go_back").style("text-decoration-color",teams_colors[selectedTeam]).style("filter", "url(#glow)");
+          init_selects()
+          get_player_id()
+          stats()
+          plot()
         })
 
         d3.select("#selectPlayer").on("change", function(d) {
             // recover the option that has been chosen
               selectedPlayer = d3.select(this).property("value")
-              console.log(selectedPlayer)
-              init()
+              init_selects()
+              get_player_id()
+              stats()
+              plot()
         })
       
         d3.select("#selectSeason").property("value",selectedSeason)
@@ -981,6 +1079,187 @@ function plot_def_actions(svg,data,color){
   })
 }
 
+function plot_goal(event,d){
+  d3.select("div#tooltip_shots").select("svg").remove()
+
+  d3.select("div#tooltip_shots").transition()		
+  .duration(200)		
+  .style("opacity", 1).style("visibility", "visible");	
+
+  d3.select("div#tooltip_shots").style("left", event.x - 500 + "px")
+  .style("top", event.y - 140 + "px").style("border","2px solid " + teams_colors[selectedTeam]);
+
+  var lineColor = "white"
+  var lineWidth = 1.8
+  var pitchColor = "#eee"
+  var pitchMultiplier = 25.5
+  goalWidth = 7.5
+  goalHeight = 2.5
+
+  var margin = {
+  top: 20,
+  right: 20,
+  bottom: 20,
+  left: 20
+  }
+
+  var width = 480
+  var height = 250
+
+  const svg = d3.select("div#tooltip_shots").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom).style("padding-left","18.5%").style("padding-top","2.5%");
+  
+  const goal = svg.append('g')
+  .attr('transform', `translate(${margin.left},${margin.right})`)
+
+  goal.append('rect')
+  .attr('x', margin.left)
+  .attr('y', margin.top)
+  .attr('width', width + margin.left + margin.right)
+  .attr('height', height + margin.top + margin.bottom)
+  .style('fill', pitchColor)
+  .style("opacity","0")
+
+  getGoalLines = [{'x1':-0.5,'x2':8,'y1':2.5,'y2':2.5,"type":"underline"},{'x1':0,'x2':7.5,'y1':0,'y2':0},{'x1':0,'x2':0,'y1':0,'y2':2.5},{'x1':7.5,'x2':7.5,'y1':0,'y2':2.5}]
+
+  const goalLineData = getGoalLines;
+  goal.selectAll('.goalLines')
+      .data(goalLineData)
+    .enter().append('line')
+      .attr('x1', d => d['x1'] * pitchMultiplier)
+      .attr('x2', d => d['x2'] * pitchMultiplier)
+      .attr('y1', d => d['y1'] * pitchMultiplier)
+      .attr('y2', d => d['y2'] * pitchMultiplier)
+      .style('stroke-width', d => { if(d.type == "underline") return 1
+    else return 2.2 })
+      .style('stroke', lineColor)
+      .style("stroke-dasharray", d => { if(d.type == "underline") return ("10,3") });
+
+
+  if(d.blockedX == ""){ 
+    event = d.eventType
+    goal.selectAll('.goalCircles')
+    .data([d])
+    .enter().append("circle")
+    .attr("cx", d => {
+      return ((7.5-(Number(d['goalCrossedY'])-30))*pitchMultiplier)
+    })
+    .attr("cy", d => { 
+      return (2.5 - d['goalCrossedZ']) * pitchMultiplier })
+    .attr('r', 5)
+    .style('stroke-width', 0.5)
+    .style('stroke', "white")
+    .style("filter", "url(#glow)")
+    .style("fill",function(d){
+      if(d.eventType == "Goal") return "#55DD31"
+      else if(d.eventType == "AttemptSaved") return "#DD9131"
+      else if(d.eventType == "Post") return "#31B1DD"
+      else return "red"
+    })
+  }
+  else event = "Blocked"
+
+  var string2 = "Player: " + d.playerName
+  var string4 = String(d.expectedGoals).substring(0,4) + " xG";
+
+  colors = ['#8C8984',"#35322E"]
+
+  var i = 0
+
+  function append_text(svg,y,text){
+    svg
+    .append("rect")
+    .attr("x",0.1*pitchMultiplier)
+    .attr("y", (y - 0.5) * pitchMultiplier)
+    .attr("height", 0.6*pitchMultiplier)
+    .style("stroke-width", 1)
+    .style("filter", "url(#glow)")
+    .style("stroke",teams_colors[selectedTeam]) 
+    .style("fill",function(d){
+      if(i == 0) i = 1
+      else{
+        i = 0
+      }
+      return colors[i]
+    })
+    .attr("width", 8.85*pitchMultiplier)
+
+    
+    svg
+    .append("text")
+    .attr("x", 4.4*pitchMultiplier)             
+    .attr("y", y * pitchMultiplier)
+    .attr("dx","0%")
+    .attr("text-anchor", "middle")  
+    .style("font-size", "12px") 
+    .style("filter", "url(#glow)")
+    .style("fill","white")
+    .style("font-weight","bold")
+    .text(text);  
+  }
+
+  append_text(svg,4.2,string2)
+  append_text(svg,4.8,event)
+  append_text(svg,5.4,"Situation: " + d.situation.replace(/([A-Z])/g, ' $1').trim())
+  append_text(svg,6,d.shotType.replace(/([A-Z])/g, ' $1').trim())
+  append_text(svg,6.6,string4 + " - " + String(d.expectedGoalsOnTarget).substring(0,4) + " xGOT")
+
+}
+
+function plot_shot_circles(svg,data,color){
+
+  pitchMultiplier = 8.5
+
+  function handleMouseOver(event,d){
+
+    d3.select(this).style("cursor", "pointer")
+    svg.selectAll('line#remove')
+    .remove()
+
+    svg.selectAll('.progressiveLines')
+    .data([d])
+    .enter().append("line")
+    .attr("id","remove")
+    .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
+    .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+    .attr("y2",d =>{ 
+      if(d.blockedY == "") return (68-Number(d.goalCrossedY)) * pitchMultiplier
+      else return (68-Number(d.blockedY)) * pitchMultiplier})  
+    .attr("x2",d => { 
+      if(d.blockedX == ""){
+        return 105 * pitchMultiplier
+      }
+      else return (Number(d.blockedX)) * pitchMultiplier})  
+    .style("filter", "url(#glow)")
+    .attr("stroke","white") 
+    .style("stroke-width",2)
+    .style("stroke-opacity",1)
+    .attr("stroke-width",lineWidth)   
+    .attr("marker-end", "url(#triangle3)");
+  }
+
+  function handleMouseLeave(event,d){
+    svg.selectAll('line#remove')
+    .remove()
+  }
+
+  svg.selectAll('.progressiveCircles')
+  .data(data)
+  .enter().append('circle')
+  .attr('cx', d => Number(d.x) * pitchMultiplier)
+  .attr('cy', d => (68 - Number(d.y)) * pitchMultiplier)
+  .attr('r', d => 30*d.expectedGoals)
+  .on("click",plot_goal)
+  .on("mouseover",handleMouseOver)
+  .on("mouseleave",handleMouseLeave)
+  .style('stroke-width', 0.5)
+  .style('stroke', "white")
+  .style("filter", "url(#glow)")
+  .style('fill', color)
+  .style("fill-opacity",1)
+}
+
 function plot(){
   lineColor = "#757272"
   lineWidth = 1.8
@@ -1053,126 +1332,181 @@ function plot(){
   createTriangle(pitch,"triangle3",0.8)
   createTriangle(pitch,"triangle2",0.3)
 
-  d3.csv("data/" + selectedSeason + "/" + selectedTeam.replaceAll(" ", "-") + "/events_" + selectedTeam.replaceAll(" ", "-") + ".csv").then((events) => {
-    if(all_passes){
-      if(prog_passes) passes = get_data(events,"Pass","Successful","False")
-      else passes = get_data(events,"Pass","Successful",null)
+  if(selected_plot_mode == "actions"){
+    d3.csv("data/" + selectedSeason + "/" + selectedTeam.replaceAll(" ", "-") + "/events_" + selectedTeam.replaceAll(" ", "-") + ".csv").then((events) => {
+      if(all_passes){
+        if(prog_passes) passes = get_data(events,"Pass","Successful","False")
+        else passes = get_data(events,"Pass","Successful",null)
 
-      pitch.selectAll('.progressiveLines')
-      .data(passes)
-      .enter().append("line")
-      .attr("id","progressive")
-      .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
-      .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
-      .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
-      .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
-      .style("filter", "url(#glow)")
-      .attr("stroke","white") 
-      .style("stroke-opacity",0.8)
-      .attr("stroke-width",lineWidth)   
-      .attr("marker-end", "url(#triangle3)"); 
-      
-    }
+        pitch.selectAll('.progressiveLines')
+        .data(passes)
+        .enter().append("line")
+        .attr("id","progressive")
+        .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+        .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
+        .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
+        .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+        .style("filter", "url(#glow)")
+        .attr("stroke","white") 
+        .style("stroke-opacity",0.8)
+        .attr("stroke-width",lineWidth)   
+        .attr("marker-end", "url(#triangle3)"); 
+        
+      }
 
-    if(prog_passes){
-      passes = get_data(events,"Pass","Successful","True")
-      plot_lines(pitch,passes)
-      plot_circles(pitch,passes,teams_colors[selectedTeam])
-    }
+      if(prog_passes){
+        passes = get_data(events,"Pass","Successful","True")
+        plot_lines(pitch,passes)
+        plot_circles(pitch,passes,teams_colors[selectedTeam])
+      }
 
-    if(unsuc_passes){
-      passes = get_data(events,"Pass","Unsuccessful",null)
-      pitch.selectAll('.progressiveLines')
-      .data(passes)
-      .enter().append("line")
-      .attr("id","progressive")
-      .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
-      .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
-      .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
-      .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
-      .style("filter", "url(#glow)")
-      .attr("stroke","white") 
-      .style("stroke-opacity",0.1)
-      .attr("stroke-width",lineWidth)   
-      .attr("marker-end", "url(#triangle2)");  
-    }
+      if(unsuc_passes){
+        passes = get_data(events,"Pass","Unsuccessful",null)
+        pitch.selectAll('.progressiveLines')
+        .data(passes)
+        .enter().append("line")
+        .attr("id","progressive")
+        .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+        .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
+        .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
+        .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+        .style("filter", "url(#glow)")
+        .attr("stroke","white") 
+        .style("stroke-opacity",0.1)
+        .attr("stroke-width",lineWidth)   
+        .attr("marker-end", "url(#triangle2)");  
+      }
 
-    if(all_carries){
-      if(prog_carries) carries = get_data(events,"Carry",null,"False")
-      else carries = get_data(events,"Carry",null,null)
+      if(all_carries){
+        if(prog_carries) carries = get_data(events,"Carry",null,"False")
+        else carries = get_data(events,"Carry",null,null)
 
-      pitch.selectAll('.progressiveLines')
-      .data(carries)
-      .enter().append("line")
-      .attr("id","progressive")
-      .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
-      .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
-      .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
-      .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
-      .style("filter", "url(#glow)")
-      .attr("stroke","white") 
-      .style("stroke-opacity",0.8)
-      .attr("stroke-width",lineWidth)   
-      .attr("marker-end", "url(#triangle3)"); 
-      
-    }
+        pitch.selectAll('.progressiveLines')
+        .data(carries)
+        .enter().append("line")
+        .attr("id","progressive")
+        .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+        .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
+        .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
+        .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+        .style("filter", "url(#glow)")
+        .attr("stroke","white") 
+        .style("stroke-opacity",0.8)
+        .attr("stroke-width",lineWidth)   
+        .attr("marker-end", "url(#triangle3)"); 
+        
+      }
 
-    if(prog_carries){
-      carries = get_data(events,"Carry",null,"True")
-      plot_lines(pitch,carries)
-      plot_circles(pitch,carries,"#48EDDB")
-    }
+      if(prog_carries){
+        carries = get_data(events,"Carry",null,"True")
+        plot_lines(pitch,carries)
+        plot_circles(pitch,carries,"#48EDDB")
+      }
 
-    if(all_touches){
-      touches = get_data(events,["Carry","Pass","Aerial","BallTouch","BallRecovery","Interception","Tackle","BlockedPass","Clearance","MissedShots","ShotOnPost","Goal","SavedShot","TakeOn"],null,null)
-      
-      svg.selectAll('.progressiveCircles')
-      .data(touches)
-      .enter().append('circle')
-      .attr("id","progressive")
-      .attr('cx', d => Number(d.x) * pitchMultiplier)
-      .attr('cy', d => (68-d.y) * pitchMultiplier)
-      .attr('r', 5)
-      .style('stroke-width', 1)
-      .style("filter", "url(#glow)")
-      .style('stroke', teams_colors[selectedTeam])
-      .style('fill', "white")
-      .style("fill-opacity",function(d){
-        if(d.outcomeType == "Successful") return 0.7
-        else return 0.2
-      })
-      .style("stroke-opacity",function(d){
-        if(d.outcomeType == "Successful") return 0.7
-        else return 0.2
-      })  
+      if(all_touches){
+        touches = get_data(events,["Carry","Pass","Aerial","BallTouch","BallRecovery","Interception","Tackle","BlockedPass","Clearance","MissedShots","ShotOnPost","Goal","SavedShot","TakeOn"],null,null)
 
-    }
+        const h = pitch
+        .append("path")
+        .style("stroke", "white")
+        .style("fill-opacity", "0.2")
+        .style("fill", teams_colors[selectedTeam]);
 
-    if(ball_recoveries){
-      touches = get_data(events,"BallRecovery",null,null)
-      plot_def_actions(pitch,touches,"#42DC60")
-    }
+        points = touches.map(o => new Object({x: Number(o.x) * pitchMultiplier, y: (68 - Number(o.y)) * pitchMultiplier}))
 
-    if(blocked_passes){
-      touches = get_data(events,"BlockedPass",null,null)
-      plot_def_actions(pitch,touches,"#42DCD5")
-    }
+        array = []
+        for(i = 0; i < points.length; i++){
+          array.push([points[i].x,points[i].y])
+        }
 
-    if(interceptions){
-      touches = get_data(events,"Interception",null,null)
-      plot_def_actions(pitch,touches,"red")
-    }
+        hull = d3.polygonHull(array)
 
-    if(clearances){
-      touches = get_data(events,"Clearance",null,null)
-      plot_def_actions(pitch,touches,"#D047D6")
-    }
+        console.log(hull)
 
-    if(tackles){
-      touches = get_data(events,"Tackle",null,null)
-      plot_def_actions(pitch,touches,"#E38A18")
-    }
+        for (let i = 2; i <= hull.length; i++) {
+          const visible = hull.slice(0, i);
+          h.attr("d", `M${visible.join("L")}Z`);
+        }
 
-  })
+        circles = pitch.selectAll('.progressiveCircles')
+        .data(touches)
+        .enter().append('circle')
+        .attr("id","progressive")
+        .attr('cx', d => Number(d.x) * pitchMultiplier)
+        .attr('cy', d => (68-d.y) * pitchMultiplier)
+        .attr('r', 5)
+        .style('stroke-width', 1)
+        .style("filter", "url(#glow)")
+        .style('stroke', teams_colors[selectedTeam])
+        .style('fill', "white")
+        .style("fill-opacity",function(d){
+          if(d.outcomeType == "Successful") return 0.5
+          else return 0.2
+        })
+        .style("stroke-opacity",function(d){
+          if(d.outcomeType == "Successful") return 0.7
+          else return 0.2
+        })  
+
+      }
+
+      if(ball_recoveries){
+        touches = get_data(events,"BallRecovery",null,null)
+        plot_def_actions(pitch,touches,"#42DC60")
+      }
+
+      if(blocked_passes){
+        touches = get_data(events,"BlockedPass",null,null)
+        plot_def_actions(pitch,touches,"#42DCD5")
+      }
+
+      if(interceptions){
+        touches = get_data(events,"Interception",null,null)
+        plot_def_actions(pitch,touches,"red")
+      }
+
+      if(clearances){
+        touches = get_data(events,"Clearance",null,null)
+        plot_def_actions(pitch,touches,"#D047D6")
+      }
+
+      if(tackles){
+        touches = get_data(events,"Tackle",null,null)
+        plot_def_actions(pitch,touches,"#E38A18")
+      }
+
+    })
+  }
+  else{
+    d3.csv("data/" + selectedSeason + "/allShotsLigaBwin" + selectedSeason.replaceAll("-","") + ".csv").then((data) => {
+
+      data_temp = structuredClone(data)
+      data_temp = data_temp.filter(item => Number(item["playerId"]) === selected_fotmob_player_id)
+
+      if(goals){
+        goals = data_temp.filter(item => item["eventType"] === "Goal")
+        plot_shot_circles(pitch,goals,"#55DD31")
+      }
+
+      if(attempt_saved){
+        attempts = data_temp.filter(item => item["eventType"] === "AttemptSaved")
+        plot_shot_circles(pitch,attempts,"#DD9131")
+      }
+
+      if(misses){
+        miss = data_temp.filter(item => item["eventType"] === "Miss")
+        plot_shot_circles(pitch,miss,"#DD3131")
+      }
+
+      if(posts){
+        post  = data_temp.filter(item => item["eventType"] === "Post")
+        plot_shot_circles(pitch,post,"#31B1DD")
+      }
+
+
+      }
+    )
+
+  }
 
 }
