@@ -1484,7 +1484,9 @@ function check_conditions(pitch, pitchMultiplier, mode) {
       }
 
       if (prog_passes) {
+        console.log(selectedPlayer)
         passes = get_data(events, "Pass", "Successful", "True")
+        console.log(passes)
         plot_lines(pitch, passes, pitchMultiplier, mode)
         plot_circles(pitch, passes, teams_colors[selectedTeam], pitchMultiplier, mode)
       }
