@@ -89,6 +89,15 @@ function create_checkboxes(){
   d3.select("div#second_checks").selectAll("label").remove()
   d3.select("div#second_checks").selectAll("circle").remove()
 
+  if(window.innerWidth < 800){ 
+    var font_size = 0.5
+    var input_size = 0.7
+  }
+  else {
+    var fontSize = 1
+    var input_size = 1
+  }
+
   if(selected_plot_mode == "actions"){
     d3.select("div#first_checks").selectAll("input")
     .data(["All Passes", "Progressive Passes", "Unsuccessful Passes", "All Carries", "Progressive Carries", "All Touches"])
@@ -100,7 +109,7 @@ function create_checkboxes(){
         .style("color","white")
         .style("width","fit-content")
         .style("padding-left","1.5%")
-        .style("font-size", "100%")
+        .style("font-size", String(100 * font_size) + "%")
     .append("input")
         .attr("type", "checkbox")
         .attr("id", function(d,i) { return 'a'+i; })
@@ -112,6 +121,8 @@ function create_checkboxes(){
         })
         .style("margin-left","10px")
         .style("padding-left","1%")
+        .style("height",String(12 * input_size) + "px")
+        .style("width",String(12 * input_size) + "px")
 
     d3.select("div#second_checks").selectAll("input")
     .data(["Ball Recoveries", "Blocked Passes", "Interceptions", "Clearances", "Tackles"])
@@ -136,7 +147,7 @@ function create_checkboxes(){
         .style("color","white")
         .style("width","fit-content")
         .style("padding-left","1.5%")
-        .style("font-size", "100%")
+        .style("font-size", String(100 * font_size) + "%")
     .append("input")
         .attr("type", "checkbox")
         .attr("id", function(d,i) { return 'b'+i; })
@@ -144,6 +155,8 @@ function create_checkboxes(){
         .style("color","white")
         .style("margin-left","10px")
         .style("padding-left","1%")
+        .style("height",String(12 * input_size) + "px")
+        .style("width",String(12 * input_size) + "px")
     }
     else{
       d3.select("div#first_checks").selectAll("input")
@@ -168,7 +181,7 @@ function create_checkboxes(){
           .style("color","white")
           .style("width","fit-content")
           .style("padding-left","1.5%")
-          .style("font-size", "100%")
+          .style("font-size", String(100 * font_size) + "%")
       .append("input")
           .attr("type", "checkbox")
           .attr("id", function(d,i) { return 'c'+i; })
@@ -176,6 +189,8 @@ function create_checkboxes(){
           .style("color","white")
           .style("margin-left","10px")
           .style("padding-left","1%")
+          .style("height",String(12 * input_size) + "px")
+          .style("width",String(12 * input_size) + "px")
     }
 
 
@@ -329,7 +344,6 @@ function get_player_id(){
 
     for(i = 0; i < data.length; i++){
       if(data[i]["name"] == selectedPlayer){  
-        console.log(data[i])
         selectedPlayerId = Number(data[i]["playerId"])
         selected_fotmob_player_id = Number(data[i]["fotmob_player_id"])
         break
@@ -458,7 +472,6 @@ function basic_stats(){
   d3.csv("data/" + selectedSeason + "/calcs.csv").then((dataset) => {
     dataset = dataset.map(o => new Object({name: o.name, playerId: Number(o.playerId), minutes: Number(o.minutes), goals: Number(o.Goals), assists: Number(o.Assists)}))
     player = dataset.filter(item => item["playerId"] === selectedPlayerId)[0]
-    console.log(player)
 
     document.getElementById('minutes').textContent = "Minutes " + player["minutes"]
     document.getElementById('goals').textContent = "Goals " + player["goals"]
@@ -1034,28 +1047,52 @@ function get_data(dataset, type, outcome, progressive){
 
 }
 
-function plot_lines(svg,data){
+function plot_lines(svg,data,pitchMultiplier,mode){
+  var lineWidth = 1.8
   svg.selectAll('.progressiveLines')
   .data(data)
   .enter().append("line")
   .attr("id","progressive")
-  .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
-  .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
-  .attr("y2",d => (68-Number(d.endY)) * pitchMultiplier)  
-  .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
+  .attr("x1",function(d){
+    if(mode) return (68 - Number(d.y)) * pitchMultiplier
+    else  return (Number(d.x)) * pitchMultiplier
+  })  
+  .attr("y1",function(d){
+  if(mode) return (105 - Number(d.x)) * pitchMultiplier
+  else  return (68 - Number(d.y)) * pitchMultiplier
+  }) 
+  .attr("x2",function(d){
+  if(mode) return (68 - Number(d.endY)) * pitchMultiplier
+  else  return (Number(d.endX)) * pitchMultiplier
+  })
+  .attr("y2",function(d){
+  if(mode) return (105 - Number(d.endX)) * pitchMultiplier
+  else  return (68 - Number(d.endY)) * pitchMultiplier
+  })
   .style("filter", "url(#glow)")
   .attr("stroke","white") 
   .attr("stroke-width",lineWidth)  
 }
 
-function plot_circles(svg,data,color){
+function plot_circles(svg,data,color, pitchMultiplier, mode){
+  var lineWidth = 1.8
+
+  if(window.innerWidth < 800) r = 4
+  else r = 7
+
   svg.selectAll('.progressiveCircles')
   .data(data)
   .enter().append('circle')
   .attr("id","progressive")
-  .attr('cx', d => Number(d.endX) * pitchMultiplier)
-  .attr('cy', d => (68-d.endY) * pitchMultiplier)
-  .attr('r', 7)
+  .attr('cx',function(d){
+    if(mode) return (68 - Number(d.endY)) * pitchMultiplier
+    else  return (Number(d.endX)) * pitchMultiplier
+    })
+  .attr('cy',function(d){
+    if(mode) return (105 - Number(d.endX)) * pitchMultiplier
+    else  return (68 - Number(d.endY)) * pitchMultiplier
+    })
+  .attr('r', r)
   .style('stroke-width', lineWidth)
   .style("filter", "url(#glow)")
   .style('stroke', color)
@@ -1063,13 +1100,19 @@ function plot_circles(svg,data,color){
   .style("fill-opacity",1) 
 }
 
-function plot_def_actions(svg,data,color){
+function plot_def_actions(svg,data,color, pitchMultiplier, mode){
   svg.selectAll('.progressiveCircles')
   .data(data)
   .enter().append('circle')
   .attr("id","progressive")
-  .attr('cx', d => Number(d.x) * pitchMultiplier)
-  .attr('cy', d => (68-d.y) * pitchMultiplier)
+  .attr("cx",function(d){
+    if(mode) return (68 - Number(d.y)) * pitchMultiplier
+    else  return (Number(d.x)) * pitchMultiplier
+  })  
+  .attr("cy",function(d){
+  if(mode) return (105 - Number(d.x)) * pitchMultiplier
+  else  return (68 - Number(d.y)) * pitchMultiplier
+  }) 
   .attr('r', 5)
   .style("filter", "url(#glow)")
   .style('fill', color)
@@ -1086,8 +1129,13 @@ function plot_goal(event,d){
   .duration(200)		
   .style("opacity", 1).style("visibility", "visible");	
 
-  d3.select("div#tooltip_shots").style("left", event.x - 500 + "px")
-  .style("top", event.y - 140 + "px").style("border","2px solid " + teams_colors[selectedTeam]);
+  if(window.innerWidth < 800){
+    d3.select("div#tooltip_shots").style("left", event.x - 100 + "px")
+    .style("top", event.y + "px").style("border","2px solid " + teams_colors[selectedTeam]);
+  }
+  else
+    d3.select("div#tooltip_shots").style("left", event.x - 500 + "px")
+    .style("top", event.y - 140 + "px").style("border","2px solid " + teams_colors[selectedTeam]);
 
   var lineColor = "white"
   var lineWidth = 1.8
@@ -1207,9 +1255,9 @@ function plot_goal(event,d){
 
 }
 
-function plot_shot_circles(svg,data,color){
+function plot_shot_circles(svg,data,color, pitchMultiplier, mode){
 
-  pitchMultiplier = 8.5
+  var lineWidth = 1.8
 
   function handleMouseOver(event,d){
 
@@ -1221,16 +1269,35 @@ function plot_shot_circles(svg,data,color){
     .data([d])
     .enter().append("line")
     .attr("id","remove")
-    .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
-    .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
+    .attr("x1",function(d){
+      if(mode) return (68 - Number(d.y)) * pitchMultiplier
+      else return (Number(d.x)) * pitchMultiplier
+    })  
+    .attr("y1",function(d){
+      if(mode) return (105 - Number(d.x)) * pitchMultiplier
+      else return (68 - Number(d.y)) * pitchMultiplier
+      }) 
     .attr("y2",d =>{ 
-      if(d.blockedY == "") return (68-Number(d.goalCrossedY)) * pitchMultiplier
-      else return (68-Number(d.blockedY)) * pitchMultiplier})  
-    .attr("x2",d => { 
-      if(d.blockedX == ""){
-        return 105 * pitchMultiplier
+      if(mode){
+        if(d.blockedX == "") return (105-105) * pitchMultiplier
+        else return (105-Number(d.blockedX)) * pitchMultiplier
       }
-      else return (Number(d.blockedX)) * pitchMultiplier})  
+      else{
+        if(d.blockedY == "") return (68-Number(d.goalCrossedY)) * pitchMultiplier
+        else return (68-Number(d.blockedY)) * pitchMultiplier}
+      })  
+    .attr("x2",d => { 
+      if(mode){
+        if(d.blockedY == "") return (68-Number(d.goalCrossedY)) * pitchMultiplier
+        else return (68-Number(d.blockedY)) * pitchMultiplier
+      }
+      else{
+        if(d.blockedX == ""){
+          return 105 * pitchMultiplier
+        }
+        else return (Number(d.blockedX)) * pitchMultiplier
+      }
+    })
     .style("filter", "url(#glow)")
     .attr("stroke","white") 
     .style("stroke-width",2)
@@ -1247,8 +1314,14 @@ function plot_shot_circles(svg,data,color){
   svg.selectAll('.progressiveCircles')
   .data(data)
   .enter().append('circle')
-  .attr('cx', d => Number(d.x) * pitchMultiplier)
-  .attr('cy', d => (68 - Number(d.y)) * pitchMultiplier)
+  .attr("cx",function(d){
+    if(mode) return (68 - Number(d.y)) * pitchMultiplier
+    else  return (Number(d.x)) * pitchMultiplier
+  })  
+  .attr("cy",function(d){
+  if(mode) return (105 - Number(d.x)) * pitchMultiplier
+  else  return (68 - Number(d.y)) * pitchMultiplier
+  }) 
   .attr('r', d => 30*d.expectedGoals)
   .on("click",plot_goal)
   .on("mouseover",handleMouseOver)
@@ -1261,17 +1334,34 @@ function plot_shot_circles(svg,data,color){
 }
 
 function plot(){
+
   lineColor = "#757272"
-  lineWidth = 1.8
+  var lineWidth = 1.8
   pitchColor = "#eee"
-  pitchMultiplier = 8.5
   pitchWidth = 68
   pitchHeight = 105
   var margin = { top: 10, right: 9, bottom: 0, left: 20 }
 
+  if(window.innerWidth > 1400){
+    var width = 920
+    var height = 570
+    var pitchMultiplier = 8.5
+  }
+  else if(window.innerWidth > 1200){
+    var width = 710
+    var height = 430
+    var pitchMultiplier = 6.5
+  }
+  else {
+    svg_pitch = plot_for_smartphone()
 
-  var width = 920
-  var height = 570
+    createTriangle(svg_pitch,"triangle3",0.8)
+    createTriangle(svg_pitch,"triangle2",0.3)
+  
+    check_conditions(svg_pitch,3.8,true)
+    return 0;
+    
+  }
 
   getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":0,"x2":-1.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
   getPitchCircles = [{"cy":34,"cx":52.5,"r":9.15,"color":"none"},{"cy":34,"cx":11,"r":0.3,"color":"#000"},{"cy":34,"cx":94,"r":0.3,"color":"#000"},{"cy":34,"cx":52.5,"r":0.3,"color":"#000"}]
@@ -1332,6 +1422,13 @@ function plot(){
   createTriangle(pitch,"triangle3",0.8)
   createTriangle(pitch,"triangle2",0.3)
 
+  check_conditions(pitch,pitchMultiplier, false)
+
+}
+
+function check_conditions(pitch, pitchMultiplier, mode){
+  var lineWidth = 1.8
+
   if(selected_plot_mode == "actions"){
     d3.csv("data/" + selectedSeason + "/" + selectedTeam.replaceAll(" ", "-") + "/events_" + selectedTeam.replaceAll(" ", "-") + ".csv").then((events) => {
       if(all_passes){
@@ -1342,10 +1439,22 @@ function plot(){
         .data(passes)
         .enter().append("line")
         .attr("id","progressive")
-        .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
-        .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
-        .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
-        .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+        .attr("x1",function(d){
+                          if(mode) return (68 - Number(d.y)) * pitchMultiplier
+                          else  return (Number(d.x)) * pitchMultiplier
+                    })  
+        .attr("y1",function(d){
+          if(mode) return (105 - Number(d.x)) * pitchMultiplier
+          else  return (68 - Number(d.y)) * pitchMultiplier
+        }) 
+        .attr("x2",function(d){
+          if(mode) return (68 - Number(d.endY)) * pitchMultiplier
+          else  return (Number(d.endX)) * pitchMultiplier
+        })
+        .attr("y2",function(d){
+          if(mode) return (105 - Number(d.endX)) * pitchMultiplier
+          else  return (68 - Number(d.endY)) * pitchMultiplier
+        })
         .style("filter", "url(#glow)")
         .attr("stroke","white") 
         .style("stroke-opacity",0.8)
@@ -1356,8 +1465,8 @@ function plot(){
 
       if(prog_passes){
         passes = get_data(events,"Pass","Successful","True")
-        plot_lines(pitch,passes)
-        plot_circles(pitch,passes,teams_colors[selectedTeam])
+        plot_lines(pitch,passes,pitchMultiplier, mode)
+        plot_circles(pitch,passes,teams_colors[selectedTeam], pitchMultiplier, mode)
       }
 
       if(unsuc_passes){
@@ -1366,10 +1475,22 @@ function plot(){
         .data(passes)
         .enter().append("line")
         .attr("id","progressive")
-        .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
-        .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
-        .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
-        .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+        .attr("x1",function(d){
+          if(mode) return (68 - Number(d.y)) * pitchMultiplier
+          else  return (Number(d.x)) * pitchMultiplier
+        })  
+        .attr("y1",function(d){
+        if(mode) return (105 - Number(d.x)) * pitchMultiplier
+        else  return (68 - Number(d.y)) * pitchMultiplier
+        }) 
+        .attr("x2",function(d){
+        if(mode) return (68 - Number(d.endY)) * pitchMultiplier
+        else  return (Number(d.endX)) * pitchMultiplier
+        })
+        .attr("y2",function(d){
+        if(mode) return (105 - Number(d.endX)) * pitchMultiplier
+        else  return (68 - Number(d.endY)) * pitchMultiplier
+        })
         .style("filter", "url(#glow)")
         .attr("stroke","white") 
         .style("stroke-opacity",0.1)
@@ -1385,10 +1506,22 @@ function plot(){
         .data(carries)
         .enter().append("line")
         .attr("id","progressive")
-        .attr("x1",d => (Number(d.x)) * pitchMultiplier)  
-        .attr("y1",d => (68 - Number(d.y)) * pitchMultiplier)  
-        .attr("x2",d => (Number(d.endX)) * pitchMultiplier)  
-        .attr("y2",d =>  (68 - Number(d.endY)) * pitchMultiplier)  
+        .attr("x1",function(d){
+          if(mode) return (68 - Number(d.y)) * pitchMultiplier
+          else  return (Number(d.x)) * pitchMultiplier
+        })  
+        .attr("y1",function(d){
+        if(mode) return (105 - Number(d.x)) * pitchMultiplier
+        else  return (68 - Number(d.y)) * pitchMultiplier
+        }) 
+        .attr("x2",function(d){
+        if(mode) return (68 - Number(d.endY)) * pitchMultiplier
+        else  return (Number(d.endX)) * pitchMultiplier
+        })
+        .attr("y2",function(d){
+        if(mode) return (105 - Number(d.endX)) * pitchMultiplier
+        else  return (68 - Number(d.endY)) * pitchMultiplier
+        })
         .style("filter", "url(#glow)")
         .attr("stroke","white") 
         .style("stroke-opacity",0.8)
@@ -1399,8 +1532,8 @@ function plot(){
 
       if(prog_carries){
         carries = get_data(events,"Carry",null,"True")
-        plot_lines(pitch,carries)
-        plot_circles(pitch,carries,"#48EDDB")
+        plot_lines(pitch,carries,pitchMultiplier, mode)
+        plot_circles(pitch,carries,"#48EDDB", pitchMultiplier, mode)
       }
 
       if(all_touches){
@@ -1412,16 +1545,16 @@ function plot(){
         .style("fill-opacity", "0.2")
         .style("fill", teams_colors[selectedTeam]);
 
-        points = touches.map(o => new Object({x: Number(o.x) * pitchMultiplier, y: (68 - Number(o.y)) * pitchMultiplier}))
+        if(mode) points = touches.map(o => new Object({x: (105 - Number(o.x)) * pitchMultiplier, y: (68 - Number(o.y)) * pitchMultiplier}))
+        else points = touches.map(o => new Object({x: Number(o.x) * pitchMultiplier, y: (68 - Number(o.y)) * pitchMultiplier}))
 
         array = []
         for(i = 0; i < points.length; i++){
-          array.push([points[i].x,points[i].y])
+          if(mode) array.push([points[i].y, points[i].x])
+          else array.push([points[i].x,points[i].y])
         }
 
         hull = d3.polygonHull(array)
-
-        console.log(hull)
 
         for (let i = 2; i <= hull.length; i++) {
           const visible = hull.slice(0, i);
@@ -1432,8 +1565,14 @@ function plot(){
         .data(touches)
         .enter().append('circle')
         .attr("id","progressive")
-        .attr('cx', d => Number(d.x) * pitchMultiplier)
-        .attr('cy', d => (68-d.y) * pitchMultiplier)
+        .attr("cx",function(d){
+          if(mode) return (68 - Number(d.y)) * pitchMultiplier
+          else  return (Number(d.x)) * pitchMultiplier
+        })  
+        .attr("cy",function(d){
+        if(mode) return (105 - Number(d.x)) * pitchMultiplier
+        else  return (68 - Number(d.y)) * pitchMultiplier
+        }) 
         .attr('r', 5)
         .style('stroke-width', 1)
         .style("filter", "url(#glow)")
@@ -1452,27 +1591,27 @@ function plot(){
 
       if(ball_recoveries){
         touches = get_data(events,"BallRecovery",null,null)
-        plot_def_actions(pitch,touches,"#42DC60")
+        plot_def_actions(pitch,touches,"#42DC60", pitchMultiplier, mode)
       }
 
       if(blocked_passes){
         touches = get_data(events,"BlockedPass",null,null)
-        plot_def_actions(pitch,touches,"#42DCD5")
+        plot_def_actions(pitch,touches,"#42DCD5", pitchMultiplier, mode)
       }
 
       if(interceptions){
         touches = get_data(events,"Interception",null,null)
-        plot_def_actions(pitch,touches,"red")
+        plot_def_actions(pitch,touches,"red", pitchMultiplier, mode)
       }
 
       if(clearances){
         touches = get_data(events,"Clearance",null,null)
-        plot_def_actions(pitch,touches,"#D047D6")
+        plot_def_actions(pitch,touches,"#D047D6", pitchMultiplier, mode)
       }
 
       if(tackles){
         touches = get_data(events,"Tackle",null,null)
-        plot_def_actions(pitch,touches,"#E38A18")
+        plot_def_actions(pitch,touches,"#E38A18", pitchMultiplier, mode)
       }
 
     })
@@ -1485,22 +1624,22 @@ function plot(){
 
       if(goals){
         goals = data_temp.filter(item => item["eventType"] === "Goal")
-        plot_shot_circles(pitch,goals,"#55DD31")
+        plot_shot_circles(pitch,goals,"#55DD31", pitchMultiplier, mode)
       }
 
       if(attempt_saved){
         attempts = data_temp.filter(item => item["eventType"] === "AttemptSaved")
-        plot_shot_circles(pitch,attempts,"#DD9131")
+        plot_shot_circles(pitch,attempts,"#DD9131", pitchMultiplier, mode)
       }
 
       if(misses){
         miss = data_temp.filter(item => item["eventType"] === "Miss")
-        plot_shot_circles(pitch,miss,"#DD3131")
+        plot_shot_circles(pitch,miss,"#DD3131", pitchMultiplier, mode)
       }
 
       if(posts){
         post  = data_temp.filter(item => item["eventType"] === "Post")
-        plot_shot_circles(pitch,post,"#31B1DD")
+        plot_shot_circles(pitch,post,"#31B1DD", pitchMultiplier, mode)
       }
 
 
@@ -1508,5 +1647,78 @@ function plot(){
     )
 
   }
+}
+
+function plot_for_smartphone(){
+
+  lineColor = "#757272"
+  var lineWidth = 1.8
+  pitchColor = "#eee"
+  pitchWidth = 68
+  pitchHeight = 105
+  var margin = { top: 10, right: 9, bottom: 0, left: 20 }
+
+  var width = 420
+  var height = 260
+  var pitchMultiplier = 3.8
+
+  getPitchLines = [{"x1":0,"x2":16.5,"y1":13.85,"y2":13.85},{"x1":16.5,"x2":16.5,"y1":13.85,"y2":54.15},{"x1":0,"x2":16.5,"y1":54.15,"y2":54.15},{"x1":0,"x2":5.5,"y1":24.85,"y2":24.85},{"x1":5.5,"x2":5.5,"y1":24.85,"y2":43.15},{"x1":0,"x2":5.5,"y1":43.15,"y2":43.15},{"x1":88.5,"x2":105,"y1":13.85,"y2":13.85},{"x1":88.5,"x2":88.5,"y1":13.85,"y2":54.15},{"x1":88.5,"x2":105,"y1":54.15,"y2":54.15},{"x1":99.5,"x2":105,"y1":24.85,"y2":24.85},{"x1":99.5,"x2":99.5,"y1":24.85,"y2":43.15},{"x1":99.5,"x2":105,"y1":43.15,"y2":43.15},{"x1":0,"x2":105,"y1":0,"y2":0},{"x1":0,"x2":105,"y1":68,"y2":68},{"x1":0,"x2":0,"y1":0,"y2":68},{"x1":105,"x2":105,"y1":0,"y2":68},{"x1":52.5,"x2":52.5,"y1":0,"y2":68},{"x1":-1.5,"x2":-1.5,"y1":30.34,"y2":37.66},{"x1":-1.5,"x2":0,"y1":30.34,"y2":30.34},{"x1":-1.5,"x2":0,"y1":37.66,"y2":37.66},{"x1":106.5,"x2":106.5,"y1":30.34,"y2":37.66},{"x1":0,"x2":-1.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":30.34,"y2":30.34},{"x1":105,"x2":106.5,"y1":37.66,"y2":37.66}]
+  getPitchCircles = [{"cy":34,"cx":52.5,"r":9.15,"color":"none"},{"cy":34,"cx":11,"r":0.3,"color":"#000"},{"cy":34,"cx":94,"r":0.3,"color":"#000"},{"cy":34,"cx":52.5,"r":0.3,"color":"#000"}]
+  getArcs = [{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":1.5707963267948966,"endAngle":3.141592653589793},"x":0,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":Math.PI/2,"endAngle":0},"x":0,"y":105},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":Math.PI,"endAngle":3*Math.PI/2},"x":68,"y":0},{"arc":{"innerRadius":8,"outerRadius":9,"startAngle":6.283185307179586,"endAngle":4.71238898038469},"x":68,"y":105},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229,"endAngle":4.0603},"x":34,"y":5},{"arc":{"innerRadius":73.2,"outerRadius":74.2,"startAngle":2.2229+Math.PI,"endAngle":4.0603+Math.PI},"x":34,"y":100}]
+
+
+  d3.select("div#plot").select("svg").remove();
+  const svg = d3.select("div#plot").append("svg")
+  .attr("height", width + margin.top + margin.bottom)
+  .attr("width", height + margin.left + margin.right)
+  //.attr("style", "outline: thin solid red;") ;
+
+  const pitch = svg.append('g')
+    .attr('transform', `translate(${margin.left},${margin.right})`)
+  
+  pitch.append('rect')
+      .attr('x', -margin.left)
+      .attr('y', -margin.top)
+      .attr('height', width + margin.top + margin.bottom)
+      .attr('width', height + margin.left + margin.right)
+      .style('fill', pitchColor)
+      .style("opacity","0")
+  
+  const pitchLineData = getPitchLines;
+  pitch.selectAll('.pitchLines')
+      .data(pitchLineData)
+    .enter().append('line')
+      .attr('x1', d => d['y1'] * pitchMultiplier)
+      .attr('x2', d => d['y2'] * pitchMultiplier)
+      .attr('y1', d => d['x1'] * pitchMultiplier)
+      .attr('y2', d => d['x2'] * pitchMultiplier)
+      .style('stroke-width', lineWidth)
+      .style('stroke', lineColor)
+      .style("stroke-dasharray", ("0,0"));
+  
+  const pitchCircleData = getPitchCircles;
+  pitch.selectAll('.pitchCircles')
+      .data(pitchCircleData)
+    .enter().append('circle')
+      .attr('cx', d => d['cy'] * pitchMultiplier)
+      .attr('cy', d => d['cx'] * pitchMultiplier)
+      .attr('r', d => d['r'] * pitchMultiplier)
+      .style('stroke-width', lineWidth)
+      .style('stroke', lineColor)
+      .style('fill', d => d['color'])
+      .style("stroke-dasharray", ("0,0"));
+  
+  const pitchArcData = getArcs;
+  const arc = d3.arc();
+  pitch.selectAll('.pitchCorners')
+      .data(pitchArcData)
+    .enter().append('path')
+      .attr('d', d => arc(d['arc']))
+      .attr('transform', d => `translate(${pitchMultiplier * d.x},${pitchMultiplier * d.y})`)
+      .style('fill', "none")
+      .style('stroke', lineColor)
+      .style("stroke-dasharray", ("0,0"));
+
+  return pitch
 
 }

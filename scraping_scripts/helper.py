@@ -77,6 +77,7 @@ def get_fotmob(games_list):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     buttons = driver.find_elements_by_css_selector("button[type='button']")
 
+    buttons[2].click()
     i = 34
     links = []
     while i > 0:
@@ -212,6 +213,10 @@ def get_data(link, teamId, team):
     x = fix_types(x)
     x = clean_df(x, home[0]["name"], away[0]["name"], teamId)
     x = get_xt(x)
+    
+    all = pd.read_csv(os.path.join("/home/tomas/Desktop/test/",team,"events_" + team + ".csv"))
+    all = pd.concat([all,x])
+    all.to_csv(os.path.join("/home/tomas/Desktop/test/",team,"events__" + team + ".csv"))
 
     get_statistics(x, teamId, team)
     
