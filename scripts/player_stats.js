@@ -348,15 +348,11 @@ function fill_glow() {
 function get_player_id() {
   d3.csv("data/" + selectedSeason + "/calcs.csv").then((data) => {
 
-    data = data.filter(item => item["team"] === selectedTeam)
+    data = data.filter(item => item["name"] === selectedPlayer)[0]
+    selectedPlayerId = Number(data["playerId"])
+    selected_fotmob_player_id = Number(data["fotmob_player_id"])
     console.log(data)
-    for (i = 0; i < data.length; i++) {
-      if (data[i]["name"] == selectedPlayer) {
-        selectedPlayerId = Number(data[i]["playerId"])
-        selected_fotmob_player_id = Number(data[i]["fotmob_player_id"])
-        break
-      }
-    }
+
   })
 }
 
@@ -488,8 +484,12 @@ function stats() {
 function basic_stats() {
 
   d3.csv("data/" + selectedSeason + "/calcs.csv").then((dataset) => {
+    console.log(selectedPlayerId)
+
     dataset = dataset.map(o => new Object({ name: o.name, playerId: Number(o.playerId), minutes: Number(o.minutes), goals: Number(o.Goals), assists: Number(o.Assists) }))
-    player = dataset.filter(item => item["playerId"] === selectedPlayerId)[0]
+    player = dataset.filter(item => item["playerId"] === Number(selectedPlayerId))[0]
+
+    console.log(player)
 
     document.getElementById('minutes').textContent = "Minutes " + player["minutes"]
     document.getElementById('goals').textContent = "Goals " + player["goals"]
