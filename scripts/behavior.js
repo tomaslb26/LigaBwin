@@ -1221,8 +1221,7 @@ function setAllFalse(){
   allCarries = false
   allPasses = false
   UnsuccessfulPasses = false
-  d3.select("div#rectangle_2").selectAll("input").remove()
-  d3.select("div#rectangle_2").selectAll("label").remove( )
+  d3.select("div#rectangle_2").selectAll(".removable").remove()
   d3.select("div#actions").selectAll("select").remove()
 }
 
@@ -1373,6 +1372,9 @@ function plot_goal(event,d){
 
 function heatmap(){
   currentOption = "heatmap"
+
+  uncheck_buttons(currentOption)
+
   setAllFalse()
 
   if(currentPassNetworkState == "Home") var string = "data/" + currentSeason + "/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
@@ -1628,6 +1630,7 @@ function heatmap(){
     .append('label')
         .attr('for',function(d,i){ return 'a'+i; })
         .text(function(d) { return d; })
+        .attr("class","removable")
         .style("filter", "url(#glow)")
         .style("color","white")
         .style("width","fit-content")
@@ -1639,6 +1642,7 @@ function heatmap(){
         .attr("type", "checkbox")
         .attr("id", function(d,i) { return 'c'+i; })
         .style("checked",true)
+        .attr("class","removable")
         .style("filter", "url(#glow)")
         .style("color","white")
         .style("margin-left","10px")
@@ -1653,7 +1657,19 @@ function heatmap(){
   })
 }
 
+function uncheck_buttons(option){
+  list = ["actions","shots","def_actions","heatmap"]
+  for(i = 0; i < list.length; i++){
+    d3.select("#" + list[i]).style("background-color","#cf251f00")
+  }
+
+  d3.select("#" + option.replaceAll(".","_")).style("background-color",getColor(currentTeam))
+
+}
+
 function actions(option){
+
+  if(option != null) uncheck_buttons(option)
 
   d3.select("body").selectAll("div#tooltip_actions").remove()
 
@@ -1784,6 +1800,7 @@ function actions(option){
           .attr('for',function(d,i){ return 'a'+i; })
           .text(function(d) { return d; })
           .style("filter", "url(#glow)")
+          .attr("class", "removable")
           .style("color","white")
           .style("width","fit-content")
           .style("padding-left","5%")
@@ -1791,6 +1808,7 @@ function actions(option){
       .append("input")
           .attr("type", "checkbox")
           .attr("id", function(d,i) { return 'a'+i; })
+          .attr("class", "removable")
           .style("filter", "url(#glow)")
           .style("color","white")
           .on("mouseover",d3.select("div#tooltip_definitions").style("opacity",0).style("visibility", "hidden").style("left",0))
@@ -1994,6 +2012,7 @@ function actions(option){
       .append('label')
           .attr('for',function(d,i){ return 'b'+i; })
           .text(function(d) { return d; })
+          .attr("class", "removable")
           .style("filter", "url(#glow)")
           .style("color","white")
           .style("padding-left","5%")
@@ -2009,6 +2028,7 @@ function actions(option){
         })
         .style("height","12px")
         .style("width","12px")
+        .attr("class", "removable")
         .style("margin-left","10px")
         .style("filter", "url(#glow)")
         .style("display","inline-block")
@@ -2170,6 +2190,7 @@ function actions(option){
       .attr("marker-end", "url(#triangle3)"); 
     }
     if(ProgressivePasses){
+      console.log(dataset)
       progressive = dataset.filter(function(d){
         if(d.type == "Pass" && d.outcomeType == "Successful" && d.progressive == "True" && Number(d.teamId) == currentTeamId){
           return d;
@@ -2255,8 +2276,6 @@ function table_bar(option){
   d3.csv("data/" + currentSeason + "/calcs.csv").then((data) => {
     var data_selected = data;
 
-    console.log(currentTeam)
-
     data_selected = data_selected.filter(function(d){
       if(d.team == currentTeam.replaceAll(" ","-") && d.minutes > 220) return d
     })
@@ -2275,7 +2294,6 @@ function table_bar(option){
     })
 
     data_selected = data_selected.slice(0, 13)
-    console.log(data_selected)
 
     d3.select("div#table").select("svg").remove();
 
