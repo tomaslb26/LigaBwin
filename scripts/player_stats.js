@@ -434,8 +434,8 @@ function init_selects() {
       selectedPlayer = d3.select(this).property("value")
       init_selects()
       get_player_id()
-      stats()
-      plot()
+      setTimeout(stats, 2000);
+      setTimeout(plot, 2000);
     })
 
     d3.select("#selectSeason").property("value", selectedSeason)
