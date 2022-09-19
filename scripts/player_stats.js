@@ -1059,6 +1059,8 @@ function get_data(dataset, type, outcome, progressive) {
 
   if (progressive != null) temp = temp.filter(item => item["progressive"] === progressive)
 
+  console.log(temp)
+
   return temp
 
 }
@@ -1485,6 +1487,7 @@ function check_conditions(pitch, pitchMultiplier, mode) {
 
       if (prog_passes) {
         console.log(selectedPlayer)
+        console.log(selectedPlayerId)
         passes = get_data(events, "Pass", "Successful", "True")
         console.log(passes)
         plot_lines(pitch, passes, pitchMultiplier, mode)
