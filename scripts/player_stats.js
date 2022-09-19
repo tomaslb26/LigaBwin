@@ -351,7 +351,6 @@ function get_player_id() {
     data = data.filter(item => item["name"] === selectedPlayer)[0]
     selectedPlayerId = Number(data["playerId"])
     selected_fotmob_player_id = Number(data["fotmob_player_id"])
-    console.log(data)
 
   })
 }
@@ -484,12 +483,9 @@ function stats() {
 function basic_stats() {
 
   d3.csv("data/" + selectedSeason + "/calcs.csv").then((dataset) => {
-    console.log(selectedPlayerId)
 
     dataset = dataset.map(o => new Object({ name: o.name, playerId: Number(o.playerId), minutes: Number(o.minutes), goals: Number(o.Goals), assists: Number(o.Assists) }))
     player = dataset.filter(item => item["playerId"] === Number(selectedPlayerId))[0]
-
-    console.log(player)
 
     document.getElementById('minutes').textContent = "Minutes " + player["minutes"]
     document.getElementById('goals').textContent = "Goals " + player["goals"]
@@ -1061,8 +1057,6 @@ function get_data(dataset, type, outcome, progressive) {
 
   if (progressive != null) temp = temp.filter(item => item["progressive"] === progressive)
 
-  console.log(temp)
-
   return temp
 
 }
@@ -1488,10 +1482,7 @@ function check_conditions(pitch, pitchMultiplier, mode) {
       }
 
       if (prog_passes) {
-        console.log(selectedPlayer)
-        console.log(selectedPlayerId)
         passes = get_data(events, "Pass", "Successful", "True")
-        console.log(passes)
         plot_lines(pitch, passes, pitchMultiplier, mode)
         plot_circles(pitch, passes, teams_colors[selectedTeam], pitchMultiplier, mode)
       }
