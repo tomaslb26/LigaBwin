@@ -4,7 +4,7 @@
   --darkgray: #2a2e30;
 }
 
-#background_div{
+#background_div {
   content: "";
   background: url(../data/21-22/estadio_Benfica.jpg);
   opacity: 0.2;
@@ -13,10 +13,10 @@
   bottom: 0;
   right: 0;
   position: absolute;
-  z-index: -1;   
+  z-index: -1;
 }
 
-#background_div_global{
+#background_div_global {
   content: "";
   opacity: 0.2;
   top: 0;
@@ -24,10 +24,10 @@
   bottom: 0;
   right: 0;
   position: absolute;
-  z-index: -1;   
+  z-index: -1;
 }
 
-#passingNetwork{
+#passingNetwork {
   margin-top: 3.5%;
   font-weight: bold;
   text-align: left;
@@ -35,7 +35,7 @@
   padding-left: 1%;
 }
 
-.navbar-brand{
+.navbar-brand {
   padding-left: 1em;
 }
 
@@ -44,7 +44,7 @@
   padding-left: 1em;
 }
 
-.navbar-toggler{
+.navbar-toggler {
   width: 47px;
   height: 34px;
   background-color: #e2ebd92a;
@@ -54,10 +54,10 @@
 
 select {
   /* Reset Select */
-  border:2px solid #cf261f;
+  border: 2px solid #cf261f;
   /* Personalize */
   color: white;
-  background-color: rgba(255,255,255,0);
+  background-color: rgba(255, 255, 255, 0);
   background-image: none;
   cursor: pointer;
   border-radius: .25em;
@@ -65,133 +65,134 @@ select {
   font-weight: bold;
 }
 
-select option{
+select option {
   background: #2a2e30;
 }
 
-.XAxis line{
+.XAxis line {
   stroke: white;
 }
 
-.XAxis path{
+.XAxis path {
   stroke: white;
 }
 
-.XAxis text{
+.XAxis text {
   stroke: none;
   color: white;
   font-size: 90%;
 }
 
-.YAxis line{
+.YAxis line {
   stroke: white;
   stroke-width: 0%;
 }
 
-.YAxis path{
+.YAxis path {
   stroke: white;
   stroke-width: 0%;
 }
 
-.YAxis text{
+.YAxis text {
   color: white;
 }
 
-td, th {
+td,
+th {
   padding: 1px 4px;
   color: white;
 }
 
-.YAxisFlowChart2 line{
+.YAxisFlowChart2 line {
   stroke: none;
 }
 
-.YAxisFlowChart2 text{
+.YAxisFlowChart2 text {
   stroke: white;
 }
 
-.YAxisFlowChart2 path{
+.YAxisFlowChart2 path {
   stroke: white;
 }
 
-.YAxisFlowChart line{
+.YAxisFlowChart line {
   stroke: none;
 }
 
-.YAxisFlowChart text{
+.YAxisFlowChart text {
   stroke: white;
 }
 
-.YAxisFlowChart path{
+.YAxisFlowChart path {
   stroke: white;
 }
 
-.XAxisFlowChart line{
+.XAxisFlowChart line {
   stroke: rgba(255, 255, 255, 0);
 }
 
-.XAxisFlowChart text{
+.XAxisFlowChart text {
   color: rgb(255, 255, 255);
 }
 
-.XAxisFlowChart path{
+.XAxisFlowChart path {
   stroke: white;
 }
 
-.YAxisScatter line{
+.YAxisScatter line {
   stroke: none;
 }
 
-.YAxisScatter text{
+.YAxisScatter text {
   stroke: white;
 }
 
-.YAxisScatter path{
+.YAxisScatter path {
   stroke: none;
 }
 
-.XAxisScatter line{
+.XAxisScatter line {
   stroke: none;
 }
 
-.XAxisScatter text{
+.XAxisScatter text {
   color: rgba(255, 255, 255, 0);
 }
 
-.XAxisScatter path{
+.XAxisScatter path {
   stroke: none;
 }
 
-.XAxisBar line{
+.XAxisBar line {
   stroke: white;
 }
 
-.XAxisBar path{
+.XAxisBar path {
   stroke: white;
 }
 
-.XAxisBar text{
+.XAxisBar text {
   stroke: none;
   color: white;
 }
 
-.YAxisBar line{
+.YAxisBar line {
   stroke: white;
   stroke-width: 0%;
 }
 
-.YAxisBar path{
+.YAxisBar path {
   stroke: white;
   stroke-width: 0%;
 }
 
-.YAxisBar text{
+.YAxisBar text {
   color: white;
   font-size: 140%;
 }
 
-.btn{
-  border:2px solid #cf261f;
+.btn {
+  border: 2px solid #cf261f;
   height: 100%;
   cursor: pointer;
   border-radius: .45em;
@@ -199,62 +200,62 @@ td, th {
   font-weight: bold;
 }
 
-div.tooltip {	
+div.tooltip {
   position: absolute;
   top: 405px;
   left: 360px;
-  width: 180px;					
+  width: 180px;
   height: 85px;
-  font-weight: bold;							
-  font-size: 130%;	
-  background: #2a2e3094;	
+  font-weight: bold;
+  font-size: 130%;
+  background: #2a2e3094;
   color: white;
   right: 10px;
   border: 2px solid #cf261f;
   border-radius: 10px;
 }
 
-div.tooltip2 {	
+div.tooltip2 {
   position: absolute;
   top: 405px;
   left: 360px;
-  width: 420px;					
+  width: 420px;
   height: 110px;
-  font-weight: bold;							
-  font-size: 130%;	
-  background: #2a2e30d3;	
+  font-weight: bold;
+  font-size: 130%;
+  background: #2a2e30d3;
   color: white;
   right: 10px;
   border: 2px solid #cf261f;
   border-radius: 10px;
 }
 
-div.tooltip3 {	
+div.tooltip3 {
   position: absolute;
   top: 405px;
   left: 360px;
-  width: 380px;					
+  width: 380px;
   height: 220px;
-  font-weight: bold;							
-  font-size: 130%;	
-  background: #2a2e30d3;	
+  font-weight: bold;
+  font-size: 130%;
+  background: #2a2e30d3;
   color: white;
   right: 10px;
   border: 2px solid #cf261f;
   border-radius: 10px;
 }
 
-.YAxisBarMisc line{
+.YAxisBarMisc line {
   stroke: white;
   stroke-width: 1px;
 }
 
-.YAxisBarMisc path{
+.YAxisBarMisc path {
   stroke: white;
   stroke-width: 1px;
 }
 
-.YAxisBarMisc text{
+.YAxisBarMisc text {
   color: white;
   font-size: 140%;
   font-weight: bold;
