@@ -73,7 +73,7 @@ function create_glow(svg){
     feMerge.append("feMergeNode")
         .attr("in", "SourceGraphic");
   
-  }
+}
 
 function init_selects(){
     if(once == false){
@@ -213,7 +213,7 @@ function create_classification_table(){
             right: 20,
             bottom: 20,
             left: 20
-            }
+        }
         
     
 
@@ -246,7 +246,7 @@ function create_classification_table(){
             header = 30
             image_size = 20
         }
-        else if(window.innerWidth < 800) {
+        else {
             var height = 550
             var width = 270
             image_loc = 40
@@ -338,7 +338,7 @@ function create_misc_table(){
           
         if(window.innerWidth > 1400){
             var width = 760
-            var height = 720
+            var height = 700
             logosize = 30
             windowTax = 3
           }
