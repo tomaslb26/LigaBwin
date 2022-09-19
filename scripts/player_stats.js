@@ -348,6 +348,8 @@ function fill_glow() {
 function get_player_id() {
   d3.csv("data/" + selectedSeason + "/calcs.csv").then((data) => {
 
+    data = data.filter(item => item["team"] === selectedTeam)
+    console.log(data)
     for (i = 0; i < data.length; i++) {
       if (data[i]["name"] == selectedPlayer) {
         selectedPlayerId = Number(data[i]["playerId"])
