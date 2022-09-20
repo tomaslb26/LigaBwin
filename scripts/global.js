@@ -185,7 +185,7 @@ function append_rect(svg, x, y, height, width, color, team, opacity, stroke) {
         .style("filter", "url(#glow)")
         .style("fill", color)
         .attr("width", width)
-        .style("opacity", opacity)
+        .style("fill-opacity", opacity)
 }
 
 function append_line(svg, x1, x2, y1, y2) {
@@ -286,7 +286,12 @@ function create_classification_table() {
 
         for (i = 1; i < 19; i++) {
 
-            append_rect(svg, 5, 10 + i * (height / 19), height / 19, width, "red", data[i - 1]["Team"], 0.8)
+
+            append_rect(svg, 5, 10 + i * (height / 19), height / 19, lines[0], "#ffb700", null, 0.2)
+            append_rect(svg, lines[0], 10 + i * (height / 19), height / 19, lines[1] - lines[0], "red", data[i - 1]["Team"], 0.7)
+            append_rect(svg, lines[1], 10 + i * (height / 19), height / 19, width - lines[1] + 5, "#ffb700", null, 0.2)
+
+            //append_rect(svg, 5, 10 + i * (height / 19), height / 19, width, "red", data[i - 1]["Team"], 0.3)
 
             svg
                 .append("image")
