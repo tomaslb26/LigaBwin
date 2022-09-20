@@ -686,6 +686,10 @@ function movingAverage() {
         .on("click", handleMouseClick)
         .attr('height', 16)
         .attr("xlink:href", "data/" + currentSeason + "/" + currentTeam.replaceAll(" ", "-") + ".png")
+        .transition()
+        .ease(d3.easeLinear)
+        .duration(800)
+        .attr("opacity", 1)
 
       svg.selectAll('image_2')
         .data(final_opp_data)
@@ -701,6 +705,10 @@ function movingAverage() {
         .attr("xlink:href", d => {
           return "data/" + currentSeason + "/" + getAwayTeamName(d).replaceAll(" ", "-") + ".png"
         })
+        .transition()
+        .ease(d3.easeLinear)
+        .duration(800)
+        .attr("opacity", 1)
 
       xAxis = (g) =>
         g.attr("transform", `translate(0,${height - margin.bottom + 40})`)
@@ -2363,6 +2371,9 @@ function table_bar(option) {
         return "white"
       })
       .style("fill", d => getColor(currentTeam))
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(800)
       .attr("width", function (d) {
         return x(d["stat"]) * 0.7
       })
