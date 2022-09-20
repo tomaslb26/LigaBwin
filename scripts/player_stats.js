@@ -372,7 +372,9 @@ function change_plot_mode(string) {
   d3.select("#" + string).style("background-color", teams_colors[selectedTeam])
 
   selected_plot_mode = string
-  init()
+  create_checkboxes()
+  basic_stats()
+  plot()
 }
 
 function init_selects() {
@@ -527,6 +529,9 @@ function append_rect(svg, x, y, height, width, color, opacity) {
     .style("stroke", "white")
     .style("stroke-width", "2px")
     .style("filter", "url(#glow)")
+    .transition()
+    .ease(d3.easeElastic)
+    .duration(800)
     .style("fill", color)
     .attr("width", width)
     .style("opacity", opacity)
@@ -539,6 +544,9 @@ function append_text(svg, x, y, text, color, fontSize, weight) {
     .attr("y", y)
     .attr("dx", "0%")
     .style("filter", "url(#glow)")
+    .transition()
+    .ease(d3.easeElastic)
+    .duration(800)
     .style("fill", color)
     .style("font-weight", weight)
     .style("font-size", String(fontSize * 100) + "%")
@@ -1086,6 +1094,9 @@ function plot_lines(svg, data, pitchMultiplier, mode) {
       else return (68 - Number(d.endY)) * pitchMultiplier
     })
     .style("filter", "url(#glow)")
+    .transition()
+    .ease(d3.easeLinear)
+    .duration(800)
     .attr("stroke", "white")
     .attr("stroke-width", lineWidth)
 }
@@ -1112,6 +1123,9 @@ function plot_circles(svg, data, color, pitchMultiplier, mode) {
     .style('stroke-width', lineWidth)
     .style("filter", "url(#glow)")
     .style('stroke', color)
+    .transition()
+    .ease(d3.easeLinear)
+    .duration(800)
     .style('fill', "#2a2e30")
     .style("fill-opacity", 1)
 }
@@ -1130,6 +1144,9 @@ function plot_def_actions(svg, data, color, pitchMultiplier, mode) {
       else return (68 - Number(d.y)) * pitchMultiplier
     })
     .attr('r', 5)
+    .transition()
+    .ease(d3.easeLinear)
+    .duration(800)
     .style("filter", "url(#glow)")
     .style('fill', color)
     .style("fill-opacity", function (d) {
@@ -1348,6 +1365,9 @@ function plot_shot_circles(svg, data, color, pitchMultiplier, mode) {
     .on("mouseleave", handleMouseLeave)
     .style('stroke-width', 0.5)
     .style('stroke', "white")
+    .transition()
+    .ease(d3.easeLinear)
+    .duration(800)
     .style("filter", "url(#glow)")
     .style('fill', color)
     .style("fill-opacity", 1)

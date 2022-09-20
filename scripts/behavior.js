@@ -313,7 +313,11 @@ function flow_chart() {
             .style('stroke-width', 1)
             .style('stroke-opacity', 0.5)
             .style('stroke', "white")
-            .style("stroke-dasharray", ("10,3"));
+            .style("stroke-dasharray", ("10,3"))
+            .transition()
+            .ease(d3.easeBack)
+            .duration(800)
+            .attr("opacity", 1)
 
           svg.selectAll("XAxisScatter .tick")
             .data(goals).enter()
@@ -333,6 +337,10 @@ function flow_chart() {
               else if (Number(d.teamId) != currentTeamId) string = "data/Photos/" + currentSelectedTeam + "/" + d.name + ".png"
               return string
             })
+            .transition()
+            .ease(d3.easeBack)
+            .duration(800)
+            .attr("opacity", 1)
 
 
 
@@ -349,6 +357,10 @@ function flow_chart() {
             })
             .attr('height', 20)
             .attr("xlink:href", "data/football_ball.png")
+            .transition()
+            .ease(d3.easeBack)
+            .duration(800)
+            .attr("opacity", 1)
 
 
           svg.selectAll("YAxisScatter").style("filter", "url(#glow)")
@@ -364,6 +376,9 @@ function flow_chart() {
             .attr("x", function (d) {
               return x(d.minute);
             })
+            .transition()
+            .ease(d3.easeBack)
+            .duration(800)
             .attr("height", function (d) {
               if (d.home_xT > d.away_xT) return Math.abs(y(d.home_xT) - y(0));
               else return Math.abs(y(d.away_xT) - y(0));
@@ -374,7 +389,7 @@ function flow_chart() {
               else return getColor(currentSelectedTeam);
             })
             .style("stroke", "black")
-            .style("stroke-width", 0.1)
+            .style("stroke-width", 0.0)
             .style("filter", "url(#glow)");
 
           d3.selectAll(".YAxisFlowChart").style("filter", "url(#glow)")
