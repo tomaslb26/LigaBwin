@@ -426,6 +426,8 @@ function init_selects() {
       get_player_id()
       stats()
       plot()
+      change_mode(selectedMode)
+      change_plot_mode(selected_plot_mode)
     })
 
     d3.select("#selectPlayer").on("change", function (d) {

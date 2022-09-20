@@ -7,8 +7,6 @@ var allPasses = false
 var selectedPlayer = "Rafa"
 var currentOption = "actions"
 var allCarries = false
-var touches = true
-var xt_gen = false
 var ProgressivePasses = false
 var ProgressiveCarries = false
 var UnsuccessfulPasses = false
@@ -1688,7 +1686,7 @@ function actions(option) {
       var fontSize = 1
       var windowTax = 0
       if (window.innerWidth > 1400) {
-        var height = window.innerWidth / 3 - 60
+        var height = window.innerWidth / 3 - 80
       }
       else if (window.innerWidth > 1200) {
         var height = window.innerWidth / 3 - 120
