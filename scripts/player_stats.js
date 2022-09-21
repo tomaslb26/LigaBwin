@@ -1471,6 +1471,60 @@ function check_conditions(pitch, pitchMultiplier, mode) {
 
   if (selected_plot_mode == "actions") {
     d3.csv("data/" + selectedSeason + "/" + selectedTeam.replaceAll(" ", "-") + "/events_" + selectedTeam.replaceAll(" ", "-") + ".csv").then((events) => {
+
+      if (all_touches) {
+        touches = get_data(events, ["Carry", "Pass", "Aerial", "BallTouch", "BallRecovery", "Interception", "Tackle", "BlockedPass", "Clearance", "MissedShots", "ShotOnPost", "Goal", "SavedShot", "TakeOn"], null, null)
+
+        const h = pitch
+          .append("path")
+          .style("stroke", "white")
+          .style("fill-opacity", "0.2")
+          .style("fill", teams_colors[selectedTeam]);
+
+        if (mode) points = touches.map(o => new Object({ x: (105 - Number(o.x)) * pitchMultiplier, y: (68 - Number(o.y)) * pitchMultiplier }))
+        else points = touches.map(o => new Object({ x: Number(o.x) * pitchMultiplier, y: (68 - Number(o.y)) * pitchMultiplier }))
+
+        array = []
+        for (i = 0; i < points.length; i++) {
+          if (mode) array.push([points[i].y, points[i].x])
+          else array.push([points[i].x, points[i].y])
+        }
+
+        hull = d3.polygonHull(array)
+
+        for (let i = 2; i <= hull.length; i++) {
+          const visible = hull.slice(0, i);
+          h.attr("d", `M${visible.join("L")}Z`);
+        }
+
+        circles = pitch.selectAll('.progressiveCircles')
+          .data(touches)
+          .enter().append('circle')
+          .attr("id", "progressive")
+          .attr("cx", function (d) {
+            if (mode) return (68 - Number(d.y)) * pitchMultiplier
+            else return (Number(d.x)) * pitchMultiplier
+          })
+          .attr("cy", function (d) {
+            if (mode) return (105 - Number(d.x)) * pitchMultiplier
+            else return (68 - Number(d.y)) * pitchMultiplier
+          })
+          .attr('r', 5)
+          .style('stroke-width', 1)
+          .style("filter", "url(#glow)")
+          .style('stroke', teams_colors[selectedTeam])
+          .style('fill', "white")
+          .style("fill-opacity", function (d) {
+            if (d.outcomeType == "Successful") return 0.5
+            else return 0.2
+          })
+          .style("stroke-opacity", function (d) {
+            if (d.outcomeType == "Successful") return 0.7
+            else return 0.2
+          })
+
+      }
+
       if (all_passes) {
         if (prog_passes) passes = get_data(events, "Pass", "Successful", "False")
         else passes = get_data(events, "Pass", "Successful", null)
@@ -1574,59 +1628,6 @@ function check_conditions(pitch, pitchMultiplier, mode) {
         carries = get_data(events, "Carry", null, "True")
         plot_lines(pitch, carries, pitchMultiplier, mode)
         plot_circles(pitch, carries, "#48EDDB", pitchMultiplier, mode)
-      }
-
-      if (all_touches) {
-        touches = get_data(events, ["Carry", "Pass", "Aerial", "BallTouch", "BallRecovery", "Interception", "Tackle", "BlockedPass", "Clearance", "MissedShots", "ShotOnPost", "Goal", "SavedShot", "TakeOn"], null, null)
-
-        const h = pitch
-          .append("path")
-          .style("stroke", "white")
-          .style("fill-opacity", "0.2")
-          .style("fill", teams_colors[selectedTeam]);
-
-        if (mode) points = touches.map(o => new Object({ x: (105 - Number(o.x)) * pitchMultiplier, y: (68 - Number(o.y)) * pitchMultiplier }))
-        else points = touches.map(o => new Object({ x: Number(o.x) * pitchMultiplier, y: (68 - Number(o.y)) * pitchMultiplier }))
-
-        array = []
-        for (i = 0; i < points.length; i++) {
-          if (mode) array.push([points[i].y, points[i].x])
-          else array.push([points[i].x, points[i].y])
-        }
-
-        hull = d3.polygonHull(array)
-
-        for (let i = 2; i <= hull.length; i++) {
-          const visible = hull.slice(0, i);
-          h.attr("d", `M${visible.join("L")}Z`);
-        }
-
-        circles = pitch.selectAll('.progressiveCircles')
-          .data(touches)
-          .enter().append('circle')
-          .attr("id", "progressive")
-          .attr("cx", function (d) {
-            if (mode) return (68 - Number(d.y)) * pitchMultiplier
-            else return (Number(d.x)) * pitchMultiplier
-          })
-          .attr("cy", function (d) {
-            if (mode) return (105 - Number(d.x)) * pitchMultiplier
-            else return (68 - Number(d.y)) * pitchMultiplier
-          })
-          .attr('r', 5)
-          .style('stroke-width', 1)
-          .style("filter", "url(#glow)")
-          .style('stroke', teams_colors[selectedTeam])
-          .style('fill', "white")
-          .style("fill-opacity", function (d) {
-            if (d.outcomeType == "Successful") return 0.5
-            else return 0.2
-          })
-          .style("stroke-opacity", function (d) {
-            if (d.outcomeType == "Successful") return 0.7
-            else return 0.2
-          })
-
       }
 
       if (ball_recoveries) {
