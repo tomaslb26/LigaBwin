@@ -365,11 +365,35 @@ function change_mode(string) {
   stats()
 }
 
+function set_all_false(string) {
+  if (string == "actions") {
+    all_passes = false
+    prog_carries = false
+    prog_passes = false
+    unsuc_passes = false
+    all_touches = false
+    all_carries = false
+    ball_recoveries = false
+    interceptions = false
+    tackles = false
+    blocked_passes = false
+    clearances = false
+  }
+  else {
+    goals = false
+    misses = false
+    attempt_saved = false
+    posts = false
+  }
+}
+
 function change_plot_mode(string) {
   if (string == "actions") d3.select("#shots").style("background-color", teams_colors[selectedTeam] + "00")
   else d3.select("#actions").style("background-color", teams_colors[selectedTeam] + "00")
 
   d3.select("#" + string).style("background-color", teams_colors[selectedTeam])
+
+  set_all_false(string)
 
   selected_plot_mode = string
   create_checkboxes()
