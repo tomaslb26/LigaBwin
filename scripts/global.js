@@ -102,7 +102,7 @@ function init_selects() {
         d3.select("#selectStat").on("change", function (d) {
             // recover the option that has been chosen
             currentStat = d3.select(this).property("value");
-            init()
+            create_misc_table()
         })
 
         d3.select("#selectSeason")

@@ -921,6 +921,8 @@ function selectTeam() {
     d3.select("#global").style("text-decoration-color", getColor(currentTeam)).style("filter", "url(#glow)");
     d3.select("#player_stats").style("text-decoration-color", getColor(currentTeam)).style("filter", "url(#glow)");
     d3.select("#go_back").style("text-decoration-color", getColor(currentTeam)).style("filter", "url(#glow)");
+    console.log(currentOption)
+    d3.select("#" + currentOption.replaceAll(".", "_")).style("background-color", getColor(currentTeam))
     d3.selectAll(".btn").style("border", "2px solid " + getColor(currentTeam))
     init()
   })
@@ -1689,7 +1691,7 @@ function actions(option) {
     d3.select("div#tooltip_moving_average").style("opacity", 0).style("visibility", "hidden");
   });
 
-  currentOption = option
+  if (option != null) currentOption = option
 
   if (currentPassNetworkState == "Home") var string = "data/" + currentSeason + "/" + currentTeam.replace(/\s+/g, '-') + "/" + currentTeam + " - " + currentSelectedTeam + ".csv"
   else var string = "data/" + currentSeason + "/" + currentTeam.replace(/\s+/g, '-') + "/" + currentSelectedTeam + " - " + currentTeam + ".csv"
@@ -2194,7 +2196,7 @@ function actions(option) {
 
         plotLines(pitch, progressive)
 
-        plotCircles(pitch, progressive, "#e83030")
+        plotCircles(pitch, progressive, getColor(currentTeam))
 
       }
 
