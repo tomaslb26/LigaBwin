@@ -1,19 +1,19 @@
 Position,Team,Games,Wins,Draws,Losses,Goals,Goals Against,Goal Difference,Points,Last 5,Attendance
-1,Benfica,7,7,0,0,19,3,16,21,W W W W W,53154
-2,Braga,7,6,1,0,23,5,18,19,W W W W W,16497
-3,Porto,7,5,1,1,16,5,11,16,W L W W D,46616
-4,Boavista,7,5,0,2,8,8,0,15,L L W W W,7534
-5,Portimonense,7,5,0,2,8,6,2,15,W W W L W,2218
-6,Casa Pia,7,4,2,1,7,3,4,14,W W D W W,6332
-7,Estoril,7,3,2,2,9,6,3,11,D W L W D,3091
-8,Sporting,7,3,1,3,13,10,3,10,L L W W L,30983
-9,Vitoria de Guimaraes,7,3,1,3,6,6,0,10,L L L W D,14005
-10,Gil Vicente,7,2,3,2,7,8,-1,9,D D L W D,5108
-11,Chaves,7,2,2,3,6,8,-2,8,D W D L L,5334
-12,Arouca,7,2,2,3,6,15,-9,8,W L D L D,1970
-13,Rio Ave,7,1,3,3,10,13,-3,6,D W D L D,3363
-14,Santa Clara,7,1,2,4,5,8,-3,5,L L W L D,1523
-15,Vizela,7,1,2,4,5,9,-4,5,D D L L L,3279
-16,Famalicao,7,1,1,5,1,8,-7,4,D W L L L,4380
-17,Pacos de Ferreira,7,0,1,6,5,15,-10,1,L L L L D,3081
-18,Maritimo,7,0,0,7,4,22,-18,0,L L L L L,5548
+1,Benfica,8,7,1,0,19,3,16,22,W W W W D,53154
+2,Porto,8,6,1,1,20,6,14,19,L W W D W,46170
+3,Braga,8,6,1,1,24,9,15,19,W W W W L,16497
+4,Casa Pia,8,5,2,1,9,4,5,17,W D W W W,6332
+5,Boavista,8,5,0,3,8,12,-4,15,L W W W L,7534
+6,Portimonense,8,5,0,3,8,7,1,15,W W L W L,2218
+7,Sporting,8,4,1,3,16,11,5,13,L W W L W,30195
+8,Estoril,8,3,3,2,10,7,3,12,W L W D D,3091
+9,Vitoria de Guimaraes,8,3,2,3,6,6,0,11,L L W D D,15312
+10,Arouca,8,2,3,3,7,16,-9,9,L D L D D,1970
+11,Rio Ave,8,2,3,3,11,13,-2,9,W D L D W,3018
+12,Chaves,8,2,3,3,7,9,-2,9,W D L L D,4837
+13,Gil Vicente,8,2,3,3,8,11,-3,9,D L W D L,5108
+14,Vizela,8,2,2,4,6,9,-3,8,D L L L W,3068
+15,Famalicao,8,2,1,5,5,8,-3,7,W L L L W,4231
+16,Santa Clara,8,1,2,5,5,9,-4,5,L W L D L,1523
+17,Pacos de Ferreira,8,0,2,6,6,16,-10,2,L L L D D,3418
+18,Maritimo,8,0,0,8,5,24,-19,0,L L L L L,5282
