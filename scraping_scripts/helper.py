@@ -31,7 +31,6 @@ def get_chrome_driver():
 def get_whoscored(team_dict, games_list):
 
     for team, team_id in team_dict.items():
-
         if os.path.exists("/home/tomas/Desktop/test/" + team) == False:
             os.mkdir("/home/tomas/Desktop/test/" + team)
 

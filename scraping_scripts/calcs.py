@@ -664,7 +664,7 @@ def get_fotmob_stats(result):
                 except:
                     player_stats[key] = 0
 
-            player_stats["team"] = team["teamName"].replace(" CP", "").replace("FC ", "").replace(" ", "-")
+            player_stats["team"] = team["teamName"].replace(" CP", "").replace("FC ", "").replace(" AC", "").replace(" ", "-")
             player_stats["fotmob_name"] = name
             player_stats["fotmob_player_id"] = player_id
             player_stats["shirtNo"] = shirt_no
@@ -698,7 +698,7 @@ def get_fotmob_stats(result):
                     except:
                         player_stats[key] = 0
 
-                player_stats["team"] = team["teamName"].replace(" CP", "").replace("FC ", "").replace(" ", "-")
+                player_stats["team"] = team["teamName"].replace(" CP", "").replace("FC ", "").replace(" AC", "").replace(" ", "-")
                 player_stats["fotmob_name"] = name
                 player_stats["fotmob_player_id"] = player_id
                 player_stats["shirtNo"] = shirt_no
@@ -764,7 +764,7 @@ def get_fotmob_stats(result):
             xA=("xA", "sum"),
             ChancesCreated=("ChancesCreated", "sum"),
         )
-        .reset_index()
+        .reset_index().drop_duplicates()
     )
 
     final_df = pd.merge(final_df, names, how="left", left_on=["team", "shirtNo"], right_on=["team", "shirtNo"])
