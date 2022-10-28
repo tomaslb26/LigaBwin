@@ -72,7 +72,7 @@ def get_fotmob(games_list):
 
     driver = get_chrome_driver()
 
-    driver.get("https://www.fotmob.com/leagues/61/matches/liga-portugal/by-round")
+    driver.get("https://www.fotmob.com/leagues/61/matches/Liga-Portugal/by-round")
     soup = BeautifulSoup(driver.page_source, "html.parser")
     buttons = driver.find_elements_by_css_selector("button[type='button']")
 
@@ -86,6 +86,7 @@ def get_fotmob(games_list):
             if len(arrOfString) != 1:
                 links += [link.get("href")]
         i -= 1
+        buttons = driver.find_elements_by_css_selector("button[type='button']")
         buttons[2].click()
 
     driver.quit()
@@ -95,10 +96,10 @@ def get_fotmob(games_list):
         if link in games_list["fotmob"]:
             continue
         else:
-            print(link)
             games_list["fotmob"] += [link]
             error = get_data_fotmob(link)
             if error == "error":
+                print("Error")
                 continue
             with open("scraped-games-22-23.json", "w") as outfile:
                 json.dump(games_list, outfile)
@@ -125,6 +126,8 @@ def extract_json_objects(text, decoder=JSONDecoder()):
 
 
 def get_data_fotmob(link):
+    
+    print(link)
 
     try:
         allShots = pd.read_csv("/home/tomas/Desktop/test/allShots2223.csv")
@@ -144,11 +147,12 @@ def get_data_fotmob(link):
 
     for result in extract_json_objects(data):
         continue
+    
 
     driver.quit()
     
     try:
-        data = result["props"]["pageProps"]["initialState"]["matchFacts"]["data"]
+        data = result["props"]["pageProps"]
     except:
         return "error"
 
@@ -202,7 +206,7 @@ def get_data(link, teamId, team):
     if away[0]["teamId"] == teamId:
         players_dict = away[0]["players"]
 
-    title = home[0]["name"] + " - " + away[0]["name"]
+    title = home[0]["name"] + " - " + away[0]["name"].replace(" AC", "")
 
     players = pd.DataFrame.from_dict(players_dict)
     players_numbers = players[["playerId", "shirtNo", "name"]].copy()

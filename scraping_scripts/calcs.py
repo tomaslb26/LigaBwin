@@ -630,7 +630,7 @@ def get_statistics(df, team_id, team):
 def get_fotmob_stats(result):
     
     try:
-        data = result["props"]["pageProps"]["initialState"]["matchFacts"]["data"]["content"]["lineup"]["lineup"]
+        data = result["props"]["pageProps"]["content"]["lineup"]["lineup"]
     except:
         return "error"
 
