@@ -582,15 +582,15 @@ def get_statistics(df, team_id, team):
 
     df1["team"] = team
 
-    fotmob_names = calcs[["fotmob_name", "fotmob_player_id", "shirtNo", "team"]].drop_duplicates().dropna()
+    fotmob_names = calcs[["fotmob_player_id", "shirtNo", "team"]].drop_duplicates().dropna()
     names = (
-        pd.concat([calcs[["name", "playerId", "team", "shirtNo"]], df1[["name", "playerId", "team", "shirtNo"]]])
+        pd.concat([calcs[["playerId", "team", "shirtNo"]], df1[["playerId", "team", "shirtNo"]]])
         .drop_duplicates()
         .dropna()
     )
 
-    calcs = calcs.drop(["name", "playerId", "fotmob_name", "fotmob_player_id"], axis=1)
-    df1 = df1.drop(["name", "playerId"], axis=1)
+    calcs = calcs.drop(["playerId", "fotmob_player_id"], axis=1)
+    df1 = df1.drop(["playerId"], axis=1)
 
     calcs = (
         pd.concat([calcs, df1])
@@ -718,23 +718,23 @@ def get_fotmob_stats(result):
     )
 
     calcs = pd.read_csv("/home/tomas/Desktop/test/calcs.csv")
-    fotmob_names = final_df[["fotmob_name", "fotmob_player_id", "shirtNo", "team"]].drop_duplicates()
+    fotmob_names = final_df[["fotmob_player_id", "shirtNo", "team"]].drop_duplicates()
 
     try:
-        names = calcs[["name", "playerId", "shirtNo", "team"]].drop_duplicates().dropna()
+        names = calcs[["playerId", "shirtNo", "team"]].drop_duplicates().dropna()
         fotmob_names = (
-            pd.concat([calcs[["fotmob_name", "fotmob_player_id", "shirtNo", "team"]], fotmob_names])
+            pd.concat([calcs[["fotmob_player_id", "shirtNo", "team"]], fotmob_names])
             .drop_duplicates()
             .dropna()
         )
     except:
-        names = calcs[["name", "playerId", "shirtNo", "team"]].drop_duplicates().dropna()
+        names = calcs[["playerId", "shirtNo", "team"]].drop_duplicates().dropna()
 
     fotmob_names["fotmob_player_id"] = fotmob_names["fotmob_player_id"].astype(int)
 
     final_df = pd.concat([final_df, calcs])
 
-    final_df.drop(["name", "playerId", "fotmob_name", "fotmob_player_id"], axis=1)
+    final_df.drop(["playerId", "fotmob_name", "fotmob_player_id"], axis=1)
 
     final_df = final_df.fillna(0)
     final_df.replace([np.inf, -np.inf], 0, inplace=True)

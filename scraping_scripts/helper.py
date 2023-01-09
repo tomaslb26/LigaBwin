@@ -76,7 +76,8 @@ def get_fotmob(games_list):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     buttons = driver.find_elements_by_css_selector("button[type='button']")
 
-    buttons[2].click()
+    buttons[5].click()
+    buttons[3].click()
     i = 34
     links = []
     while i > 0:
@@ -87,7 +88,7 @@ def get_fotmob(games_list):
                 links += [link.get("href")]
         i -= 1
         buttons = driver.find_elements_by_css_selector("button[type='button']")
-        buttons[2].click()
+        buttons[3].click()
 
     driver.quit()
     links = list(dict.fromkeys(links))
@@ -96,6 +97,7 @@ def get_fotmob(games_list):
         if link in games_list["fotmob"]:
             continue
         else:
+            print(link)
             games_list["fotmob"] += [link]
             error = get_data_fotmob(link)
             if error == "error":
@@ -126,8 +128,6 @@ def extract_json_objects(text, decoder=JSONDecoder()):
 
 
 def get_data_fotmob(link):
-    
-    print(link)
 
     try:
         allShots = pd.read_csv("/home/tomas/Desktop/test/allShots2223.csv")
@@ -168,6 +168,7 @@ def get_data_fotmob(link):
     teams = [teams["homeTeam"]] + [teams["awayTeam"]]
     teams = pd.DataFrame(teams)
     shots = pd.DataFrame(data)
+    print(shots.columns)
     shots = shots.join(teams.set_index("id"), on="teamId")
     shots["name"] = shots["name"].replace(" CP", "").replace("FC ", "")
     shots["homeTeam"] = home["name"].replace(" CP", "").replace("FC ", "")
@@ -187,7 +188,7 @@ def get_data(link, teamId, team):
 
     re.compile("var matchCentreData = ({.*?})")
 
-    data = soup.find("div", {"id": "multiplex-parent"}).find_next("script")
+    data = soup.find_all("script")
 
     event_data = str(data)
 
@@ -249,7 +250,7 @@ def get_fbref():
     stats = df[2].iloc[: , :4]
     stats.columns = ["Team", "Players Used", "Average Age", "Possession"]
     
-    misc = df[10].iloc[: , :12]
+    misc = df[22].iloc[: , :12]
     misc.columns = ["Team", "Drop", "Drop_2", "Yellow Card", "Red Card", "Second Yellow", "Fouls", "Fouls Against", "Offside", "Crosses", "Interceptions", "Tackles won"]
     misc.drop(["Drop", "Drop_2"], axis = 1, inplace = True)
     
