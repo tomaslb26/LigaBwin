@@ -15,10 +15,6 @@ def changePositions(df):
                 player2_ret_df = ret_df[(ret_df["playerId"] == player_2) & (ret_df["recipient"] == player_1)]
                 if not player1_ret_df.empty or not player2_ret_df.empty:
                     continue
-                # player1_ret_dict = player1_ret_df.to_dict('index')
-                # player2_ret_dict = player2_ret_df.to_dict('index')
-                # if(player1_ret_dict != {} or player2_ret_dict != {}):
-                #     continue
             if player_1 == player_2:
                 continue
             else:
@@ -41,23 +37,15 @@ def changePositions(df):
                     player1_dict[list(player1_dict.keys())[0]]["y"]
                     - player1_dict[list(player1_dict.keys())[0]]["y_end"]
                 ):
-                    # player1_dict[list(player1_dict.keys())[0]]['x'] += 0.5
                     player1_dict[list(player1_dict.keys())[0]]["y"] += 0.5
-                    # player1_dict[list(player1_dict.keys())[0]]['x_end'] += 0.5
                     player1_dict[list(player1_dict.keys())[0]]["y_end"] += 0.5
-                    # player2_dict[list(player2_dict.keys())[0]]['x'] -= 0.5
                     player2_dict[list(player2_dict.keys())[0]]["y"] -= 0.5
-                    # player2_dict[list(player2_dict.keys())[0]]['x_end'] -= 0.5
                     player2_dict[list(player2_dict.keys())[0]]["y_end"] -= 0.5
                 else:
                     player1_dict[list(player1_dict.keys())[0]]["x"] += 0.5
-                    # player1_dict[list(player1_dict.keys())[0]]['y'] += 0.5
                     player1_dict[list(player1_dict.keys())[0]]["x_end"] += 0.5
-                    # player1_dict[list(player1_dict.keys())[0]]['y_end'] += 0.5
                     player2_dict[list(player2_dict.keys())[0]]["x"] -= 0.5
-                    # player2_dict[list(player2_dict.keys())[0]]['y'] -= 0.5
                     player2_dict[list(player2_dict.keys())[0]]["x_end"] -= 0.5
-                    # player2_dict[list(player2_dict.keys())[0]]['y_end'] -= 0.5
             ret_df = ret_df.append(pd.DataFrame.from_dict(player1_dict, orient="index"), ignore_index=True)
             ret_df = ret_df.append(pd.DataFrame.from_dict(player2_dict, orient="index"), ignore_index=True)
     return ret_df
@@ -89,9 +77,6 @@ def plot_pass_network(events, teamId):
 
     df["passer"] = df["playerId"]
     df["recipient"] = df["playerId"].shift(-1)
-
-    # df.loc[df.type == {'value': 1, 'displayName': 'Pass'},'type'] = "Pass"
-    # df.loc[df.outcomeType == {'value': 1, 'displayName': 'Successful'},'outcomeType'] = "Successful"
 
     passes = df[df["type"] == "Pass"]
     successful = passes[passes["outcomeType"] == "Successful"]
@@ -138,7 +123,6 @@ def plot_pass_network(events, teamId):
 
     pass_between = pass_between[pass_between["pass_count"] > 1]
 
-    # pass_iterate['shirtNo'] = pass_iterate['shirtNo'].apply(str)
     pass_between = changePositions(pass_between)
 
     pass_between["mid_x"] = (pass_between["x"] + pass_between["x_end"]) / 2
@@ -563,7 +547,7 @@ def get_key_passes(df, team_id):
 
 def get_statistics(df, team_id, team):
 
-    calcs = pd.read_csv("/home/tomas/Desktop/test/calcs.csv")
+    calcs = pd.read_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv")
 
     df1 = get_minutes(df, team_id)
     df1 = pd.concat([df1, get_progressive_passes(df, team_id)])
@@ -581,6 +565,9 @@ def get_statistics(df, team_id, team):
     df1 = pd.concat([df1, get_key_passes(df, team_id)])
 
     df1["team"] = team
+    
+    players = pd.read_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv")
+    df1 = pd.merge(df1, players, how="left", left_on=["team", "shirtNo"], right_on=["team", "number"])
 
     fotmob_names = calcs[["fotmob_player_id", "shirtNo", "team"]].drop_duplicates().dropna()
     names = (
@@ -590,11 +577,12 @@ def get_statistics(df, team_id, team):
     )
 
     calcs = calcs.drop(["playerId", "fotmob_player_id"], axis=1)
-    df1 = df1.drop(["playerId"], axis=1)
+    df1 = df1.drop(["playerId", "name_x"], axis=1)
+    df1 = df1.rename(columns = {"name_y": "name"})
 
     calcs = (
         pd.concat([calcs, df1])
-        .groupby(["shirtNo", "team"])
+        .groupby(["shirtNo", "team", "name", "photo"])
         .agg(
             minutes=("minutes", "sum"),
             prog_passes=("prog_passes", "sum"),
@@ -620,11 +608,45 @@ def get_statistics(df, team_id, team):
         )
         .reset_index()
     )
-
+        
     calcs = pd.merge(calcs, names, how="left", left_on=["team", "shirtNo"], right_on=["team", "shirtNo"])
     calcs = pd.merge(calcs, fotmob_names, how="left", left_on=["team", "shirtNo"], right_on=["team", "shirtNo"])
 
-    calcs.drop_duplicates().to_csv("/home/tomas/Desktop/test/calcs.csv", index=False)
+    calcs = calcs.drop_duplicates()
+    
+    calcs.to_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv", index=False)
+
+
+def get_data_fotmob(link):
+
+    try:
+        allShots = pd.read_csv("/home/tomas/Desktop/LigaBwin/data/allShotsLigaBwin2223.csv")
+    except:
+        allShots = pd.DataFrame()
+
+    driver = get_chrome_driver()
+
+    driver.get("https://www.fotmob.com" + link)
+
+    pageSource = driver.page_source
+    fileToWrite = open("page_source.html", "w", encoding="utf-8")
+    fileToWrite.write(pageSource)
+    fileToWrite.close()
+    fileToRead = open("page_source.html", "r", encoding="utf-8")
+    data = str(fileToRead.read())
+
+    for result in extract_json_objects(data):
+        continue
+    
+
+    driver.quit()
+    
+    try:
+        data = result["props"]["pageProps"]
+    except:
+        return "error"
+
+    return result
 
 
 def get_fotmob_stats(result):
@@ -717,7 +739,7 @@ def get_fotmob_stats(result):
         }
     )
 
-    calcs = pd.read_csv("/home/tomas/Desktop/test/calcs.csv")
+    calcs = pd.read_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv")
     fotmob_names = final_df[["fotmob_player_id", "shirtNo", "team"]].drop_duplicates()
 
     try:
@@ -729,18 +751,23 @@ def get_fotmob_stats(result):
         )
     except:
         names = calcs[["playerId", "shirtNo", "team"]].drop_duplicates().dropna()
+        
+    players = pd.read_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv")
+    final_df = pd.merge(final_df, players, how="left", left_on=["team", "shirtNo"], right_on=["team", "number"])
+    
 
     fotmob_names["fotmob_player_id"] = fotmob_names["fotmob_player_id"].astype(int)
 
     final_df = pd.concat([final_df, calcs])
 
-    final_df.drop(["playerId", "fotmob_name", "fotmob_player_id"], axis=1)
-
+    final_df = final_df.drop(["playerId", "fotmob_name", "fotmob_player_id"], axis=1)
+    
     final_df = final_df.fillna(0)
     final_df.replace([np.inf, -np.inf], 0, inplace=True)
+    
 
     final_df = (
-        final_df.groupby(["shirtNo", "team"])
+        final_df.groupby(["shirtNo", "team", "name", "photo"])
         .agg(
             minutes=("minutes", "sum"),
             prog_passes=("prog_passes", "sum"),
@@ -770,4 +797,6 @@ def get_fotmob_stats(result):
     final_df = pd.merge(final_df, names, how="left", left_on=["team", "shirtNo"], right_on=["team", "shirtNo"])
     final_df = pd.merge(final_df, fotmob_names, how="left", left_on=["team", "shirtNo"], right_on=["team", "shirtNo"])
 
-    final_df.drop_duplicates().to_csv("/home/tomas/Desktop/test/calcs.csv", index=False)
+    final_df = final_df.drop_duplicates()
+
+    final_df.to_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv", index=False)

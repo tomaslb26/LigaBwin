@@ -7,8 +7,6 @@ from unidecode import unidecode
 import os
 import pandas as pd
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.opera import OperaDriverManager
-from webdriver_manager.chrome import ChromeDriverManager
 from calcs import fix_types, get_fotmob_stats, get_xt, clean_df, get_statistics, plot_pass_network
 
 
@@ -17,7 +15,7 @@ def get_opera_driver():
     opera_profile = r"/home/tomas/.config/opera"
     options.add_argument("user-data-dir=" + opera_profile)
     options._binary_location = r"/usr/lib/x86_64-linux-gnu/opera/opera"
-    driver = webdriver.Opera(executable_path="/home/tomas/operadriver_linux64/operadriver", options=options)
+    driver = webdriver.Opera(executable_path="/home/tomas/Desktop/operadriver_linux64/operadriver", options=options)
     return driver
 
 
@@ -31,8 +29,8 @@ def get_chrome_driver():
 def get_whoscored(team_dict, games_list):
 
     for team, team_id in team_dict.items():
-        if os.path.exists("/home/tomas/Desktop/test/" + team) == False:
-            os.mkdir("/home/tomas/Desktop/test/" + team)
+        if os.path.exists("/home/tomas/Desktop/LigaBwin/data/" + team) == False:
+            os.mkdir("/home/tomas/Desktop/LigaBwin/data/" + team)
 
         website = "https://www.whoscored.com"
 
@@ -46,6 +44,7 @@ def get_whoscored(team_dict, games_list):
         while links == []:
             driver.get("https://www.whoscored.com/Teams/" + str(team_id) + "/Fixtures/Portugal-" + team)
             soup = BeautifulSoup(driver.page_source, "html.parser")
+            driver.close()
 
             for link in soup.find_all("a"):
                 arrOfString = link.get("href").split("Live/Portugal-Liga-Portugal-2022-2023")
@@ -61,7 +60,7 @@ def get_whoscored(team_dict, games_list):
                 continue
             else:
                 df, title = get_data(website + link, team_id, team)
-                df.to_csv("/home/tomas/Desktop/test/" + team + "/" + title + ".csv", index=False)
+                df.to_csv("/home/tomas/Desktop/LigaBwin/data/" + team + "/" + title + ".csv", index=False)
                 games_list["whoscored"][team] += [link]
 
             with open("scraped-games-22-23.json", "w") as outfile:
@@ -95,6 +94,8 @@ def get_fotmob(games_list):
 
     for link in links:
         if link in games_list["fotmob"]:
+            continue
+        if(link == "/match/3937495/matchfacts/estoril-vs-boavista"):
             continue
         else:
             print(link)
@@ -130,7 +131,7 @@ def extract_json_objects(text, decoder=JSONDecoder()):
 def get_data_fotmob(link):
 
     try:
-        allShots = pd.read_csv("/home/tomas/Desktop/test/allShots2223.csv")
+        allShots = pd.read_csv("/home/tomas/Desktop/LigaBwin/data/allShotsLigaBwin2223.csv")
     except:
         allShots = pd.DataFrame()
 
@@ -168,15 +169,14 @@ def get_data_fotmob(link):
     teams = [teams["homeTeam"]] + [teams["awayTeam"]]
     teams = pd.DataFrame(teams)
     shots = pd.DataFrame(data)
-    print(shots.columns)
-    shots = shots.join(teams.set_index("id"), on="teamId")
+    shots = shots.join(teams.set_index("id"), on = "teamId")
     shots["name"] = shots["name"].replace(" CP", "").replace("FC ", "")
     shots["homeTeam"] = home["name"].replace(" CP", "").replace("FC ", "")
     shots["awayTeam"] = away["name"].replace(" CP", "").replace("FC ", "")
     shots["round"] = round
 
     allShots = pd.concat([allShots, shots])
-    allShots.to_csv("/home/tomas/Desktop/test/allShots2223.csv", index=False)
+    allShots.to_csv("/home/tomas/Desktop/LigaBwin/data/allShotsLigaBwin2223.csv", index=False)
 
 
 def get_data(link, teamId, team):
@@ -184,7 +184,7 @@ def get_data(link, teamId, team):
     driver.get(link)
 
     soup = BeautifulSoup(driver.page_source, "lxml")
-    driver.quit()
+    driver.close()
 
     re.compile("var matchCentreData = ({.*?})")
 
@@ -218,14 +218,18 @@ def get_data(link, teamId, team):
     x = clean_df(x, home[0]["name"], away[0]["name"], teamId)
     x = get_xt(x)
     
-    all = pd.read_csv(os.path.join("/home/tomas/Desktop/test/",team,"events_" + team + ".csv"))
+    all = pd.read_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/",team,"events_" + team + ".csv"))
     all = pd.concat([all,x])
-    all.to_csv(os.path.join("/home/tomas/Desktop/test/",team,"events__" + team + ".csv"))
+    all.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/",team,"events__" + team + ".csv"))
 
     get_statistics(x, teamId, team)
     
     df = plot_pass_network(x, teamId)
-    df.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin22-23PassNetworks/",team,"PassNetwork" + title.replace(" - ", "").replace(" ","-") + ".csv"), index = False)
+
+    if os.path.exists("/home/tomas/Desktop/LigaBwin/data/PassingNetwork/" + team) == False:
+        os.mkdir("/home/tomas/Desktop/LigaBwin/data/PassingNetwork/" + team)
+
+    df.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/PassingNetwork",team,"PassNetwork" + title.replace(" - ", "").replace(" ","-") + ".csv"), index = False)
 
     driver.quit()
 
@@ -245,7 +249,7 @@ def get_fbref():
     classification.columns = ["Position", "Team", "Games", "Wins", "Draws", "Losses", "Goals", "Goals Against", "Goal Difference", "Points","Last 5", "Attendance"]
     classification["Team"] = classification["Team"].apply(name_conversion)
     
-    classification.to_csv("/home/tomas/Desktop/test/classification.csv", index = False)
+    classification.to_csv("/home/tomas/Desktop/LigaBwin/data/classification.csv", index = False)
     
     stats = df[2].iloc[: , :4]
     stats.columns = ["Team", "Players Used", "Average Age", "Possession"]
@@ -257,4 +261,4 @@ def get_fbref():
     misc = misc.join(stats.set_index("Team"), on = "Team")
     misc["Team"] = misc["Team"].apply(name_conversion)
     
-    misc.to_csv("/home/tomas/Desktop/test/misc.csv", index = False)
+    misc.to_csv("/home/tomas/Desktop/LigaBwin/data/misc.csv", index = False)

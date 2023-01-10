@@ -10,8 +10,8 @@ team_dict = json.load(f)
 f = open("scraped-games-22-23.json")
 games_list = json.load(f)
 
-get_whoscored(team_dict,games_list)
+#get_whoscored(team_dict,games_list)
 
 #get_fbref()
 
-#get_fotmob(games_list)
+get_fotmob(games_list)
