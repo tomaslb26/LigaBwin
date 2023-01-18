@@ -569,6 +569,14 @@ def get_statistics(df, team_id, team):
     players = pd.read_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv")
     df1 = pd.merge(df1, players, how="left", left_on=["team", "shirtNo"], right_on=["team", "number"])
 
+    player_status = players[['name','team','status']]
+    calcs = pd.merge(calcs, player_status, how="left", left_on=["name","team"], right_on=["name","team"])
+    
+    inactive_calcs = calcs[calcs['status'] == "inactive"]
+    inactive_calcs = inactive_calcs.drop(["status"],axis=1)
+    calcs = calcs[calcs['status'] == "active"]
+    calcs = calcs.drop(["status"], axis = 1)
+
     fotmob_names = calcs[["fotmob_player_id", "shirtNo", "team"]].drop_duplicates().dropna()
     names = (
         pd.concat([calcs[["playerId", "team", "shirtNo"]], df1[["playerId", "team", "shirtNo"]]])
@@ -613,6 +621,8 @@ def get_statistics(df, team_id, team):
     calcs = pd.merge(calcs, fotmob_names, how="left", left_on=["team", "shirtNo"], right_on=["team", "shirtNo"])
 
     calcs = calcs.drop_duplicates()
+
+    calcs = pd.concat([calcs, inactive_calcs])
     
     calcs.to_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv", index=False)
 
@@ -650,6 +660,7 @@ def get_data_fotmob(link):
 
 
 def get_fotmob_stats(result):
+    
     
     try:
         data = result["props"]["pageProps"]["content"]["lineup"]["lineup"]
@@ -738,8 +749,20 @@ def get_fotmob_stats(result):
             "Total shots": "Shots"
         }
     )
-
+    
     calcs = pd.read_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv")
+    players = pd.read_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv")
+
+    player_status = players[['name','team','status']]
+    calcs = pd.merge(calcs, player_status, how="left", left_on=["name","team"], right_on=["name","team"])
+
+    inactive_calcs = calcs[calcs['status'] == "inactive"]
+    inactive_calcs = inactive_calcs.drop(["status"],axis=1)
+    calcs = calcs[calcs['status'] == "active"]
+    calcs = calcs.drop(["status"], axis = 1)
+    
+    players = players[players["status"] == "active"]
+    
     fotmob_names = final_df[["fotmob_player_id", "shirtNo", "team"]].drop_duplicates()
 
     try:
@@ -752,10 +775,8 @@ def get_fotmob_stats(result):
     except:
         names = calcs[["playerId", "shirtNo", "team"]].drop_duplicates().dropna()
         
-    players = pd.read_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv")
     final_df = pd.merge(final_df, players, how="left", left_on=["team", "shirtNo"], right_on=["team", "number"])
     
-
     fotmob_names["fotmob_player_id"] = fotmob_names["fotmob_player_id"].astype(int)
 
     final_df = pd.concat([final_df, calcs])
@@ -798,5 +819,7 @@ def get_fotmob_stats(result):
     final_df = pd.merge(final_df, fotmob_names, how="left", left_on=["team", "shirtNo"], right_on=["team", "shirtNo"])
 
     final_df = final_df.drop_duplicates()
+        
+    final_df = pd.concat([final_df, inactive_calcs])
 
     final_df.to_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv", index=False)

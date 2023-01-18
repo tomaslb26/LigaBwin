@@ -220,16 +220,16 @@ def get_data(link, teamId, team):
     
     all = pd.read_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/",team,"events_" + team + ".csv"))
     all = pd.concat([all,x])
-    all.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/",team,"events__" + team + ".csv"))
+    all.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/",team,"events_" + team + ".csv"))
 
     get_statistics(x, teamId, team)
     
     df = plot_pass_network(x, teamId)
 
-    if os.path.exists("/home/tomas/Desktop/LigaBwin/data/PassingNetwork/" + team) == False:
-        os.mkdir("/home/tomas/Desktop/LigaBwin/data/PassingNetwork/" + team)
+    if os.path.exists("/home/tomas/Desktop/LigaBwin/data/PassingNetworks/" + team) == False:
+        os.mkdir("/home/tomas/Desktop/LigaBwin/data/PassingNetworks/" + team)
 
-    df.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/PassingNetwork",team,"PassNetwork" + title.replace(" - ", "").replace(" ","-") + ".csv"), index = False)
+    df.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/PassingNetworks",team,"PassNetwork" + title.replace(" - ", "").replace(" ","-") + ".csv"), index = False)
 
     driver.quit()
 

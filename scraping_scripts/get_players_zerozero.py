@@ -29,7 +29,8 @@ for key, value in teams.items():
                 players = div.find_all("div", {"class": "staff"})
                 for player in players:
                     
-                    if(len(player.attrs["class"]) > 1): continue
+                    if(len(player.attrs["class"]) == 1): status ="active"
+                    else: status = "inactive"
                     
                     photo = player.find("div", {"class": "photo"})["style"].split("'")[1]
                     
@@ -37,7 +38,7 @@ for key, value in teams.items():
                     
                     number = player.find("div", {"class": "number"}).text
                     
-                    players_list += [{"name": name, "number": number, "photo": photo, "team": key}]
+                    players_list += [{"name": name, "number": number, "photo": photo, "team": key, "status": status}]
                     
         except:
             continue
@@ -48,4 +49,4 @@ df = pd.DataFrame(players_list)
 df = df[df["number"] != "-"]
 df["number"] = df["number"].astype(int)
 
-df.to_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv", index = False)#
+df.to_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv", index = False)
