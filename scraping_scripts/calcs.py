@@ -50,6 +50,22 @@ def changePositions(df):
             ret_df = ret_df.append(pd.DataFrame.from_dict(player2_dict, orient="index"), ignore_index=True)
     return ret_df
 
+def find_biggest_interval(lst):
+    # Sort the list of integers
+    sorted_lst = sorted(lst)
+
+    # Calculate the differences between consecutive values
+    differences = [sorted_lst[i+1] - sorted_lst[i] for i in range(len(sorted_lst)-1)]
+
+    # Find the maximum difference and its index position
+    max_diff_index = differences.index(max(differences))
+
+    # Get the starting and finishing minutes of the biggest interval
+    start_minutes = sorted_lst[max_diff_index]
+    end_minutes = sorted_lst[max_diff_index+1]
+
+    return start_minutes, end_minutes
+
 
 def plot_pass_network(events, teamId):
 
@@ -83,21 +99,15 @@ def plot_pass_network(events, teamId):
 
     subs = df[df["type"] == "SubstitutionOff"]
     subs = subs["minute"]
-    subs = pd.Series(subs).unique()
-    firstSub = subs[0]
-    try:
-        secondSub = subs[1]
-    except:
-        secondSub = ''
-    # thirdSub = subs[2]
 
-    if firstSub < 22:
-        successful = successful[successful["minute"] < secondSub]
-        successful = successful[successful["minute"] > firstSub]
-        game = str(int(firstSub)) + "' - " + str(int(secondSub)) + "'"
-    else:
-        successful = successful[successful["minute"] < firstSub]
-        game = "0" + "' - " + str(int(firstSub)) + "'"
+    subs_list = list(subs)
+    subs_list.append(0)
+
+    start_minutes, end_minutes = find_biggest_interval(subs_list)
+
+    successful = successful[successful["minute"] < end_minutes]
+    successful = successful[successful["minute"] > start_minutes]
+    game = str(int(start_minutes)) + "' - " + str(int(end_minutes)) + "'"
 
     pas = pd.to_numeric(successful["passer"], downcast="integer")
     rec = pd.to_numeric(successful["recipient"], downcast="integer")
@@ -124,6 +134,7 @@ def plot_pass_network(events, teamId):
     pass_between = pass_between[pass_between["pass_count"] > 1]
 
     pass_between = changePositions(pass_between)
+
 
     pass_between["mid_x"] = (pass_between["x"] + pass_between["x_end"]) / 2
     pass_between["mid_y"] = (pass_between["y"] + pass_between["y_end"]) / 2
@@ -548,6 +559,7 @@ def get_key_passes(df, team_id):
 def get_statistics(df, team_id, team):
 
     calcs = pd.read_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv")
+    calcs = calcs.drop(["photo"], axis = 1)
 
     df1 = get_minutes(df, team_id)
     df1 = pd.concat([df1, get_progressive_passes(df, team_id)])
@@ -567,7 +579,7 @@ def get_statistics(df, team_id, team):
     df1["team"] = team
     
     players = pd.read_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv")
-    df1 = pd.merge(df1, players, how="left", left_on=["team", "shirtNo"], right_on=["team", "number"])
+    df1 = pd.merge(df1, players[players['status']=="active"], how="left", left_on=["team", "shirtNo"], right_on=["team", "number"])
 
     player_status = players[['name','team','status']]
     calcs = pd.merge(calcs, player_status, how="left", left_on=["name","team"], right_on=["name","team"])
@@ -576,7 +588,7 @@ def get_statistics(df, team_id, team):
     inactive_calcs = inactive_calcs.drop(["status"],axis=1)
     calcs = calcs[calcs['status'] == "active"]
     calcs = calcs.drop(["status"], axis = 1)
-
+    
     fotmob_names = calcs[["fotmob_player_id", "shirtNo", "team"]].drop_duplicates().dropna()
     names = (
         pd.concat([calcs[["playerId", "team", "shirtNo"]], df1[["playerId", "team", "shirtNo"]]])
@@ -587,10 +599,11 @@ def get_statistics(df, team_id, team):
     calcs = calcs.drop(["playerId", "fotmob_player_id"], axis=1)
     df1 = df1.drop(["playerId", "name_x"], axis=1)
     df1 = df1.rename(columns = {"name_y": "name"})
+    
 
     calcs = (
         pd.concat([calcs, df1])
-        .groupby(["shirtNo", "team", "name", "photo"])
+        .groupby(["shirtNo", "team", "name"])
         .agg(
             minutes=("minutes", "sum"),
             prog_passes=("prog_passes", "sum"),
@@ -623,6 +636,8 @@ def get_statistics(df, team_id, team):
     calcs = calcs.drop_duplicates()
 
     calcs = pd.concat([calcs, inactive_calcs])
+    
+    calcs = pd.merge(calcs, players[["name","team","photo"]], how="left", left_on=["team", "name"], right_on=["team", "name"])
     
     calcs.to_csv("/home/tomas/Desktop/LigaBwin/data/calcs.csv", index=False)
 
@@ -666,6 +681,8 @@ def get_fotmob_stats(result):
         data = result["props"]["pageProps"]["content"]["lineup"]["lineup"]
     except:
         return "error"
+
+    return
 
     final_df = pd.DataFrame()
 
@@ -754,7 +771,7 @@ def get_fotmob_stats(result):
     players = pd.read_csv("/home/tomas/Desktop/LigaBwin/aux/players.csv")
 
     player_status = players[['name','team','status']]
-    calcs = pd.merge(calcs, player_status, how="left", left_on=["name","team"], right_on=["name","team"])
+    calcs = pd.merge(calcs, player_status[player_status['status']=="active"], how="left", left_on=["name","team"], right_on=["name","team"])
 
     inactive_calcs = calcs[calcs['status'] == "inactive"]
     inactive_calcs = inactive_calcs.drop(["status"],axis=1)

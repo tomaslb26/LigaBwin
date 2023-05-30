@@ -21,7 +21,7 @@ def get_opera_driver():
 
 def get_chrome_driver():
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    #chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(executable_path="/home/tomas/Desktop/chromedriver", options=chrome_options)
     return driver
 
@@ -29,6 +29,7 @@ def get_chrome_driver():
 def get_whoscored(team_dict, games_list):
 
     for team, team_id in team_dict.items():
+
         if os.path.exists("/home/tomas/Desktop/LigaBwin/data/" + team) == False:
             os.mkdir("/home/tomas/Desktop/LigaBwin/data/" + team)
 
@@ -67,45 +68,46 @@ def get_whoscored(team_dict, games_list):
                 json.dump(games_list, outfile)
 
 
+
 def get_fotmob(games_list):
 
     driver = get_chrome_driver()
+    
+    link_games = []
+    ret_games = []
 
     driver.get("https://www.fotmob.com/leagues/61/matches/Liga-Portugal/by-round")
     soup = BeautifulSoup(driver.page_source, "html.parser")
-    buttons = driver.find_elements_by_css_selector("button[type='button']")
-
-    buttons[5].click()
-    buttons[3].click()
-    i = 34
+    driver.find_element_by_css_selector('.css-1tun44q-Button-applyMediumHover').click()
+    driver.find_element_by_css_selector('.css-jojkf7-PrevNextButton').click()
+    
     links = []
-    while i > 0:
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        for link in soup.find_all("a"):
-            arrOfString = link.get("href").split("match/")
-            if len(arrOfString) != 1:
-                links += [link.get("href")]
-        i -= 1
-        buttons = driver.find_elements_by_css_selector("button[type='button']")
-        buttons[3].click()
-
+    
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    divs = soup.find_all('div', {'data-index': lambda value: value and int(value) < 33})
+    for div in divs:
+        games = div.find_all("a")
+        link_games += [games]
+    for ronda in link_games:
+        for game in ronda:
+            ret_games += [game['href']]
+        
     driver.quit()
-    links = list(dict.fromkeys(links))
+    links = list(dict.fromkeys(ret_games))
 
     for link in links:
         if link in games_list["fotmob"]:
             continue
-        if(link == "/match/3937495/matchfacts/estoril-vs-boavista"):
-            continue
         else:
-            print(link)
             games_list["fotmob"] += [link]
             error = get_data_fotmob(link)
             if error == "error":
                 print("Error")
                 continue
+            print(link)
             with open("scraped-games-22-23.json", "w") as outfile:
                 json.dump(games_list, outfile)
+
 
 
 def extract_json_objects(text, decoder=JSONDecoder()):
@@ -156,8 +158,16 @@ def get_data_fotmob(link):
         data = result["props"]["pageProps"]
     except:
         return "error"
+    
+    '''
+    try:
+        error = get_fotmob_stats(result)
+        if(error == "error"): return "error"
+    except:
+        return "error"
+    
+    '''
 
-    if(get_fotmob_stats(result) == "error"): return "error"
 
     teams = data["general"]
     round = data["general"]["matchRound"]
@@ -220,11 +230,10 @@ def get_data(link, teamId, team):
     
     all = pd.read_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/",team,"events_" + team + ".csv"))
     all = pd.concat([all,x])
-    all.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/",team,"events_" + team + ".csv"))
+    all.to_csv(os.path.join("/home/tomas/Desktop/LigaBwin/data/",team,"events_" + team + ".csv"), index = False)
 
-    get_statistics(x, teamId, team)
-    
     df = plot_pass_network(x, teamId)
+    get_statistics(x, teamId, team)
 
     if os.path.exists("/home/tomas/Desktop/LigaBwin/data/PassingNetworks/" + team) == False:
         os.mkdir("/home/tomas/Desktop/LigaBwin/data/PassingNetworks/" + team)
@@ -245,8 +254,8 @@ def name_conversion(team):
 def get_fbref():
     df = pd.read_html('https://fbref.com/en/comps/32/Primeira-Liga-Stats')
     
-    classification = df[0][['Rk','Squad','MP','W','D','L','GF','GA','GD','Pts',"Last 5",'Attendance']]
-    classification.columns = ["Position", "Team", "Games", "Wins", "Draws", "Losses", "Goals", "Goals Against", "Goal Difference", "Points","Last 5", "Attendance"]
+    classification = df[0][['Rk','Squad','MP','W','D','L','GF','GA','GD','Pts','Attendance']]
+    classification.columns = ["Position", "Team", "Games", "Wins", "Draws", "Losses", "Goals", "Goals Against", "Goal Difference", "Points", "Attendance"]
     classification["Team"] = classification["Team"].apply(name_conversion)
     
     classification.to_csv("/home/tomas/Desktop/LigaBwin/data/classification.csv", index = False)
